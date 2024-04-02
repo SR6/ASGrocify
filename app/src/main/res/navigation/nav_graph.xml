@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.grocify.ui.HomeFragment"
+        android:label="Home" >
+        <action
+            android:id="@+id/action_homeFragment_to_category"
+            app:destination="@id/category" />
+        <action
+            android:id="@+id/action_homeFragment_to_favorites"
+            app:destination="@id/favorites" />
+        <action
+            android:id="@+id/action_homeFragment_to_oneItem"
+            app:destination="@id/oneItemFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_PastPurchase"
+            app:destination="@id/PastPurchasesFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_Cart"
+            app:destination="@id/ShoppingCartFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/category"
+        android:name="com.example.grocify.ui.category.Category"
+        android:label="Category" />
+    <fragment
+        android:id="@+id/favorites"
+        android:name="com.example.grocify.ui.Favorites"
+        android:label="Favorites" >
+    </fragment>
+    <fragment
+        android:id="@+id/oneItemFragment"
+        android:name="com.example.grocify.ui.oneItemFragment"
+        android:label="Item" >
+    </fragment>
+    <fragment
+        android:id="@+id/PastPurchasesFragment"
+        android:name="com.example.grocify.ui.PastPurchasesFragment"
+        android:label="Past Purchases" >
+    </fragment>
+    <fragment
+        android:id="@+id/ShoppingCartFragment"
+        android:label="Shopping Cart"
+        android:name="com.example.grocify.ui.ShoppingCartFragment" >
+    </fragment>
+</navigation>
