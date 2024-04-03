@@ -1,5 +1,7 @@
 package com.example.grocify.ui
 
-class MainViewModel {
+import androidx.lifecycle.ViewModel
+
+class MainViewModel : ViewModel() {
 
 }
