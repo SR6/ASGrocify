@@ -12,16 +12,16 @@ import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
-    private val _productsResponse = MutableLiveData<KrogerProductsResponse>()
-    val productsResponse: LiveData<KrogerProductsResponse>
-        get() = _productsResponse
+    private val _products = MutableLiveData<KrogerProductsResponse>()
+    val products: LiveData<KrogerProductsResponse>
+        get() = _products
 
     fun fetchProducts() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val token = getToken()
                 val response = krogerService.getProducts("Bearer $token", "application/json", null, null, null, null, "milk")
-                _productsResponse.postValue(response)
+                _products.postValue(response)
             }
             catch (e: Exception) {
                 Log.d("PRODUCTS FAIL", "Error fetching products")
