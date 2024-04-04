@@ -7,6 +7,7 @@ import com.example.grocify.models.KrogerProductsResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Field
@@ -43,15 +44,15 @@ object KrogerClient {
 interface IKrogerService {
     @FormUrlEncoded
     @POST("connect/oauth2/token")
-    fun getAuthToken(
+    suspend fun getAuthToken(
         @Field("grant_type") grantType: String = "client_credentials",
         @Field("client_id") clientId: String = BuildConfig.CLIENT_ID,
         @Field("client_secret") clientSecret: String = BuildConfig.CLIENT_SECRET,
         @Field("scope") scope: String = BuildConfig.PRODUCT_SCOPE,
-    ): Call<AuthTokenResponse>
+    ): AuthTokenResponse
 
     @GET("products")
-    fun getProducts(
+    suspend fun getProducts(
         @Header("Authorization") token: String,
         @Header("Accept") accept: String,
         @Query("filter.brand") brand: String?,
@@ -59,12 +60,12 @@ interface IKrogerService {
         @Query("filter.productId") productId: String?,
         @Query("filter.start") start: String?,
         @Query("filter.term") term: String?
-    ): Call<KrogerProductsResponse>
+    ): KrogerProductsResponse
 
     @GET("products/{productId}")
-    fun getProductById(
+    suspend fun getProductById(
         @Header("Authorization") token: String,
         @Header("Accept") accept: String,
         @Path("productId") productId: String,
-    ): Call<KrogerProductResponse>
+    ): KrogerProductResponse
 }

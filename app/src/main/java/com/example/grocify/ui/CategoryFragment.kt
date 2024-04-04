@@ -1,12 +1,15 @@
 package com.example.grocify.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.grocify.databinding.CategoryFragmentBinding
+import kotlinx.coroutines.launch
 
 class CategoryFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -25,10 +28,14 @@ class CategoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.fetchProducts()
+        lifecycleScope.launch {
+            viewModel.fetchProducts()
+        }
 
         viewModel.productsResponse.observe(viewLifecycleOwner) { productsResponse ->
-            binding.productName.text = productsResponse.products[0].brand
+            if (productsResponse != null) {
+                binding.productName.text = productsResponse.products[0].brand
+            }
         }
 
     }
