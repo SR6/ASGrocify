@@ -32,9 +32,9 @@ class CategoryFragment : Fragment() {
             viewModel.fetchProducts()
         }
 
-        viewModel.productsResponse.observe(viewLifecycleOwner) { productsResponse ->
-            if (productsResponse != null) {
-                binding.productName.text = productsResponse.products[0].brand
+        viewModel.products.observe(viewLifecycleOwner) { products ->
+            if (products != null) {
+                binding.productName.text = products.products[0].brand
             }
         }
 
