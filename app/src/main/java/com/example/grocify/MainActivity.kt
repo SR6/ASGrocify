@@ -1,6 +1,8 @@
 package com.example.grocify
 
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.grocify.databinding.HeaderBinding
 import com.example.grocify.databinding.ActivityMainBinding
