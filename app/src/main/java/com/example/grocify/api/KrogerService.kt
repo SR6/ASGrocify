@@ -1,14 +1,21 @@
+package com.example.grocify.api
+
 import com.example.grocify.BuildConfig
-import com.example.grocify.api.IKrogerService
-import com.example.grocify.models.KrogerProductsResponse
-import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.AuthTokenResponse
-import okhttp3.Credentials
+import com.example.grocify.models.KrogerProductResponse
+import com.example.grocify.models.KrogerProductsResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.POST
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 object KrogerClient {
     private const val BASE_URL = "https://api.kroger.com/v1/"
@@ -28,57 +35,36 @@ object KrogerClient {
             .build()
     }
 
-    public fun getCredentials(): String {
-        val clientId = BuildConfig.CLIENT_ID
-        val clientSecret = BuildConfig.CLIENT_SECRET
-        return Credentials.basic(clientId, clientSecret)
-    }
-
     val krogerService: IKrogerService by lazy {
         retrofit.create(IKrogerService::class.java)
     }
 }
 
-class KrogerService : IKrogerService {
-    override fun getAuthToken(credentials: String, grantType: String): Call<AuthTokenResponse> {
-        return try {
-            KrogerClient.krogerService.getAuthToken(credentials, grantType)
-        }
-        catch (e: Exception) {
-            e.printStackTrace()
-            throw java.lang.Exception("Failed to get token", e)
-        }
-    }
+interface IKrogerService {
+    @FormUrlEncoded
+    @POST("connect/oauth2/token")
+    fun getAuthToken(
+        @Field("grant_type") grantType: String = "client_credentials",
+        @Field("client_id") clientId: String = BuildConfig.CLIENT_ID,
+        @Field("client_secret") clientSecret: String = BuildConfig.CLIENT_SECRET,
+        @Field("scope") scope: String = BuildConfig.PRODUCT_SCOPE,
+    ): Call<AuthTokenResponse>
 
-    override fun getProducts(
-        token: String,
-        accept: String,
-        brand: String?,
-        limit: String?,
-        productId: String?,
-        start: String?,
-        term: String?
-    ): Call<KrogerProductsResponse> {
-        return try {
-            KrogerClient.krogerService.getProducts(token, accept, brand, limit, productId, start, term)
-        }
-        catch (e: Exception) {
-            e.printStackTrace()
-            throw java.lang.Exception("Failed to get products", e)
-        }
-    }
+    @GET("products")
+    fun getProducts(
+        @Header("Authorization") token: String,
+        @Header("Accept") accept: String,
+        @Query("filter.brand") brand: String?,
+        @Query("filter.limit") limit: String?,
+        @Query("filter.productId") productId: String?,
+        @Query("filter.start") start: String?,
+        @Query("filter.term") term: String?
+    ): Call<KrogerProductsResponse>
 
-    override fun getProductById(
-        token: String,
-        accept: String,
-        productId: String
-    ): Call<KrogerProductResponse> {
-        return try {
-            KrogerClient.krogerService.getProductById(token, accept, productId)
-        }
-        catch (e: Exception) {
-            e.printStackTrace()
-            throw java.lang.Exception("Failed to get product", e)
-        }
-    }
+    @GET("products/{productId}")
+    fun getProductById(
+        @Header("Authorization") token: String,
+        @Header("Accept") accept: String,
+        @Path("productId") productId: String,
+    ): Call<KrogerProductResponse>
 }

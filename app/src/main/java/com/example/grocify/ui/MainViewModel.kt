@@ -1,13 +1,11 @@
 package com.example.grocify.ui
 
-import KrogerClient.getCredentials
-import KrogerClient.krogerService
-import android.util.Log
+import com.example.grocify.api.KrogerClient.krogerService
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.grocify.models.KrogerProductsResponse
-import com.example.grocify.models.OAuthTokenResponse
+import com.example.grocify.models.AuthTokenResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -24,7 +22,7 @@ class MainViewModel() : ViewModel() {
         getToken(object : TokenCallback {
             override fun onTokenReceived(token: String) {
                 // Token received, now make API call to get products
-                val call = krogerService.getProducts("Bearer $token", "application/json", null, null, null, null, null)
+                val call = krogerService.getProducts("Bearer $token", "application/json", null, null, "0001111041660", null, null)
                 call.enqueue(object : Callback<KrogerProductsResponse> {
                     override fun onResponse(
                         call: Call<KrogerProductsResponse>,
@@ -66,9 +64,8 @@ class MainViewModel() : ViewModel() {
     }
 
     private fun getToken(callback: TokenCallback) {
-        val credentials = getCredentials()
-        krogerService.getOAuthToken(credentials, "client_credentials&scope=product.compact").enqueue(object : Callback<OAuthTokenResponse> {
-            override fun onResponse(call: Call<OAuthTokenResponse>, response: Response<OAuthTokenResponse>) {
+        krogerService.getAuthToken().enqueue(object : Callback<AuthTokenResponse> {
+            override fun onResponse(call: Call<AuthTokenResponse>, response: Response<AuthTokenResponse>) {
                 if (response.isSuccessful) {
                     val token = response.body()?.accessToken
                     if (token != null) {
@@ -81,7 +78,7 @@ class MainViewModel() : ViewModel() {
                 }
             }
 
-            override fun onFailure(call: Call<OAuthTokenResponse>, t: Throwable) {
+            override fun onFailure(call: Call<AuthTokenResponse>, t: Throwable) {
                 callback.onTokenFailed()
             }
         })
