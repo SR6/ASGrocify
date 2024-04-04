@@ -1,15 +1,19 @@
 package com.example.grocify
 
 import android.os.Bundle
-import android.view.inputmethod.InputMethodManager
-import androidx.activity.viewModels
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.example.grocify.databinding.HeaderBinding
 import com.example.grocify.databinding.ActivityMainBinding
-import com.example.grocify.ui.GrocifyFragment
 
 class MainActivity : AppCompatActivity() {
-    private var headerBinding: HeaderBinding? = null
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,13 +24,10 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.let{
             it.setDisplayShowTitleEnabled(false)
             it.setDisplayShowCustomEnabled(true)
-            headerBinding = HeaderBinding.inflate(layoutInflater)
-            it.customView = headerBinding?.root
+            it.customView = HeaderBinding.inflate(layoutInflater).root
         }
 
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.fragment_container, GrocifyFragment())
-            .commit()
+        navController = (supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment).navController
+        activityMainBinding.tabbedNavigation.setupWithNavController(navController)
     }
 }

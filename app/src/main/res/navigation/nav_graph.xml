@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/navigation_category">
+
+    <fragment
+        android:id="@+id/navigation_category"
+        android:name="com.example.grocify.ui.CategoryFragment"
+        android:label="@string/category"
+        tools:layout="@layout/category_fragment" />
+
+    <fragment
+        android:id="@+id/navigation_search"
+        android:name="com.example.grocify.ui.SearchFragment"
+        android:label="@string/search"
+        tools:layout="@layout/search_fragment" />
+
+    <fragment
+        android:id="@+id/navigation_cart"
+        android:name="com.example.grocify.ui.CartFragment"
+        android:label="@string/cart"
+        tools:layout="@layout/cart_fragment" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.example.grocify.ui.ProfileFragment"
+        android:label="@string/profile"
+        tools:layout="@layout/profile_fragment" />
+
+</navigation>
