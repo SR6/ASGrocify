@@ -13,8 +13,9 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "CLIENT_ID", "\"utgrocify-3f040506b20fcb9697595d8cd3788acc8979438697547936464\"")
+        buildConfigField("String", "CLIENT_SECRET", "\"aZT99ZlTwIgUSFa4Mhqx3rsdlbJg_EEDAdp4zu0y\"")
     }
 
     buildTypes {
@@ -35,18 +36,25 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        //noinspection DataBindingWithoutKapt
         dataBinding = true
+        buildConfig = true
     }
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+    implementation(libs.material)
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
