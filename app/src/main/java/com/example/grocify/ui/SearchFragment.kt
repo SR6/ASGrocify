@@ -1,4 +1,6 @@
 package com.example.grocify.ui
 
-class SearchFragment {
+import androidx.fragment.app.Fragment
+
+class SearchFragment : Fragment() {
 }

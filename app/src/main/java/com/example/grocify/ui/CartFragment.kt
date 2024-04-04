@@ -1,4 +1,6 @@
 package com.example.grocify.ui
 
-class CartFragment {
+import androidx.fragment.app.Fragment
+
+class CartFragment : Fragment() {
 }

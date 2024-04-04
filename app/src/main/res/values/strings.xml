@@ -1,7 +1,9 @@
 <resources>
+
     <string name="grocify">Grocify</string>
     <string name="category">Category</string>
     <string name="search">Search</string>
     <string name="cart">Cart</string>
     <string name="profile">Profile</string>
+
 </resources>
