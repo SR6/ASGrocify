@@ -27,8 +27,11 @@ class MainActivity : AppCompatActivity() {
         binding.tabbedNavigation.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            var title = ""
+
+            var title: String? = null
             var subtitle: String? = null
+            var favoritesVisible = true
+            var showBackButton = false
             
             when (destination.id) {
                 R.id.navigation_category -> {
@@ -36,8 +39,8 @@ class MainActivity : AppCompatActivity() {
                     subtitle = "Hi, User"
                 }
                 R.id.navigation_search -> {
-                    title = "Dairy"
-                    subtitle = "54 items found"
+                    subtitle = "88 items found"
+                    favoritesVisible = false
                 }
                 R.id.navigation_cart -> {
                     title = getString(R.string.cart)
@@ -45,14 +48,18 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.navigation_profile -> {
                     title = "Hi, User"
+                    favoritesVisible = false
                 }
                 R.id.navigation_favorites -> {
                     title = getString(R.string.favorites)
+                    favoritesVisible = false
+                    showBackButton = true
                 }
                 else -> { }
             }
-            
-            viewModel.updateHeader(headerBinding, title, subtitle)
+            viewModel.updateHeader(headerBinding, title, subtitle, favoritesVisible)
+            supportActionBar?.setDisplayHomeAsUpEnabled(showBackButton)
+            supportActionBar?.setDisplayShowHomeEnabled(showBackButton)
         }
 
         supportActionBar?.let{

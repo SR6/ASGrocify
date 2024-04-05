@@ -1,6 +1,7 @@
 package com.example.grocify.ui
 
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -36,8 +37,12 @@ class MainViewModel : ViewModel() {
         return response.accessToken
     }
 
-    fun updateHeader(binding: HeaderBinding, title: String?, subtitle: String? = null) {
+    fun updateHeader(binding: HeaderBinding, title: String?, subtitle: String? = null, favoritesVisible: Boolean = true) {
         binding.title.text = title ?: ""
         binding.subtitle.text = subtitle ?: ""
+        if (favoritesVisible)
+            binding.favorites.visibility = View.VISIBLE
+        else
+            binding.favorites.visibility = View.GONE
     }
 }
