@@ -14,11 +14,18 @@ import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
+    private val categories = listOf("Fruits","Vegetables","Meat","Seafood","Dairy","Deli","Bakery","Pantry","Eggs","Frozen","Beverages","Breakfast","Candy","Laundry","Cleaning")
     private val _products = MutableLiveData<KrogerProductsResponse>()
 
     val products: LiveData<KrogerProductsResponse>
         get() = _products
 
+    fun observeFetchProducts() : LiveData<KrogerProductsResponse> {
+        return products
+    }
+    fun getCategories() : List<String> {
+        return categories
+    }
     fun fetchProducts() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
