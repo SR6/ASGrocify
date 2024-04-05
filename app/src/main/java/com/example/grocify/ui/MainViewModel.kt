@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.grocify.api.KrogerClient.krogerService
+import com.example.grocify.databinding.HeaderBinding
 import com.example.grocify.models.KrogerProductsResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 class MainViewModel : ViewModel() {
 
     private val _products = MutableLiveData<KrogerProductsResponse>()
+
     val products: LiveData<KrogerProductsResponse>
         get() = _products
 
@@ -32,5 +34,10 @@ class MainViewModel : ViewModel() {
     private suspend fun getToken(): String {
         val response = krogerService.getAuthToken()
         return response.accessToken
+    }
+
+    fun updateHeader(binding: HeaderBinding, title: String?, subtitle: String? = null) {
+        binding.title.text = title ?: ""
+        binding.subtitle.text = subtitle ?: ""
     }
 }

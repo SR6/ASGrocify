@@ -23,7 +23,7 @@ object KrogerClient {
 
     private val retrofit: Retrofit by lazy {
         val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY) // Set your desired logging level here
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
 
         val httpClient = OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)

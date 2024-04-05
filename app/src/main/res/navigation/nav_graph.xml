@@ -31,4 +31,10 @@
         android:label="@string/profile"
         tools:layout="@layout/profile_fragment" />
 
+    <fragment
+        android:id="@+id/navigation_favorites"
+        android:name="com.example.grocify.ui.FavoritesFragment"
+        android:label="@string/favorites"
+        tools:layout="@layout/favorites_fragment" />
+
 </navigation>
