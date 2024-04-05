@@ -1,13 +1,13 @@
 package com.example.grocify.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.grocify.R
 import com.example.grocify.databinding.CategoryFragmentBinding
 import kotlinx.coroutines.launch
 
@@ -22,6 +22,9 @@ class CategoryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = CategoryFragmentBinding.inflate(inflater, container, false)
+
+        viewModel.updateHeader(getString(R.string.grocify), "Hi, User")
+
         return binding.root
     }
 
@@ -37,7 +40,6 @@ class CategoryFragment : Fragment() {
                 binding.productName.text = products.products[0].brand
             }
         }
-
     }
 
     override fun onDestroyView() {

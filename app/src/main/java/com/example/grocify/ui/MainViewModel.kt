@@ -2,9 +2,11 @@ package com.example.grocify.ui
 
 import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.grocify.R
 import com.example.grocify.api.KrogerClient.krogerService
 import com.example.grocify.databinding.HeaderBinding
 import com.example.grocify.models.KrogerProductsResponse
@@ -15,9 +17,18 @@ import kotlinx.coroutines.launch
 class MainViewModel : ViewModel() {
 
     private val _products = MutableLiveData<KrogerProductsResponse>()
+    val products: LiveData<KrogerProductsResponse> get() = _products
+    private val _title = MutableLiveData<String?>()
+    val title: MutableLiveData<String?> get() = _title
 
-    val products: LiveData<KrogerProductsResponse>
-        get() = _products
+    private val _subtitle = MutableLiveData<String?>()
+    val subtitle: LiveData<String?> get() = _subtitle
+
+    private val _favoritesVisible = MutableLiveData<Boolean>()
+    val favoritesVisible: LiveData<Boolean> get() = _favoritesVisible
+
+    private val _showBackButton = MutableLiveData<Boolean>()
+    val showBackButton: LiveData<Boolean> get() = _showBackButton
 
     fun fetchProducts() {
         CoroutineScope(Dispatchers.IO).launch {
@@ -37,12 +48,15 @@ class MainViewModel : ViewModel() {
         return response.accessToken
     }
 
-    fun updateHeader(binding: HeaderBinding, title: String?, subtitle: String? = null, favoritesVisible: Boolean = true) {
-        binding.title.text = title ?: ""
-        binding.subtitle.text = subtitle ?: ""
-        if (favoritesVisible)
-            binding.favorites.visibility = View.VISIBLE
-        else
-            binding.favorites.visibility = View.GONE
+    fun updateHeader(
+        title: String?,
+        subtitle: String? = null,
+        favoritesVisible: Boolean = true,
+        showBackButton: Boolean = false
+    ) {
+        _title.postValue(title)
+        _subtitle.postValue(subtitle)
+        _favoritesVisible.postValue(favoritesVisible)
+        _showBackButton.postValue(showBackButton)
     }
 }

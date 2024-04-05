@@ -5,14 +5,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.grocify.databinding.CartFragmentBinding
+import androidx.fragment.app.activityViewModels
+import com.example.grocify.databinding.CategoryFragmentBinding
 
 class CartFragment : Fragment() {
+    private val viewModel: MainViewModel by activityViewModels()
+    private var _binding: CategoryFragmentBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return CartFragmentBinding.inflate(inflater, container, false).root
+        _binding = CategoryFragmentBinding.inflate(inflater, container, false)
+
+        viewModel.updateHeader("Cart", "12 items added", favoritesVisible = false, showBackButton = false)
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
     }
 }

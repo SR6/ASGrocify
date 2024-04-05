@@ -1,6 +1,7 @@
 package com.example.grocify
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
@@ -13,7 +14,6 @@ import com.example.grocify.ui.MainViewModel
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var navController: NavController
-    private lateinit var headerBinding: HeaderBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,46 +21,10 @@ class MainActivity : AppCompatActivity() {
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        headerBinding = HeaderBinding.inflate(layoutInflater)
+        val headerBinding = HeaderBinding.inflate(layoutInflater)
 
         navController = (supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment).navController
         binding.tabbedNavigation.setupWithNavController(navController)
-
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-
-            var title: String? = null
-            var subtitle: String? = null
-            var favoritesVisible = true
-            var showBackButton = false
-            
-            when (destination.id) {
-                R.id.navigation_category -> {
-                    title = getString(R.string.grocify)
-                    subtitle = "Hi, User"
-                }
-                R.id.navigation_search -> {
-                    subtitle = "88 items found"
-                    favoritesVisible = false
-                }
-                R.id.navigation_cart -> {
-                    title = getString(R.string.cart)
-                    subtitle = "20 items added"
-                }
-                R.id.navigation_profile -> {
-                    title = "Hi, User"
-                    favoritesVisible = false
-                }
-                R.id.navigation_favorites -> {
-                    title = getString(R.string.favorites)
-                    favoritesVisible = false
-                    showBackButton = true
-                }
-                else -> { }
-            }
-            viewModel.updateHeader(headerBinding, title, subtitle, favoritesVisible)
-            supportActionBar?.setDisplayHomeAsUpEnabled(showBackButton)
-            supportActionBar?.setDisplayShowHomeEnabled(showBackButton)
-        }
 
         supportActionBar?.let{
             it.setDisplayShowTitleEnabled(false)
@@ -70,8 +34,25 @@ class MainActivity : AppCompatActivity() {
 
         headerBinding.favorites.setOnClickListener {
             navController.navigate(R.id.navigation_favorites)
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setDisplayShowHomeEnabled(true)
+        }
+
+        viewModel.title.observe(this) { title ->
+            headerBinding.title.text = title ?: ""
+        }
+
+        viewModel.subtitle.observe(this) { subtitle ->
+            headerBinding.subtitle.text = subtitle ?: ""
+        }
+
+        viewModel.favoritesVisible.observe(this) { favoritesVisible ->
+            headerBinding.favorites.visibility = if (favoritesVisible) View.VISIBLE else View.INVISIBLE
+        }
+
+        viewModel.showBackButton.observe(this) { showBackButton ->
+            supportActionBar?.apply {
+                setDisplayHomeAsUpEnabled(showBackButton)
+                setDisplayShowHomeEnabled(showBackButton)
+            }
         }
     }
 
