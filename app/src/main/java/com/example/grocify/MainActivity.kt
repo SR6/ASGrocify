@@ -9,10 +9,8 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.grocify.databinding.HeaderBinding
 import com.example.grocify.databinding.ActivityMainBinding
-import com.example.grocify.ui.MainViewModel
 
 class MainActivity : AppCompatActivity() {
-    private val viewModel: MainViewModel by viewModels()
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {

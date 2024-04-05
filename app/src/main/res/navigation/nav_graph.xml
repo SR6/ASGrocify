@@ -11,7 +11,10 @@
         android:id="@+id/navigation_category"
         android:name="com.example.grocify.ui.CategoryFragment"
         android:label="@string/category"
-        tools:layout="@layout/category_fragment" />
+        tools:layout="@layout/category_fragment">
+
+    </fragment>
+
 
     <fragment
         android:id="@+id/navigation_search"

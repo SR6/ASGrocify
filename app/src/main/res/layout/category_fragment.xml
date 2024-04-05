@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    android:id="@+id/scrollview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout
+    android:id="@+id/catContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/productName"
+        android:id="@+id/itemTextView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/category" />
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textSize="10sp"
+        android:textColor="@color/blue"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="onItemClick" />
 
 </LinearLayout>
+</ScrollView>

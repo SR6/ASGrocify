@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
+    private val categories = listOf("Fruits","Vegetables","Meat","Seafood","Dairy","Deli","Bakery","Pantry","Eggs","Frozen","Beverages","Breakfast","Candy","Laundry","Cleaning")
     private val _products = MutableLiveData<KrogerProductsResponse>()
     val products: LiveData<KrogerProductsResponse> get() = _products
     private val _title = MutableLiveData<String?>()
@@ -30,6 +31,12 @@ class MainViewModel : ViewModel() {
     private val _showBackButton = MutableLiveData<Boolean>()
     val showBackButton: LiveData<Boolean> get() = _showBackButton
 
+    fun observeFetchProducts() : LiveData<KrogerProductsResponse> {
+        return products
+    }
+    fun getCategories() : List<String> {
+        return categories
+    }
     fun fetchProducts() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
