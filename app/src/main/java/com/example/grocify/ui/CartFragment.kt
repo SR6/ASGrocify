@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.example.grocify.databinding.CategoryFragmentBinding
+import com.example.grocify.databinding.CartFragmentBinding
 
 class CartFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
-    private var _binding: CategoryFragmentBinding? = null
+    private var _binding: CartFragmentBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -18,9 +18,9 @@ class CartFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = CategoryFragmentBinding.inflate(inflater, container, false)
+        _binding = CartFragmentBinding.inflate(inflater, container, false)
 
-        viewModel.updateHeader("Cart", "12 items added", favoritesVisible = false, showBackButton = false)
+        viewModel.updateHeader("Cart", "12 items added")
 
         return binding.root
     }

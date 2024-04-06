@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "738287855840",
+    "project_id": "grocify-12dec",
+    "storage_bucket": "grocify-12dec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738287855840:android:59876af0bede9371b54885",
+        "android_client_info": {
+          "package_name": "com.example.grocify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuRokKlQSXlWRD2ISE5etcLoQAy2RXAyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

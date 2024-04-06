@@ -20,7 +20,7 @@ class SearchFragment : Fragment() {
     ): View {
         _binding = SearchFragmentBinding.inflate(inflater, container, false)
 
-        viewModel.updateHeader(null, "50 items found", false)
+        viewModel.updateHeader(null, "50 items found", favoritesVisible = false, searchVisible = true)
 
         return binding.root
     }

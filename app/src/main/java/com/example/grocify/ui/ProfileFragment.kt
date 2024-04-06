@@ -20,12 +20,16 @@ class ProfileFragment : Fragment() {
     ): View {
         _binding = ProfileFragmentBinding.inflate(inflater, container, false)
 
-        viewModel.updateHeader("Hi, User", null, favoritesVisible = false, showBackButton = false)
+        viewModel.updateHeader("Hi, User", null, favoritesVisible = false)
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.logout.setOnClickListener {
+            viewModel.userLogout()
+        }
     }
 }

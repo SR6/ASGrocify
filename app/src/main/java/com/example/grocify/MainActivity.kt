@@ -7,14 +7,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.example.grocify.databinding.HeaderBinding
 import com.example.grocify.databinding.ActivityMainBinding
+import com.example.grocify.databinding.HeaderBinding
+import com.example.grocify.ui.AuthUser
+import com.example.grocify.ui.MainViewModel
 
 class MainActivity : AppCompatActivity() {
+    private val viewModel: MainViewModel by viewModels()
     private lateinit var navController: NavController
+    private lateinit var authUser : AuthUser
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        authUser = AuthUser(activityResultRegistry)
+        lifecycle.addObserver(authUser)
 
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -43,7 +50,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.favoritesVisible.observe(this) { favoritesVisible ->
-            headerBinding.favorites.visibility = if (favoritesVisible) View.VISIBLE else View.INVISIBLE
+            headerBinding.favorites.visibility = if (favoritesVisible) View.VISIBLE else View.GONE
+        }
+
+        viewModel.searchVisible.observe(this) { searchVisible ->
+            headerBinding.search.visibility = if (searchVisible) View.VISIBLE else View.INVISIBLE
         }
 
         viewModel.showBackButton.observe(this) { showBackButton ->

@@ -44,6 +44,7 @@ class CategoryFragment : Fragment() {
             }
         }
         """
+
         val container = view.findViewById<LinearLayout>(R.id.catContainer)
         val itemTextViewTemplate = view.findViewById<TextView>(R.id.itemTextView)
         val categories = viewModel.getCategories()
