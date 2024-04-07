@@ -58,6 +58,9 @@ class MainViewModel : ViewModel() {
         return categories
     }
 
+    fun observeCartList() : LiveData<List<KrogerProduct>>{
+        return cartList
+    }
     fun setCartList(item: KrogerProduct){
         if (cartList.value == null) {
             cartList.postValue(listOf(item))
