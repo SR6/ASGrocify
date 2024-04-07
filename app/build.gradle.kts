@@ -45,17 +45,6 @@ android {
         dataBinding = true
         buildConfig = true
     }
-    packaging {
-        resources.excludes.add("META-INF/*")
-        resources.excludes.add("mozilla/*")
-        resources.excludes.add("kotlin/*")
-        resources.excludes.add("kotlin/internal/*")
-        resources.excludes.add("kotlin/collections/*")
-        resources.excludes.add("kotlin/annotation/*")
-        resources.excludes.add("kotlin/reflect/*")
-        resources.excludes.add("kotlin/coroutines/*")
-        resources.excludes.add("xsd/*")
-    }
 }
 
 dependencies {
@@ -83,9 +72,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     //noinspection UseTomlInstead
     implementation("com.google.firebase:firebase-analytics")
-    implementation("androidx.navigation.safeargs:androidx.navigation.safeargs.gradle.plugin:2.7.7")
-    //testImplementation(libs.junit)
-    //androidTestImplementation(libs.androidx.junit)
-    //androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
 }
