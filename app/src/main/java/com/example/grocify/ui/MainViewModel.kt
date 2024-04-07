@@ -53,11 +53,11 @@ class MainViewModel : ViewModel() {
         return categories
     }
 
-    fun fetchProducts() {
+    fun fetchProducts(item:String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val token = getToken()
-                val response = krogerService.getProducts("Bearer $token", "application/json", null, null, null, null, "milk")
+                val response = krogerService.getProducts("Bearer $token", "application/json", null, null, null, null, item)
                 _products.postValue(response)
             }
             catch (e: Exception) {
@@ -65,7 +65,6 @@ class MainViewModel : ViewModel() {
             }
         }
     }
-
     private suspend fun getToken(): String {
         val response = krogerService.getAuthToken()
         return response.accessToken
