@@ -15,11 +15,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-data class User(
-    val uid: String? = null,
-    val email: String? = null,
-    val name: String? = null
-)
+// Might use later for profile
+//data class User(
+//    val uid: String? = null,
+//    val email: String? = null,
+//    val name: String? = null
+//)
 
 class MainViewModel : ViewModel() {
 
@@ -43,8 +44,8 @@ class MainViewModel : ViewModel() {
     private val _showBackButton = MutableLiveData<Boolean>()
     val showBackButton: LiveData<Boolean> get() = _showBackButton
 
-    private val _user = MutableLiveData<User?>()
-    val user: LiveData<User?> get() = _user
+//    private val _user = MutableLiveData<User?>()
+//    val user: LiveData<User?> get() = _user
 
     fun observeFetchProducts() : LiveData<KrogerProductsResponse> {
         return products
@@ -83,15 +84,5 @@ class MainViewModel : ViewModel() {
         _favoritesVisible.postValue(favoritesVisible)
         _searchVisible.postValue(searchVisible)
         _showBackButton.postValue(showBackButton)
-    }
-
-    fun updateUser() {
-        val user = FirebaseAuth.getInstance().currentUser
-        _user.postValue(User(user?.uid, user?.email, user?.displayName))
-    }
-
-    fun userLogout() {
-        FirebaseAuth.getInstance().signOut()
-        _user.postValue(User(null, null, null))
     }
 }

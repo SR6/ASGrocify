@@ -18,6 +18,8 @@
         android:textSize="15sp"
         android:textColor="#FFFFFF"
         android:textStyle="bold"
+        android:maxEms="10"
+        android:ellipsize="end"
         tools:ignore="RelativeOverlap" />
 
     <TextView

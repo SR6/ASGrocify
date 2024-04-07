@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:color="@color/blue"
+        android:color="@color/black"
         android:state_checked="true" />
 
     <item

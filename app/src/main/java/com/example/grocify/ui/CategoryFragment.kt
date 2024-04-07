@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.grocify.R
 import com.example.grocify.databinding.CategoryFragmentBinding
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class CategoryFragment : Fragment() {
@@ -26,7 +27,15 @@ class CategoryFragment : Fragment() {
     ): View {
         _binding = CategoryFragmentBinding.inflate(inflater, container, false)
 
-        viewModel.updateHeader(getString(R.string.grocify), "Hi, User")
+        var userFirstName = FirebaseAuth.getInstance().currentUser?.displayName?.split(" ")?.firstOrNull()
+
+        if (userFirstName.isNullOrBlank())
+            userFirstName = "User"
+
+        if (userFirstName.length > 15)
+            userFirstName = userFirstName.substring(0,15) + "..."
+
+        viewModel.updateHeader(getString(R.string.grocify), "Hi, $userFirstName")
 
         return binding.root
     }
