@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.grocify.R
 import com.example.grocify.databinding.CategoryFragmentBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -42,22 +43,11 @@ class CategoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-"""
-        lifecycleScope.launch {
-            viewModel.fetchProducts()
-        }
-
-        viewModel.products.observe(viewLifecycleOwner) { products ->
-            if (products != null) {
-                binding.productName.text = products.products[0].brand
-            }
-        }
-        """
 
         val container = view.findViewById<LinearLayout>(R.id.catContainer)
         val itemTextViewTemplate = view.findViewById<TextView>(R.id.itemTextView)
         val categories = viewModel.getCategories()
-        categories.forEachIndexed { index, item ->
+        categories.forEachIndexed { _, item ->
             val textView = TextView(requireContext())
             textView.layoutParams = itemTextViewTemplate.layoutParams
             textView.setPadding (
@@ -77,10 +67,9 @@ class CategoryFragment : Fragment() {
 
     }
     fun onItemClick(item:String) {
-        // Handle click event, for example, navigate to a new list Chat example need to refine
-        //val intent = Intent(requireContext(), NewListActivity::class.java)
-        //intent.putExtra("clickedItem", item)
-        //startActivity(intent)
+        // Handle click event, set search string for fetchProducts and navigate to itemsFragment
+        val action = CategoryFragmentDirections.actionCategoryFragmentToItemsFragment(item)
+        findNavController().navigate(action)
     }
 
 

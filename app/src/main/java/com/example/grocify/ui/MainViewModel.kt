@@ -4,11 +4,13 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.grocify.R
 import com.example.grocify.api.KrogerClient.krogerService
 import com.example.grocify.databinding.HeaderBinding
+import com.example.grocify.models.KrogerProduct
 import com.example.grocify.models.KrogerProductsResponse
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
@@ -47,6 +49,9 @@ class MainViewModel : ViewModel() {
 //    private val _user = MutableLiveData<User?>()
 //    val user: LiveData<User?> get() = _user
 
+    private var cartList = MediatorLiveData<List<KrogerProduct>>().apply {
+        value = emptyList()
+    }
     fun observeFetchProducts() : LiveData<KrogerProductsResponse> {
         return products
     }
@@ -54,11 +59,26 @@ class MainViewModel : ViewModel() {
         return categories
     }
 
-    fun fetchProducts() {
+    fun observeCartList() : LiveData<List<KrogerProduct>>{
+        return cartList
+    }
+    fun setCartList(item: KrogerProduct){
+        if (cartList.value == null) {
+            cartList.postValue(listOf(item))
+        } else {
+            if (!item.inCart) {
+                val currentCart = cartList.value!!.filterNot{ it == item }
+                cartList.postValue(currentCart)
+            } else {
+                cartList.postValue(cartList.value?.plus(listOf(item)))
+            }
+        }
+    }
+    fun fetchProducts(item:String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val token = getToken()
-                val response = krogerService.getProducts("Bearer $token", "application/json", null, null, null, null, "milk")
+                val response = krogerService.getProducts("Bearer $token", "application/json", null, null, null, null, item)
                 _products.postValue(response)
             }
             catch (e: Exception) {
@@ -66,7 +86,6 @@ class MainViewModel : ViewModel() {
             }
         }
     }
-
     private suspend fun getToken(): String {
         val response = krogerService.getAuthToken()
         return response.accessToken
