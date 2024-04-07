@@ -23,6 +23,7 @@ data class KrogerProductResponse(
 
 data class KrogerProduct(
     @SerializedName("productId") val productId: String,
+    @SerializedName("aisleLocations") val aisleLocations: List<AisleLocation>,
     @SerializedName("brand") val brand: String,
     @SerializedName("categories") val categories: List<String>,
     @SerializedName("countryOrigin") val countryOrigin: String,
@@ -31,13 +32,25 @@ data class KrogerProduct(
     @SerializedName("itemInformation") val itemInformation: ItemInformation,
     @SerializedName("temperature") val temperature: Temperature,
     @SerializedName("images") val images: List<Image>,
-    @SerializedName("inCart") var inCart: Boolean
+    @SerializedName("upc") var ucp: String
+)
+
+data class AisleLocation(
+    @SerializedName("bayNumber") val bayNumber: String? = null,
+    @SerializedName("description") val description: String? = null,
+    @SerializedName("number") val number: String? = null,
+    @SerializedName("numberOfFacings") val numberOfFacings: String? = null,
+    @SerializedName("sequenceNumber") val sequenceNumber: String? = null,
+    @SerializedName("side") val side: String? = null,
+    @SerializedName("shelfNumber") val shelfNumber: String? = null,
+    @SerializedName("shelfPositionInBay") val shelfPositionInBay: String? = null
 )
 
 data class Item(
     @SerializedName("itemId") val itemId: String,
     @SerializedName("inventory") val inventory: Inventory,
     @SerializedName("favorite") val favorite: Boolean,
+    @SerializedName("fulfillment") val fulfillment: Fulfillment,
     @SerializedName("price") val price: Price,
     @SerializedName("nationalPrice") val nationalPrice: Price,
     @SerializedName("size") val size: String,
@@ -46,6 +59,13 @@ data class Item(
 
 data class Inventory(
     @SerializedName("stockLevel") val stockLevel: String
+)
+
+data class Fulfillment(
+    @SerializedName("curbside") val curbside: Boolean,
+    @SerializedName("delivery") val delivery: Boolean,
+    @SerializedName("instore") val instore: Boolean,
+    @SerializedName("shiptohome") val shiptohome: Boolean
 )
 
 data class Price(

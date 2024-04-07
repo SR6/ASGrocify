@@ -78,7 +78,7 @@ class MainViewModel : ViewModel() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val token = getToken()
-                val response = krogerService.getProducts("Bearer $token", "application/json", null, null, null, null, item)
+                val response = krogerService.getProducts("Bearer $token", "application/json", null, null, null, null, null, item)
                 _products.postValue(response)
             }
             catch (e: Exception) {

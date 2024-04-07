@@ -55,6 +55,7 @@ interface IKrogerService {
         @Header("Accept") accept: String,
         @Query("filter.brand") brand: String?,
         @Query("filter.limit") limit: String?,
+        @Query("filter.locationId") locationId: String?,
         @Query("filter.productId") productId: String?,
         @Query("filter.start") start: String?,
         @Query("filter.term") term: String?
