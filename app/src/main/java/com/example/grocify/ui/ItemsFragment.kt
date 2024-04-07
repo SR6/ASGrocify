@@ -28,7 +28,7 @@ class ItemsFragment : Fragment() {
     ): View {
         _binding = FragmentRvBinding.inflate(inflater, container, false)
 
-        //viewModel.updateHeader(getString(R.string.grocify), "Hi, User")
+        viewModel.updateHeader(args.category,null,true,false,true)
 
         return binding.root
     }
@@ -40,7 +40,7 @@ class ItemsFragment : Fragment() {
         binding.recyclerView.adapter = rowAdapter
 
         lifecycleScope.launch {
-            viewModel.fetchProducts(args.toString())
+            viewModel.fetchProducts(args.category)
         }
 
         viewModel.observeFetchProducts().observe(viewLifecycleOwner) { products ->

@@ -38,7 +38,11 @@ class RowAdapter(private val viewModel:ViewModel)
     override fun onBindViewHolder(holder: VH, position: Int) {
         val productPick = getItem(position)
         //below is mad because it can't translate concatenated strings
-        holder.rowCategoryBinding.productName.text =productPick.brand + productPick.description
+        if (productPick.brand != null) {
+            holder.rowCategoryBinding.productName.text = productPick.brand + " " + productPick.description
+        } else {
+            holder.rowCategoryBinding.productName.text = productPick.description
+        }
         //val itemList = productPick.items
         //val itemPrice = itemList.price
         //holder.rowCategoryBinding.productPrice.text = itemPrice.toString() //"price".toString()
