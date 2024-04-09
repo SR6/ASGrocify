@@ -12,13 +12,12 @@ data class AuthTokenResponse(
 )
 
 data class KrogerProductsResponse(
-    @SerializedName("data") val products: List<KrogerProduct>,
+    @SerializedName("products") val products: List<KrogerProduct>,
     @SerializedName("meta") val meta: Meta
 )
 
 data class KrogerProductResponse(
-    @SerializedName("data") val products: KrogerProduct,
-    @SerializedName("meta") val meta: Meta
+    @SerializedName("product") val product: KrogerProduct,
 )
 
 data class KrogerProduct(
@@ -32,7 +31,7 @@ data class KrogerProduct(
     @SerializedName("itemInformation") val itemInformation: ItemInformation,
     @SerializedName("temperature") val temperature: Temperature,
     @SerializedName("images") val images: List<Image>,
-    @SerializedName("upc") var ucp: String
+    @SerializedName("upc") var ucp: String,
 )
 
 data class AisleLocation(
@@ -104,7 +103,7 @@ data class Meta(
 )
 
 data class Pagination(
+    @SerializedName("start") val start: Int,
     @SerializedName("limit") val limit: Int,
-    @SerializedName("nextUrl") val nextUrl: String?,
-    @SerializedName("previousUrl") val previousUrl: String?
+    @SerializedName("total") val total: Int
 )

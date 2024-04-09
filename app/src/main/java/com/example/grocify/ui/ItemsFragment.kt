@@ -5,20 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import android.widget.LinearLayout
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.grocify.R
-import com.example.grocify.databinding.FragmentRvBinding
+import com.example.grocify.databinding.RecyclerFragmentBinding
 import kotlinx.coroutines.launch
 
 class ItemsFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
-    private var _binding: FragmentRvBinding? = null
-    private val args:ItemsFragmentArgs by navArgs()
+    private var _binding: RecyclerFragmentBinding? = null
+    private val args: ItemsFragmentArgs by navArgs()
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -26,7 +23,7 @@ class ItemsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentRvBinding.inflate(inflater, container, false)
+        _binding = RecyclerFragmentBinding.inflate(inflater, container, false)
 
         viewModel.updateHeader(args.category,null,true,false,true)
 
@@ -35,19 +32,23 @@ class ItemsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val rowAdapter = RowAdapter(viewModel)
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.adapter = rowAdapter
+        val rowAdapter = ProductAdapter(viewModel)
+        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.adapter = rowAdapter
 
         lifecycleScope.launch {
-            viewModel.fetchProducts(args.category)
+            viewModel.getProducts(args.category)
         }
 
-        viewModel.observeFetchProducts().observe(viewLifecycleOwner) { products ->
+        viewModel.products.observe(viewLifecycleOwner) { products ->
             if (products != null) {
                 rowAdapter.submitList(products.products)
             }
         }
+    }
 
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 }

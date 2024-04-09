@@ -1,25 +1,30 @@
 package com.example.grocify.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.grocify.R
 import com.example.grocify.databinding.CategoryFragmentBinding
+import com.example.grocify.databinding.CategoryItemBinding
+import com.example.grocify.db.Glide
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 
 class CategoryFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: CategoryFragmentBinding? = null
     private val binding get() = _binding!!
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,40 +46,62 @@ class CategoryFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val container = view.findViewById<LinearLayout>(R.id.catContainer)
-        val itemTextViewTemplate = view.findViewById<TextView>(R.id.itemTextView)
-        val categories = viewModel.getCategories()
-        categories.forEachIndexed { _, item ->
-            val textView = TextView(requireContext())
-            textView.layoutParams = itemTextViewTemplate.layoutParams
-            textView.setPadding (
-                itemTextViewTemplate.paddingBottom,
-                itemTextViewTemplate.paddingTop,
-                itemTextViewTemplate.paddingLeft,
-                itemTextViewTemplate.paddingRight
-            )
-            textView.setTextColor(itemTextViewTemplate.textColors)
-            textView.textSize = itemTextViewTemplate.textSize
-            textView.setOnClickListener{
-                onItemClick(item)
+        viewModel.getCategories(
+            onSuccess = { categories ->
+                categories.forEach { category ->
+                    val categoryItemBinding = CategoryItemBinding.inflate(layoutInflater, binding.categories, false)
+
+                    viewModel.getCategoryImage(
+                        imageFile = category.imageFile,
+                        onSuccess = { file ->
+                            Glide.load(file, categoryItemBinding.categoryImage, 150, 150)
+                        },
+                        onFailure = {
+                            categoryItemBinding.categoryImage.setImageResource(R.drawable.ic_invalid_image)
+                        }
+                    )
+
+                    categoryItemBinding.categoryName.text = category.name
+
+                    viewModel.categoryProductCounts.observe(viewLifecycleOwner) { categoryProductCounts ->
+//                        if (categoryProductCounts[category.name] == null)
+//                            categoryItemBinding.categoryCount.text = "loading..."
+//                        else
+                        categoryItemBinding.categoryCount.text = categoryProductCounts[category.name].toString() + " items"
+                    }
+
+                    categoryItemBinding.root.setOnClickListener {
+                        findNavController().navigate(CategoryFragmentDirections.actionCategoryFragmentToItemsFragment(category.name))
+                    }
+
+                    if (binding.categories.childCount > 0) {
+                        val divider = View(requireContext())
+                        val params = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            3
+                        )
+                        params.setMargins(0, 10, 0, 10)
+                        divider.layoutParams = params
+                        divider.background = ContextCompat.getDrawable(requireContext(), R.drawable.divider)
+                        binding.categories.addView(divider)
+                    }
+
+                    binding.categories.addView(categoryItemBinding.root)
+                }
+            },
+            onFailure = {
+                Toast.makeText(requireContext(), "Failed to load categories", Toast.LENGTH_SHORT).show()
             }
-            textView.text = item
-            container.addView(textView)
-        }
-
+        )
     }
-    fun onItemClick(item:String) {
-        // Handle click event, set search string for fetchProducts and navigate to itemsFragment
-        val action = CategoryFragmentDirections.actionCategoryFragmentToItemsFragment(item)
-        findNavController().navigate(action)
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        coroutineScope.cancel()
     }
 }

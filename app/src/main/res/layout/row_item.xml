@@ -46,7 +46,7 @@
             android:layout_weight="1"
             android:clickable="true"
             android:contentDescription='"add to cart button"'
-            app:srcCompat="@drawable/plus_sign" />
+            app:srcCompat="@drawable/ic_add" />
 
 
     </LinearLayout>

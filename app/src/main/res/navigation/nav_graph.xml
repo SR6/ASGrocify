@@ -12,18 +12,22 @@
         android:name="com.example.grocify.ui.CategoryFragment"
         android:label="@string/category"
         tools:layout="@layout/category_fragment">
+
         <action
             android:id="@+id/action_categoryFragment_to_itemsFragment"
-            app:destination="@id/itemsFragment"/>
+            app:destination="@id/itemsFragment" />
+
     </fragment>
 
     <fragment
         android:id="@+id/itemsFragment"
         android:name="com.example.grocify.ui.ItemsFragment"
         android:label="Items">
+
         <argument
             android:name="category"
-            app:argType="string"/>
+            app:argType="string" />
+
     </fragment>
 
     <fragment

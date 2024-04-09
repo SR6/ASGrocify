@@ -3,41 +3,27 @@
 <resources>
 
     <string-array name="categories">
-        <item>Dairy</item>
-        <item>Frozen</item>
-        <item>Canned &amp; Packaged</item>
-        <item>Pasta, Sauces, Grain</item>
-        <item>International</item>
-        <item>Cleaning Products</item>
-        <item>Baby</item>
-        <item>Natural &amp; Organic</item>
         <item>Adult Beverage</item>
+        <item>Baby</item>
         <item>Bakery</item>
-        <item>Pet Care</item>
-        <item>Meat &amp; Seafood</item>
-        <item>Deli</item>
-        <item>Snacks</item>
-        <item>Condiment &amp; Sauces</item>
-        <item>Beverages</item>
         <item>Baking Goods</item>
+        <item>Beverages</item>
         <item>Breakfast</item>
         <item>Candy</item>
+        <item>Canned &amp; Packaged</item>
+        <item>Cleaning Products</item>
+        <item>Condiment &amp; Sauces</item>
+        <item>Dairy</item>
+        <item>Deli</item>
+        <item>Frozen</item>
+        <item>International</item>
+        <item>Meat &amp; Seafood</item>
+        <item>Natural &amp; Organic</item>
+        <item>Other</item>
+        <item>Pasta, Sauces, Grain</item>
+        <item>Pet Care</item>
         <item>Produce</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
-        <item>International</item>
+        <item>Snacks</item>
     </string-array>
 
 </resources>

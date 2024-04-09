@@ -7,6 +7,88 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:id="@+id/cancelOrSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:gravity="center">
+
+        <RelativeLayout
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/button_box"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:clickable="true"
+            tools:ignore="RelativeOverlap">
+
+            <ImageButton
+                android:id="@+id/cancelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_cancel"
+                android:background="@null"
+                android:clickable="false"
+                android:contentDescription="@string/cancel"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/cancelButton"
+                android:layout_centerVertical="true"
+                android:text="@string/cancel"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:clickable="false" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/button_box"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:clickable="true"
+            tools:ignore="RelativeOverlap">
+
+            <ImageButton
+                android:id="@+id/saveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_save"
+                android:background="@null"
+                android:clickable="false"
+                android:contentDescription="@string/logout"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/saveButton"
+                android:layout_centerVertical="true"
+                android:text="@string/save"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:clickable="false" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -25,95 +107,133 @@
             app:elevation="0dp"
             tools:ignore="RelativeOverlap, ContentDescription" />
 
-        <LinearLayout
-            android:id="@+id/fields"
+        <ScrollView
+            android:id="@+id/scroll"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            tools:ignore="UselessParent">
 
-            <TextView
-                android:id="@+id/name"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/fields"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="4dp"
-                android:text="@string/name"
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:labelFor="@id/editName" />
-
-            <EditText
-                android:id="@+id/editName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
-                android:inputType="text"
-                android:textColor="@color/gray"
-                android:textSize="20sp"
-                android:enabled="false"
-                android:background="@null"
-                tools:ignore="Autofill" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="4dp"
-                android:text="@string/email"
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:labelFor="@id/editEmail" />
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/name"
+                    android:textColor="@color/black"
+                    android:textSize="25sp"
+                    android:labelFor="@id/editName" />
 
-            <EditText
-                android:id="@+id/editEmail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="16dp"
-                android:inputType="textEmailAddress"
-                android:textColor="@color/gray"
-                android:textSize="20sp"
-                android:enabled="false"
-                android:background="@null"
-                tools:ignore="Autofill" />
+                <EditText
+                    android:id="@+id/editName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/gray"
+                    android:textSize="20sp"
+                    android:enabled="false"
+                    android:hint="@string/name"
+                    android:background="@null"
+                    tools:ignore="Autofill" />
 
-            <TextView
-                android:id="@+id/password"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="4dp"
-                android:text="@string/password"
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:labelFor="@id/editPassword" />
+                <TextView
+                    android:id="@+id/email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/email"
+                    android:textColor="@color/black"
+                    android:textSize="25sp"
+                    android:labelFor="@id/editEmail" />
 
-            <EditText
-                android:id="@+id/editPassword"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="16dp"
-                android:inputType="textPassword"
-                android:textColor="@color/gray"
-                android:textSize="20sp"
-                android:enabled="false"
-                android:background="@null"
-                tools:ignore="Autofill" />
+                <EditText
+                    android:id="@+id/editEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:inputType="textEmailAddress"
+                    android:textColor="@color/gray"
+                    android:textSize="20sp"
+                    android:enabled="false"
+                    android:hint="@string/email"
+                    android:background="@null"
+                    tools:ignore="Autofill" />
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/password"
+                    android:textColor="@color/black"
+                    android:textSize="25sp"
+                    android:labelFor="@id/editPassword" />
+
+                <EditText
+                    android:id="@+id/editPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:inputType="textPassword"
+                    android:textColor="@color/gray"
+                    android:textSize="20sp"
+                    android:enabled="false"
+                    android:hint="@string/password"
+                    android:background="@null"
+                    tools:ignore="Autofill" />
+
+                <TextView
+                    android:id="@+id/paymentMethod"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/payment_method"
+                    android:textColor="@color/black"
+                    android:textSize="25sp"
+                    android:labelFor="@id/editPaymentMethod" />
+
+                <EditText
+                    android:id="@+id/editPaymentMethod"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:inputType="text"
+                    android:textColor="@color/gray"
+                    android:textSize="20sp"
+                    android:enabled="false"
+                    android:hint="@string/payment_method"
+                    android:background="@null"
+                    tools:ignore="Autofill" />
+
+            </LinearLayout>
+
+        </ScrollView>
 
     </RelativeLayout>
 
@@ -147,42 +267,6 @@
             android:layout_toEndOf="@id/logoutButton"
             android:layout_centerVertical="true"
             android:text="@string/logout"
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            android:clickable="false" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/button_box"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:clickable="true"
-        tools:ignore="RelativeOverlap">
-
-        <ImageButton
-            android:id="@+id/saveButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_save"
-            android:background="@null"
-            android:clickable="false"
-            android:contentDescription="@string/logout"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/saveButton"
-            android:layout_centerVertical="true"
-            android:text="@string/save"
             android:textSize="20sp"
             android:textColor="@color/black"
             android:clickable="false" />

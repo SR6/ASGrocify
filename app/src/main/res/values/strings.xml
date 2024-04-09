@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <resources>
 
     <string name="category">Category</string>
@@ -11,5 +13,7 @@
     <string name="profile">Profile</string>
     <string name="save">Save</string>
     <string name="search">Search Grocify</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

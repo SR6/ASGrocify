@@ -1,32 +1,26 @@
 package com.example.grocify.ui
 
-import android.util.Log
-import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.grocify.R
 import com.example.grocify.api.KrogerClient.krogerService
-import com.example.grocify.databinding.HeaderBinding
-import com.example.grocify.models.KrogerProduct
+import com.example.grocify.db.DatabaseConnection
+import com.example.grocify.models.GrocifyCategory
 import com.example.grocify.models.KrogerProductsResponse
-import com.google.firebase.auth.FirebaseAuth
+import com.example.grocify.models.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
-// Might use later for profile
-//data class User(
-//    val uid: String? = null,
-//    val email: String? = null,
-//    val name: String? = null
-//)
+import java.io.File
 
 class MainViewModel : ViewModel() {
+    private val databaseConnection = DatabaseConnection()
 
-    private val categories = listOf("Fruits","Vegetables","Meat","Seafood","Dairy","Deli","Bakery","Pantry","Eggs","Frozen","Beverages","Breakfast","Candy","Laundry","Cleaning")
+    private val _categoryProductCounts = MutableLiveData<HashMap<String, Int>>()
+    val categoryProductCounts: LiveData<HashMap<String, Int>> = _categoryProductCounts
+
+    private var cachedToken: String? = null
+    private var tokenExpirationTime: Long = 0
 
     private val _products = MutableLiveData<KrogerProductsResponse>()
     val products: LiveData<KrogerProductsResponse> get() = _products
@@ -46,49 +40,41 @@ class MainViewModel : ViewModel() {
     private val _showBackButton = MutableLiveData<Boolean>()
     val showBackButton: LiveData<Boolean> get() = _showBackButton
 
-//    private val _user = MutableLiveData<User?>()
-//    val user: LiveData<User?> get() = _user
+    private val _user = MutableLiveData<User?>()
+    val user: LiveData<User?> get() = _user
 
-    private var cartList = MediatorLiveData<List<KrogerProduct>>().apply {
-        value = emptyList()
-    }
-    fun observeFetchProducts() : LiveData<KrogerProductsResponse> {
-        return products
-    }
-    fun getCategories() : List<String> {
-        return categories
-    }
-
-    fun observeCartList() : LiveData<List<KrogerProduct>>{
-        return cartList
-    }
-    fun setCartList(item: KrogerProduct){
-        if (cartList.value == null) {
-            cartList.postValue(listOf(item))
-        } else {
-            if (!item.inCart) {
-                val currentCart = cartList.value!!.filterNot{ it == item }
-                cartList.postValue(currentCart)
-            } else {
-                cartList.postValue(cartList.value?.plus(listOf(item)))
-            }
+    private suspend fun getToken(): String {
+        return if (cachedToken != null && System.currentTimeMillis() < tokenExpirationTime)
+            cachedToken!!
+        else {
+            val response = krogerService.getAuthToken()
+            cachedToken = response.accessToken
+            tokenExpirationTime = System.currentTimeMillis() + response.expiresIn * 1000
+            cachedToken!!
         }
     }
-    fun fetchProducts(item:String) {
+
+    fun getProducts(term: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val token = getToken()
-                val response = krogerService.getProducts("Bearer $token", "application/json", null, null, null, null, null, item)
+                val response = krogerService.getProducts(
+                    "Bearer $token",
+                    "application/json",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    term)
                 _products.postValue(response)
+
+                val temp = HashMap(_categoryProductCounts.value ?: hashMapOf())
+                temp[term] = response.meta.pagination.total
+                _categoryProductCounts.postValue(temp)
             }
-            catch (e: Exception) {
-                Log.d("PRODUCTS FAIL", "Error fetching products")
-            }
+            catch (_: Exception) { }
         }
-    }
-    private suspend fun getToken(): String {
-        val response = krogerService.getAuthToken()
-        return response.accessToken
     }
 
     fun updateHeader(
@@ -104,4 +90,76 @@ class MainViewModel : ViewModel() {
         _searchVisible.postValue(searchVisible)
         _showBackButton.postValue(showBackButton)
     }
+
+    fun getCategories(
+        onSuccess: (List<GrocifyCategory>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        databaseConnection.getCategories(
+            onSuccess = onSuccess,
+            onFailure = onFailure
+        )
+    }
+
+    fun getCategoryImage(
+        imageFile: String,
+        onSuccess: (File) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        databaseConnection.getCategoryImage(
+            imageFile = imageFile,
+            onSuccess = onSuccess,
+            onFailure = onFailure
+        )
+    }
+
+    fun getUser(email: String,
+                onSuccess: (User?) -> Unit,
+                onFailure: (Exception) -> Unit) {
+        databaseConnection.getUser(email, { user ->
+            _user.postValue(user)
+            onSuccess(user)
+        }, onFailure)
+    }
+
+    fun addUser(user: User,
+                onSuccess: () -> Unit,
+                onFailure: (Exception) -> Unit) {
+        databaseConnection.addUser(user, onSuccess, onFailure)
+        _user.postValue(user)
+    }
+
+    fun updateUser(user: User,
+                   onSuccess: () -> Unit,
+                   onFailure: (Exception) -> Unit) {
+        databaseConnection.updateUser(user, onSuccess, onFailure)
+        _user.postValue(user)
+    }
+
+
+
+//    private var cartList = MediatorLiveData<List<KrogerProduct>>().apply {
+//        value = emptyList()
+//    }
+
+
+//    fun observeCartList() : LiveData<List<KrogerProduct>>{
+//        return cartList
+//    }
+//
+//    fun setCartList(item: KrogerProduct){
+//        if (cartList.value == null) {
+//            cartList.postValue(listOf(item))
+//        } else {
+//            if (!item) {
+//                val currentCart = cartList.value!!.filterNot{ it == item }
+//                cartList.postValue(currentCart)
+//            } else {
+//                cartList.postValue(cartList.value?.plus(listOf(item)))
+//            }
+//        }
+//    }
+
+
+
 }

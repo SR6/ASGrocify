@@ -7,29 +7,42 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.grocify.R
-import com.example.grocify.databinding.FragmentRvBinding
+import com.example.grocify.databinding.CartFragmentBinding
+import com.example.grocify.databinding.RecyclerFragmentBinding
 
-class CartFragment : Fragment(R.layout.fragment_rv) {
+class CartFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
-    private var _binding: FragmentRvBinding? = null
+    private var _binding: CartFragmentBinding? = null
+    private var _recyclerBinding: RecyclerFragmentBinding? = null
     private val binding get() = _binding!!
+    private val recyclerBinding get() = _recyclerBinding!!
 
-    private var listSize = 0
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = CartFragmentBinding.inflate(inflater, container, false)
+
+        viewModel.updateHeader("Cart", "0")
+
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentRvBinding.bind(view)
-        val rowAdapter = RowAdapter(viewModel)
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.adapter = rowAdapter
-        viewModel.observeCartList().observe(viewLifecycleOwner){
-            rowAdapter.submitList(it)
-            //listSize = it.size
-        }
-        viewModel.updateHeader("Cart", listSize.toString()) //make subtitle size of cartList
+        _recyclerBinding = RecyclerFragmentBinding.bind(view)
+        val productAdapter = ProductAdapter(viewModel)
+        recyclerBinding.recycler.layoutManager = LinearLayoutManager(requireContext())
+        recyclerBinding.recycler.adapter = productAdapter
+//        viewModel.observeCartList().observe(viewLifecycleOwner){
+//            rowAdapter.submitList(it)
+//            //listSize = it.size
+//        }
     }
     override fun onDestroyView() {
         _binding = null
+        _recyclerBinding = null
         super.onDestroyView()
     }
 }

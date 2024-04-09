@@ -2,15 +2,21 @@ package com.example.grocify
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.grocify.databinding.ActivityMainBinding
 import com.example.grocify.databinding.HeaderBinding
+import com.example.grocify.models.User
 import com.example.grocify.ui.AuthUser
 import com.example.grocify.ui.MainViewModel
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
+import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
@@ -22,6 +28,8 @@ class MainActivity : AppCompatActivity() {
 
         authUser = AuthUser(activityResultRegistry)
         lifecycle.addObserver(authUser)
+
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
 
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -63,6 +71,30 @@ class MainActivity : AppCompatActivity() {
                 setDisplayShowHomeEnabled(showBackButton)
             }
         }
+
+        for (category in resources.getStringArray(R.array.categories)) {
+            lifecycleScope.launch {
+//                viewModel.getProducts(category)
+            }
+        }
+
+        if (firebaseUser != null && firebaseUser.email != null && firebaseUser.displayName != null) {
+            viewModel.getUser(firebaseUser.email!!, onSuccess = { user ->
+                if (user == null) {
+                    viewModel.addUser(
+                        User(UUID.randomUUID().toString(), firebaseUser.email!!, firebaseUser.displayName!!, null, null),
+                        onSuccess = { },
+                        onFailure = {
+                            Toast.makeText(applicationContext, "Failed to add user", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+            }, onFailure = {
+                Toast.makeText(applicationContext, "Failed to load user", Toast.LENGTH_SHORT).show()
+            })
+        }
+
+
     }
 
     override fun onSupportNavigateUp(): Boolean {
