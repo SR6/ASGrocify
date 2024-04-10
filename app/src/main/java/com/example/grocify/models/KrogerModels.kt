@@ -12,7 +12,7 @@ data class AuthTokenResponse(
 )
 
 data class KrogerProductsResponse(
-    @SerializedName("products") val products: List<KrogerProduct>,
+    @SerializedName("data") val products: List<KrogerProduct>,
     @SerializedName("meta") val meta: Meta
 )
 
