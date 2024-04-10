@@ -38,3 +38,15 @@ object Glide {
             .into(imageView)
     }
 }
+object GlideProductUrl {
+    private var glideOptions = RequestOptions().fitCenter().diskCacheStrategy(DiskCacheStrategy.ALL)
+
+    fun load(url: String, imageView: ImageView, width: Int, height: Int) {
+        GlideApp.with(imageView.context)
+            .load(url)
+            .apply(glideOptions)
+            .error(R.drawable.ic_invalid_image)
+            .override(width,height)
+            .into(imageView)
+    }
+}

@@ -46,6 +46,7 @@
             android:layout_weight="1"
             android:clickable="true"
             android:contentDescription='"add to cart button"'
+            android:background="@null"
             app:srcCompat="@drawable/ic_add" />
 
 

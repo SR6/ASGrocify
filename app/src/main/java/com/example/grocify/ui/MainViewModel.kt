@@ -1,6 +1,7 @@
 package com.example.grocify.ui
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.grocify.api.KrogerClient.krogerService
@@ -18,6 +19,9 @@ class MainViewModel : ViewModel() {
 
     private val _categoryProductCounts = MutableLiveData<HashMap<String, Int>>()
     val categoryProductCounts: LiveData<HashMap<String, Int>> = _categoryProductCounts
+
+    private val _cartProducts = MediatorLiveData<KrogerProductsResponse>()
+    val cartProducts: LiveData<KrogerProductsResponse> = _cartProducts
 
     private var cachedToken: String? = null
     private var tokenExpirationTime: Long = 0
@@ -111,6 +115,17 @@ class MainViewModel : ViewModel() {
             onSuccess = onSuccess,
             onFailure = onFailure
         )
+    }
+    fun getFileNameFromUrl(imageUrl: String): String {
+        // Extract the filename portion (considering potential extensions)
+        val parts = imageUrl.split("/")
+        val fileName = parts.last()
+
+        // Handle potential issues (e.g., empty URL or missing filename)
+        if (fileName.isEmpty()) {
+            return "default_image.jpg" // Or any default filename
+        }
+        return fileName
     }
 
     fun getUser(email: String,

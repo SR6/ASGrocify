@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.grocify.R
 import com.example.grocify.databinding.RowItemBinding
 import com.example.grocify.models.KrogerProduct
+import com.example.grocify.db.GlideProductUrl
+import java.io.File
 
 class ProductAdapter(private val viewModel:MainViewModel)
     : ListAdapter<KrogerProduct, ProductAdapter.VH>(ItemDiff()) {
@@ -42,6 +44,19 @@ class ProductAdapter(private val viewModel:MainViewModel)
         //val itemPrice = itemList.price
         if (itemPrice != null) {
             holder.rowCategoryBinding.productPrice.text = itemPrice.regular.toString() //"price".toString()
+        }
+        if (!productPick.images.isEmpty()) {
+            val imageUrl = productPick.images[0].sizes[0].url
+            GlideProductUrl.load(imageUrl, holder.rowCategoryBinding.productPic,150,150)
+            //var imageFile : File = File.createTempFile(imageName,"")
+//            Glide.with (this)
+//                .load(imageName)
+//                .apply(new RequestOptions()
+//                    .placeholder(R.drawable.ic_invalid_image)
+//                    .error(R.drawable.ic_invalid_image)
+//                )
+//                .into(holder.rowCategoryBinding.productPic)
+
         }
 //        if (productPick.inCart) {
 //            holder.rowCategoryBinding.addToCart.setImageResource(R.drawable.ic_delete)
