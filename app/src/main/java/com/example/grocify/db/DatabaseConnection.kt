@@ -1,6 +1,5 @@
 package com.example.grocify.db
 
-import android.util.Log
 import com.example.grocify.models.GrocifyCategory
 import com.example.grocify.models.User
 import com.google.firebase.FirebaseApp
@@ -87,6 +86,7 @@ class DatabaseConnection {
                 onFailure: (Exception) -> Unit) {
         try {
             val userData = hashMapOf(
+                "userId" to user.userId,
                 "email" to user.email,
                 "name" to user.name,
                 "paymentMethod" to user.paymentMethod,

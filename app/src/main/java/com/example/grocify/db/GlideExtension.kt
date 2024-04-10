@@ -29,7 +29,7 @@ class GlideExtension: AppGlideModule() {
 object Glide {
     private var glideOptions = RequestOptions().fitCenter().diskCacheStrategy(DiskCacheStrategy.ALL)
 
-    fun load(file: File, imageView: ImageView, width: Int, height: Int) {
+    fun loadCategoryImage(file: File, imageView: ImageView, width: Int, height: Int) {
         GlideApp.with(imageView.context)
             .load(file)
             .apply(glideOptions)
@@ -37,11 +37,8 @@ object Glide {
             .override(width, height)
             .into(imageView)
     }
-}
-object GlideProductUrl {
-    private var glideOptions = RequestOptions().fitCenter().diskCacheStrategy(DiskCacheStrategy.ALL)
 
-    fun load(url: String, imageView: ImageView, width: Int, height: Int) {
+    fun loadProductImage(url: String, imageView: ImageView, width: Int, height: Int) {
         GlideApp.with(imageView.context)
             .load(url)
             .apply(glideOptions)
@@ -49,4 +46,9 @@ object GlideProductUrl {
             .override(width,height)
             .into(imageView)
     }
+}
+object GlideProductUrl {
+    private var glideOptions = RequestOptions().fitCenter().diskCacheStrategy(DiskCacheStrategy.ALL)
+
+
 }

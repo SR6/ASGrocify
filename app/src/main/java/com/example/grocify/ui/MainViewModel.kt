@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.example.grocify.api.KrogerClient.krogerService
 import com.example.grocify.db.DatabaseConnection
 import com.example.grocify.models.GrocifyCategory
+import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.KrogerProductsResponse
 import com.example.grocify.models.User
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +29,9 @@ class MainViewModel : ViewModel() {
 
     private val _products = MutableLiveData<KrogerProductsResponse>()
     val products: LiveData<KrogerProductsResponse> get() = _products
+
+    private val _product = MutableLiveData<KrogerProductResponse>()
+    val product: LiveData<KrogerProductResponse> get() = _product
 
     private val _title = MutableLiveData<String?>()
     val title: MutableLiveData<String?> get() = _title
@@ -81,6 +85,20 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun getProductById(productId: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val token = getToken()
+                val response = krogerService.getProductById(
+                    "Bearer $token",
+                    "application/json",
+                    productId)
+                _product.postValue(response)
+            }
+            catch (_: Exception) { }
+        }
+    }
+
     fun updateHeader(
         title: String?,
         subtitle: String? = null,
@@ -115,17 +133,6 @@ class MainViewModel : ViewModel() {
             onSuccess = onSuccess,
             onFailure = onFailure
         )
-    }
-    fun getFileNameFromUrl(imageUrl: String): String {
-        // Extract the filename portion (considering potential extensions)
-        val parts = imageUrl.split("/")
-        val fileName = parts.last()
-
-        // Handle potential issues (e.g., empty URL or missing filename)
-        if (fileName.isEmpty()) {
-            return "default_image.jpg" // Or any default filename
-        }
-        return fileName
     }
 
     fun getUser(email: String,

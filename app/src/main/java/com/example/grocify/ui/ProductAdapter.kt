@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.grocify.R
 import com.example.grocify.databinding.RowItemBinding
+import com.example.grocify.db.Glide
 import com.example.grocify.models.KrogerProduct
 import com.example.grocify.db.GlideProductUrl
 import java.io.File
@@ -47,7 +48,7 @@ class ProductAdapter(private val viewModel:MainViewModel)
         }
         if (!productPick.images.isEmpty()) {
             val imageUrl = productPick.images[0].sizes[0].url
-            GlideProductUrl.load(imageUrl, holder.rowCategoryBinding.productPic,150,150)
+            Glide.loadProductImage(imageUrl, holder.rowCategoryBinding.productPic,150,150)
             //var imageFile : File = File.createTempFile(imageName,"")
 //            Glide.with (this)
 //                .load(imageName)

@@ -58,7 +58,7 @@ class CategoryFragment : Fragment() {
                     viewModel.getCategoryImage(
                         imageFile = category.imageFile,
                         onSuccess = { file ->
-                            Glide.load(file, categoryItemBinding.categoryImage, 150, 150)
+                            Glide.loadCategoryImage(file, categoryItemBinding.categoryImage, 150, 150)
                         },
                         onFailure = {
                             categoryItemBinding.categoryImage.setImageResource(R.drawable.ic_invalid_image)

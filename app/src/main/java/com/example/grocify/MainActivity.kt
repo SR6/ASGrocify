@@ -1,6 +1,7 @@
 package com.example.grocify
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -93,8 +94,6 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, "Failed to load user", Toast.LENGTH_SHORT).show()
             })
         }
-
-
     }
 
     override fun onSupportNavigateUp(): Boolean {

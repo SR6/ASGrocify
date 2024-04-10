@@ -23,6 +23,4 @@ data class User(
     @SerializedName("name") val name: String,
     @SerializedName("paymentMethod") val paymentMethod: String?,
     @SerializedName("zipCode") val zipCode: String?
-) {
-    constructor() : this("", "", "", "", "")
-}
+)
