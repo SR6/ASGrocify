@@ -41,6 +41,7 @@ class ItemFragment : Fragment() {
         }
         Log.d("ItemNav","In ItemFragment above observe")
         //val product = viewModel.observeProduct()
+        //TODO: Figure out why this product comes back null
         viewModel.product.observe(viewLifecycleOwner) { product ->
             //lifecycleScope.launch {
             //    viewModel.getProductById(args.productID)

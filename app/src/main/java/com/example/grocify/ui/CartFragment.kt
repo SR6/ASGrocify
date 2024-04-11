@@ -37,6 +37,7 @@ class CartFragment : Fragment() {
         }
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = productAdapter
+        //TODO: much like ItemsFragment, load the cartProductList here
 //        viewModel.observeCartList().observe(viewLifecycleOwner){
 //            rowAdapter.submitList(it)
 //            //listSize = it.size

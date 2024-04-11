@@ -24,8 +24,8 @@ class ProductAdapter(private val viewModel:MainViewModel,
                 val currentPos = bindingAdapterPosition
                 val prodList = viewModel.observeProductList()
                 val product = prodList[currentPos]
-                val prodId = product//.productId
-                Log.d("ItemNav"," OnClickListener ProductID ${product.productId}")
+                //val prodId = product.productId
+                Log.d("ItemNav"," OnClickListener ProductID ${product.productId} UPC ${product.upc}")
                 navigateToSingleItem(product.productId)
                 //notifyDataSetChanged()
             }
@@ -58,16 +58,8 @@ class ProductAdapter(private val viewModel:MainViewModel,
         if (!productPick.images.isEmpty()) {
             val imageUrl = productPick.images[0].sizes[0].url
             Glide.loadProductImage(imageUrl, holder.rowCategoryBinding.productPic,150,150)
-            //var imageFile : File = File.createTempFile(imageName,"")
-//            Glide.with (this)
-//                .load(imageName)
-//                .apply(new RequestOptions()
-//                    .placeholder(R.drawable.ic_invalid_image)
-//                    .error(R.drawable.ic_invalid_image)
-//                )
-//                .into(holder.rowCategoryBinding.productPic)
-
         }
+        //TODO: make cart database and add items into the database and change this image based on contains?
 //        if (productPick.inCart) {
 //            holder.rowCategoryBinding.addToCart.setImageResource(R.drawable.ic_delete)
 //        } else {
