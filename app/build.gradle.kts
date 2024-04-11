@@ -74,10 +74,13 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.material)
     implementation(libs.retrofit)
+
     //noinspection UseTomlInstead
     implementation("com.google.firebase:firebase-analytics")
     //noinspection UseTomlInstead
     implementation("com.google.firebase:firebase-analytics-ktx")
+    //noinspection UseTomlInstead
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
     //noinspection UseTomlInstead
     implementation("com.google.firebase:firebase-auth")
     //noinspection UseTomlInstead

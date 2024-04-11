@@ -2,6 +2,7 @@ package com.example.grocify.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,15 +17,11 @@ import com.example.grocify.databinding.CategoryFragmentBinding
 import com.example.grocify.databinding.CategoryItemBinding
 import com.example.grocify.db.Glide
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 
 class CategoryFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: CategoryFragmentBinding? = null
     private val binding get() = _binding!!
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,17 +29,6 @@ class CategoryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = CategoryFragmentBinding.inflate(inflater, container, false)
-
-        var userFirstName = FirebaseAuth.getInstance().currentUser?.displayName?.split(" ")?.firstOrNull()
-
-        if (userFirstName.isNullOrBlank())
-            userFirstName = "User"
-
-        if (userFirstName.length > 15)
-            userFirstName = userFirstName.substring(0,15) + "..."
-
-        viewModel.updateHeader(getString(R.string.grocify), "Hi, $userFirstName")
-
         return binding.root
     }
 
@@ -50,15 +36,51 @@ class CategoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val firebaseAuthCheck = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val firebaseUser = firebaseAuth.currentUser
+            if (firebaseUser != null) {
+                var userFirstName =
+                    FirebaseAuth.getInstance().currentUser?.displayName?.split(" ")?.firstOrNull()
+
+                if (userFirstName.isNullOrBlank())
+                    userFirstName = "User"
+
+                if (userFirstName.length > 15)
+                    userFirstName = userFirstName.substring(0, 15) + "..."
+
+                viewModel.updateHeader(getString(R.string.grocify), "Hi, $userFirstName")
+
+                populateCategories()
+            }
+        }
+
+        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuthCheck)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun populateCategories() {
         viewModel.getCategories(
             onSuccess = { categories ->
+                Log.d("HERE123", "HERE123")
                 categories.forEach { category ->
-                    val categoryItemBinding = CategoryItemBinding.inflate(layoutInflater, binding.categories, false)
+                    Log.d("HERE456", category.name)
+                    val categoryItemBinding =
+                        CategoryItemBinding.inflate(layoutInflater, binding.categories, false)
 
                     viewModel.getCategoryImage(
                         imageFile = category.imageFile,
                         onSuccess = { file ->
-                            Glide.loadCategoryImage(file, categoryItemBinding.categoryImage, 150, 150)
+                            Glide.loadCategoryImage(
+                                file,
+                                categoryItemBinding.categoryImage,
+                                150,
+                                150
+                            )
                         },
                         onFailure = {
                             categoryItemBinding.categoryImage.setImageResource(R.drawable.ic_invalid_image)
@@ -71,11 +93,16 @@ class CategoryFragment : Fragment() {
 //                        if (categoryProductCounts[category.name] == null)
 //                            categoryItemBinding.categoryCount.text = "loading..."
 //                        else
-                        categoryItemBinding.categoryCount.text = categoryProductCounts[category.name].toString() + " items"
+                        categoryItemBinding.categoryCount.text =
+                            categoryProductCounts[category.name].toString() + " items"
                     }
 
                     categoryItemBinding.root.setOnClickListener {
-                        findNavController().navigate(CategoryFragmentDirections.actionCategoryFragmentToItemsFragment(category.name))
+                        findNavController().navigate(
+                            CategoryFragmentDirections.actionCategoryFragmentToItemsFragment(
+                                category.name
+                            )
+                        )
                     }
 
                     if (binding.categories.childCount > 0) {
@@ -86,7 +113,8 @@ class CategoryFragment : Fragment() {
                         )
                         params.setMargins(0, 10, 0, 10)
                         divider.layoutParams = params
-                        divider.background = ContextCompat.getDrawable(requireContext(), R.drawable.divider)
+                        divider.background =
+                            ContextCompat.getDrawable(requireContext(), R.drawable.divider)
                         binding.categories.addView(divider)
                     }
 
@@ -94,14 +122,10 @@ class CategoryFragment : Fragment() {
                 }
             },
             onFailure = {
-                Toast.makeText(requireContext(), "Failed to load categories", Toast.LENGTH_SHORT).show()
+                Log.d("HERE789", "HERE789")
+                Toast.makeText(requireContext(), "Failed to load categories", Toast.LENGTH_SHORT)
+                    .show()
             }
         )
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-        coroutineScope.cancel()
     }
 }

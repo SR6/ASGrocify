@@ -3,6 +3,7 @@ package com.example.grocify.db
 import com.example.grocify.models.GrocifyCategory
 import com.example.grocify.models.User
 import com.google.firebase.FirebaseApp
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -13,7 +14,16 @@ import java.io.IOException
 
 class DatabaseConnection {
     private val db: FirebaseFirestore = Firebase.firestore
-    private val storage: FirebaseStorage = Firebase.storage
+
+    private fun deserializeUser(documentSnapshot: DocumentSnapshot): User {
+        val userId = documentSnapshot.id
+        val email = documentSnapshot.getString("email") ?: ""
+        val name = documentSnapshot.getString("name") ?: ""
+        val paymentMethod = documentSnapshot.getString("paymentMethod")
+        val zipCode = documentSnapshot.getString("zipCode")
+        return User(userId, email, name, paymentMethod, zipCode)
+    }
+
     fun getCategories(onSuccess: (List<GrocifyCategory>) -> Unit, onFailure: (Exception) -> Unit) {
         try {
             db.collection("categories")
@@ -69,7 +79,7 @@ class DatabaseConnection {
                     if (result.isEmpty)
                         onSuccess(null)
                     else {
-                        onSuccess(result.documents[0].toObject(User::class.java))
+                        onSuccess(deserializeUser(result.documents[0]))
                     }
                 }
                 .addOnFailureListener { exception ->

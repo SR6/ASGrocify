@@ -1,7 +1,6 @@
 package com.example.grocify
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -15,6 +14,7 @@ import com.example.grocify.databinding.HeaderBinding
 import com.example.grocify.models.User
 import com.example.grocify.ui.AuthUser
 import com.example.grocify.ui.MainViewModel
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -27,10 +27,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        FirebaseApp.initializeApp(this)
+
         authUser = AuthUser(activityResultRegistry)
         lifecycle.addObserver(authUser)
 
-        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        val firebaseAuthCheck = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            if (firebaseAuth.currentUser != null)
+                initializeUser()
+        }
+
+        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuthCheck)
 
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -78,6 +85,16 @@ class MainActivity : AppCompatActivity() {
 //                viewModel.getProducts(category)
             }
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportActionBar?.setDisplayShowHomeEnabled(false)
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    private fun initializeUser() {
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
 
         if (firebaseUser != null && firebaseUser.email != null && firebaseUser.displayName != null) {
             viewModel.getUser(firebaseUser.email!!, onSuccess = { user ->
@@ -94,11 +111,5 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, "Failed to load user", Toast.LENGTH_SHORT).show()
             })
         }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        supportActionBar?.setDisplayShowHomeEnabled(false)
-        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 }
