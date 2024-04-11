@@ -1,5 +1,6 @@
 package com.example.grocify.ui
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -23,8 +24,9 @@ class ProductAdapter(private val viewModel:MainViewModel,
                 val currentPos = bindingAdapterPosition
                 val prodList = viewModel.observeProductList()
                 val product = prodList[currentPos]
-                val prodId = product.productId
-                navigateToSingleItem(prodId)
+                val prodId = product//.productId
+                Log.d("ItemNav"," OnClickListener ProductID ${product.productId}")
+                navigateToSingleItem(product.productId)
                 //notifyDataSetChanged()
             }
             itemView.setOnLongClickListener {

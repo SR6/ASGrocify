@@ -35,10 +35,11 @@ class ItemFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //viewModel.getProductById(args.productID)
+        Log.d("ItemNav","ProductID in onViewCreated ItemFragment ${args.productID}")
         viewModel.viewModelScope.launch{
             viewModel.getProductById(args.productID)
         }
-
+        Log.d("ItemNav","In ItemFragment above observe")
         //val product = viewModel.observeProduct()
         viewModel.product.observe(viewLifecycleOwner) { product ->
             //lifecycleScope.launch {
