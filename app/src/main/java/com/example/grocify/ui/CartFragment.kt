@@ -32,7 +32,9 @@ class CartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _recyclerBinding = RecyclerFragmentBinding.bind(view)
-        val productAdapter = ProductAdapter(viewModel)
+        val productAdapter = ProductAdapter(viewModel) {
+            //Don't think we actually need anything here unless you want to go to single item view from cart?
+        }
         recyclerBinding.recycler.layoutManager = LinearLayoutManager(requireContext())
         recyclerBinding.recycler.adapter = productAdapter
 //        viewModel.observeCartList().observe(viewLifecycleOwner){

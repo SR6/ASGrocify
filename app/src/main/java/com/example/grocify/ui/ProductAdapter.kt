@@ -12,16 +12,23 @@ import com.example.grocify.models.KrogerProduct
 import com.example.grocify.db.GlideProductUrl
 import java.io.File
 
-class ProductAdapter(private val viewModel:MainViewModel)
+class ProductAdapter(private val viewModel:MainViewModel,
+    private val navigateToSingleItem: (String) -> Unit )
     : ListAdapter<KrogerProduct, ProductAdapter.VH>(ItemDiff()) {
 
     inner class VH(val rowCategoryBinding : RowItemBinding)
         : RecyclerView.ViewHolder(rowCategoryBinding.root) {
         init {
             itemView.setOnClickListener {
-                //val currentPos = bindingAdapterPosition
-                //navigateToItems(category)
+                val currentPos = bindingAdapterPosition
+                val prodList = viewModel.observeProductList()
+                val product = prodList[currentPos]
+                val prodId = product.productId
+                navigateToSingleItem(prodId)
                 //notifyDataSetChanged()
+            }
+            itemView.setOnLongClickListener {
+                true
             }
         }
     }

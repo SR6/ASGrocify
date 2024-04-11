@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.example.grocify.api.KrogerClient.krogerService
 import com.example.grocify.db.DatabaseConnection
 import com.example.grocify.models.GrocifyCategory
+import com.example.grocify.models.KrogerProduct
 import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.KrogerProductsResponse
 import com.example.grocify.models.User
@@ -97,6 +98,12 @@ class MainViewModel : ViewModel() {
             }
             catch (_: Exception) { }
         }
+    }
+    fun observeProductList(): List<KrogerProduct>{
+        return products.value!!.products
+    }
+    fun observeProduct(): KrogerProduct {
+        return product.value!!.product
     }
 
     fun updateHeader(
