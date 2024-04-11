@@ -20,6 +20,8 @@ import com.google.firebase.auth.FirebaseAuth
 
 class CategoryFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
+    private lateinit var firebaseAuthCheck: FirebaseAuth.AuthStateListener
+
     private var _binding: CategoryFragmentBinding? = null
     private val binding get() = _binding!!
 
@@ -29,6 +31,7 @@ class CategoryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = CategoryFragmentBinding.inflate(inflater, container, false)
+
         return binding.root
     }
 
@@ -36,7 +39,7 @@ class CategoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val firebaseAuthCheck = FirebaseAuth.AuthStateListener { firebaseAuth ->
+        firebaseAuthCheck = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val firebaseUser = firebaseAuth.currentUser
             if (firebaseUser != null) {
                 var userFirstName =
@@ -60,17 +63,15 @@ class CategoryFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        FirebaseAuth.getInstance().removeAuthStateListener(firebaseAuthCheck)
     }
 
     @SuppressLint("SetTextI18n")
     fun populateCategories() {
         viewModel.getCategories(
             onSuccess = { categories ->
-                Log.d("HERE123", "HERE123")
                 categories.forEach { category ->
-                    Log.d("HERE456", category.name)
-                    val categoryItemBinding =
-                        CategoryItemBinding.inflate(layoutInflater, binding.categories, false)
+                    val categoryItemBinding = CategoryItemBinding.inflate(layoutInflater, binding.categories, false)
 
                     viewModel.getCategoryImage(
                         imageFile = category.imageFile,
