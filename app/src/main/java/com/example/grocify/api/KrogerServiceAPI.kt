@@ -2,6 +2,7 @@ package com.example.grocify.api
 
 import com.example.grocify.BuildConfig
 import com.example.grocify.models.AuthTokenResponse
+import com.example.grocify.models.KrogerLocationsResponse
 import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.KrogerProductsResponse
 import okhttp3.OkHttpClient
@@ -67,4 +68,19 @@ interface IKrogerService {
         @Header("Accept") accept: String,
         @Path("productId") productId: String,
     ): KrogerProductResponse
+
+    @GET("locations")
+    suspend fun getLocations(
+        @Header("Authorization") token: String,
+        @Header("Accept") accept: String,
+        @Query("filter.zipCode.near") zipCodeNear: String?,
+        @Query("filter.latLong.near") latLongNear: String?,
+        @Query("filter.lat.near") latNear: String?,
+        @Query("filter.lon.near") lonNear: String?,
+        @Query("filter.radiusInMiles") radiusInMiles: Int?,
+        @Query("filter.limit") limit: Int?,
+        @Query("filter.chain") chain: String?,
+        @Query("filter.department") department: String?,
+        @Query("filter.locationId") locationId: String?
+    ): KrogerLocationsResponse
 }

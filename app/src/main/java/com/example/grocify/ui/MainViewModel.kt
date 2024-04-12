@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.example.grocify.api.KrogerClient.krogerService
 import com.example.grocify.db.DatabaseConnection
 import com.example.grocify.models.GrocifyCategory
+import com.example.grocify.models.KrogerLocationsResponse
 import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.KrogerProductsResponse
 import com.example.grocify.models.User
@@ -16,23 +17,24 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class MainViewModel : ViewModel() {
+    /* Database globals. */
     private val databaseConnection = DatabaseConnection()
 
-    private val _categoryProductCounts = MutableLiveData<HashMap<String, Int>>()
-    val categoryProductCounts: LiveData<HashMap<String, Int>> = _categoryProductCounts
-
-    private val _cartProducts = MediatorLiveData<KrogerProductsResponse>()
-    val cartProducts: LiveData<KrogerProductsResponse> = _cartProducts
-
+    /* API globals. */
     private var cachedToken: String? = null
     private var tokenExpirationTime: Long = 0
 
+    /* API response globals. */
     private val _products = MutableLiveData<KrogerProductsResponse>()
     val products: LiveData<KrogerProductsResponse> get() = _products
 
     private val _product = MutableLiveData<KrogerProductResponse>()
     val product: LiveData<KrogerProductResponse> get() = _product
 
+    private val _locations = MutableLiveData<KrogerLocationsResponse>()
+    val locations: LiveData<KrogerLocationsResponse> get() = _locations
+
+    /* Header globals. */
     private val _title = MutableLiveData<String?>()
     val title: MutableLiveData<String?> get() = _title
 
@@ -48,9 +50,19 @@ class MainViewModel : ViewModel() {
     private val _showBackButton = MutableLiveData<Boolean>()
     val showBackButton: LiveData<Boolean> get() = _showBackButton
 
+    /* User globals. */
     private val _user = MutableLiveData<User?>()
     val user: LiveData<User?> get() = _user
 
+    /* Category globals. */
+    private val _categoryProductCounts = MutableLiveData<HashMap<String, Int>>()
+    val categoryProductCounts: LiveData<HashMap<String, Int>> = _categoryProductCounts
+
+    /* Cart globals. */
+    private val _cartProducts = MediatorLiveData<KrogerProductsResponse>()
+    val cartProducts: LiveData<KrogerProductsResponse> = _cartProducts
+
+    /* API calls. */
     private suspend fun getToken(): String {
         return if (cachedToken != null && System.currentTimeMillis() < tokenExpirationTime)
             cachedToken!!
@@ -99,20 +111,29 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun updateHeader(
-        title: String?,
-        subtitle: String? = null,
-        favoritesVisible: Boolean = true,
-        searchVisible: Boolean = false,
-        showBackButton: Boolean = false
-    ) {
-        _title.postValue(title)
-        _subtitle.postValue(subtitle)
-        _favoritesVisible.postValue(favoritesVisible)
-        _searchVisible.postValue(searchVisible)
-        _showBackButton.postValue(showBackButton)
+    fun getLocations(zipCode: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val token = getToken()
+                val response = krogerService.getLocations(
+                    "Bearer $token",
+                    "application/json",
+                    zipCode,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null)
+                _locations.postValue(response)
+            }
+            catch (_: Exception) { }
+        }
     }
 
+    /* Database logic. */
     fun getCategories(
         onSuccess: (List<GrocifyCategory>) -> Unit,
         onFailure: (Exception) -> Unit
@@ -158,6 +179,20 @@ class MainViewModel : ViewModel() {
         _user.postValue(user)
     }
 
+    /* Header logic. */
+    fun updateHeader(
+        title: String?,
+        subtitle: String? = null,
+        favoritesVisible: Boolean = true,
+        searchVisible: Boolean = false,
+        showBackButton: Boolean = false
+    ) {
+        _title.postValue(title)
+        _subtitle.postValue(subtitle)
+        _favoritesVisible.postValue(favoritesVisible)
+        _searchVisible.postValue(searchVisible)
+        _showBackButton.postValue(showBackButton)
+    }
 
 
 //    private var cartList = MediatorLiveData<List<KrogerProduct>>().apply {
@@ -181,7 +216,5 @@ class MainViewModel : ViewModel() {
 //            }
 //        }
 //    }
-
-
 
 }

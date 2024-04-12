@@ -2,18 +2,35 @@
 
 <resources>
 
-    <string name="category">Category</string>
+    <string name="cancel">Cancel</string>
     <string name="cart">Cart</string>
+    <string name="category">Category</string>
+    <string name="categories_load_failed">Failed to load categories.</string>
+    <string name="default_location_id">01400513</string>
+    <string name="default_zip_code">45202</string>
     <string name="email">Email</string>
     <string name="favorites">Favorites</string>
     <string name="grocify">Grocify</string>
+    <string name="hi">Hi</string>
+    <string name="invalid_card_number">Invalid card number.</string>
+    <string name="invalid_email_address">Invalid email address.</string>
+    <string name="invalid_name">Invalid name.</string>
+    <string name="invalid_password">Invalid password.</string>
+    <string name="invalid_zip_code">Invalid zip code.</string>
+    <string name="items">items</string>
     <string name="logout">Logout</string>
     <string name="name">Name</string>
+    <string name="no_kroger_location">No Kroger location at that zip code.</string>
     <string name="password">Password</string>
+    <string name="payment_method">Payment Method</string>
     <string name="profile">Profile</string>
+    <string name="product_image">Product Image</string>
     <string name="save">Save</string>
     <string name="search">Search Grocify</string>
-    <string name="payment_method">Payment Method</string>
-    <string name="cancel">Cancel</string>
+    <string name="user">User</string>
+    <string name="user_add_failed">Failed to add user.</string>
+    <string name="user_load_failed">Failed to load user.</string>
+    <string name="user_update_failed">Failed to update user.</string>
+    <string name="zip_code">Zip Code</string>
 
 </resources>

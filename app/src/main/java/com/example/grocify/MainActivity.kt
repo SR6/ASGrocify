@@ -15,6 +15,7 @@ import com.example.grocify.models.User
 import com.example.grocify.ui.AuthUser
 import com.example.grocify.ui.MainViewModel
 import com.google.firebase.FirebaseApp
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -85,6 +86,7 @@ class MainActivity : AppCompatActivity() {
 //                viewModel.getProducts(category)
             }
         }
+
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -96,19 +98,45 @@ class MainActivity : AppCompatActivity() {
     private fun initializeUser() {
         val firebaseUser = FirebaseAuth.getInstance().currentUser
 
-        if (firebaseUser != null && firebaseUser.email != null && firebaseUser.displayName != null) {
+        if (firebaseUser != null) {
             viewModel.getUser(firebaseUser.email!!, onSuccess = { user ->
                 if (user == null) {
                     viewModel.addUser(
-                        User(UUID.randomUUID().toString(), firebaseUser.email!!, firebaseUser.displayName!!, null, null),
+                        User(UUID.randomUUID().toString(),
+                            firebaseUser.email!!,
+                            firebaseUser.displayName!!,
+                            Timestamp.now(),
+                            Timestamp.now(),
+                            "",
+                            resources.getString(R.string.default_zip_code),
+                            resources.getString(R.string.default_location_id)),
                         onSuccess = { },
                         onFailure = {
-                            Toast.makeText(applicationContext, "Failed to add user", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(applicationContext, resources.getString(R.string.user_add_failed), Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+                else {
+                    viewModel.updateUser(
+                        User(user.userId,
+                            firebaseUser.email!!,
+                            firebaseUser.displayName!!,
+                            user.createdAt,
+                            Timestamp.now(),
+                            user.paymentMethod,
+                            user.zipCode,
+                            user.locationId),
+                        onSuccess = {
+                            if (navController.currentDestination?.id != R.id.navigation_category)
+                                navController.navigateUp()
+                        },
+                        onFailure = {
+                            Toast.makeText(applicationContext, resources.getString(R.string.user_update_failed), Toast.LENGTH_SHORT).show()
                         }
                     )
                 }
             }, onFailure = {
-                Toast.makeText(applicationContext, "Failed to load user", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, resources.getString(R.string.user_load_failed), Toast.LENGTH_SHORT).show()
             })
         }
     }

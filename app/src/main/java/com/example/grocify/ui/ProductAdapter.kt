@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.grocify.R
-import com.example.grocify.databinding.RowItemBinding
+import com.example.grocify.databinding.ProductItemBinding
 import com.example.grocify.db.Glide
 import com.example.grocify.models.KrogerProduct
 import com.example.grocify.db.GlideProductUrl
@@ -15,7 +15,7 @@ import java.io.File
 class ProductAdapter(private val viewModel:MainViewModel)
     : ListAdapter<KrogerProduct, ProductAdapter.VH>(ItemDiff()) {
 
-    inner class VH(val rowCategoryBinding : RowItemBinding)
+    inner class VH(val rowCategoryBinding : ProductItemBinding)
         : RecyclerView.ViewHolder(rowCategoryBinding.root) {
         init {
             itemView.setOnClickListener {
@@ -27,7 +27,7 @@ class ProductAdapter(private val viewModel:MainViewModel)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val rowBinding = RowItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val rowBinding = ProductItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return VH(rowBinding)
     }
 
@@ -48,7 +48,7 @@ class ProductAdapter(private val viewModel:MainViewModel)
         }
         if (!productPick.images.isEmpty()) {
             val imageUrl = productPick.images[0].sizes[0].url
-            Glide.loadProductImage(imageUrl, holder.rowCategoryBinding.productPic,150,150)
+            Glide.loadProductImage(imageUrl, holder.rowCategoryBinding.productImage,250,250)
             //var imageFile : File = File.createTempFile(imageName,"")
 //            Glide.with (this)
 //                .load(imageName)
@@ -66,7 +66,7 @@ class ProductAdapter(private val viewModel:MainViewModel)
 //        }
         //set ClickListener for button to add to Cart
         holder.rowCategoryBinding.addToCart.setOnClickListener{
-            var row =getItem(position)
+            var row = getItem(position)
             //we need to decide how we want to do this. Do we have another list that holds just these items?
 //            row.inCart = !row.inCart
 //            viewModel.setCartList(row)

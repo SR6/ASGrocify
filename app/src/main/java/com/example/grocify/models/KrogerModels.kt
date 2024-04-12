@@ -13,7 +13,7 @@ data class AuthTokenResponse(
 
 data class KrogerProductsResponse(
     @SerializedName("data") val products: List<KrogerProduct>,
-    @SerializedName("meta") val meta: Meta
+    @SerializedName("meta") val meta: ProductMeta
 )
 
 data class KrogerProductResponse(
@@ -98,8 +98,72 @@ data class Size(
     @SerializedName("url") val url: String
 )
 
-data class Meta(
+data class ProductMeta(
     @SerializedName("pagination") val pagination: Pagination
+)
+
+data class KrogerLocationsResponse(
+    @SerializedName("data") val data: List<Location>,
+    @SerializedName("meta") val meta: LocationMeta
+)
+
+data class Location(
+    @SerializedName("address") val address: Address,
+    @SerializedName("chain") val chain: String,
+    @SerializedName("phone") val phone: String,
+    @SerializedName("departments") val departments: List<Department>,
+    @SerializedName("geolocation") val geolocation: Geolocation,
+    @SerializedName("hours") val hours: Hours,
+    @SerializedName("locationId") val locationId: String,
+    @SerializedName("storeNumber") val storeNumber: String,
+    @SerializedName("divisionNumber") val divisionNumber: String,
+    @SerializedName("name") val name: String
+)
+
+data class Address(
+    @SerializedName("addressLine1") val addressLine1: String,
+    @SerializedName("addressLine2") val addressLine2: String,
+    @SerializedName("city") val city: String,
+    @SerializedName("county") val county: String,
+    @SerializedName("state") val state: String,
+    @SerializedName("zipCode") val zipCode: String
+)
+
+data class Department(
+    @SerializedName("departmentId") val departmentId: String,
+    @SerializedName("name") val name: String,
+    @SerializedName("phone") val phone: String,
+    @SerializedName("hours") val hours: Hours
+)
+
+data class Hours(
+    @SerializedName("Open24") val Open24: Boolean,
+    @SerializedName("gmtOffset") val gmtOffset: String,
+    @SerializedName("timezone") val timezone: String,
+    @SerializedName("friday") val friday: Day,
+    @SerializedName("monday") val monday: Day,
+    @SerializedName("saturday") val saturday: Day,
+    @SerializedName("sunday") val sunday: Day,
+    @SerializedName("thursday") val thursday: Day,
+    @SerializedName("tuesday") val tuesday: Day,
+    @SerializedName("wednesday") val wednesday: Day
+)
+
+data class Day(
+    @SerializedName("open") val open: String,
+    @SerializedName("close") val close: Int,
+    @SerializedName("open24") val open24: Boolean
+)
+
+data class Geolocation(
+    @SerializedName("latLng") val latLng: String,
+    @SerializedName("latitude") val latitude: Double,
+    @SerializedName("longitude") val longitude: Double
+)
+
+data class LocationMeta(
+    @SerializedName("pagination") val pagination: Pagination,
+    @SerializedName("warnings") val warnings: List<String>
 )
 
 data class Pagination(

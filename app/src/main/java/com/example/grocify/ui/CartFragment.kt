@@ -41,8 +41,8 @@ class CartFragment : Fragment() {
 //        }
     }
     override fun onDestroyView() {
+        super.onDestroyView()
         _binding = null
         _recyclerBinding = null
-        super.onDestroyView()
     }
 }

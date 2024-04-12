@@ -46,12 +46,12 @@ class CategoryFragment : Fragment() {
                     FirebaseAuth.getInstance().currentUser?.displayName?.split(" ")?.firstOrNull()
 
                 if (userFirstName.isNullOrBlank())
-                    userFirstName = "User"
+                    userFirstName = resources.getString(R.string.user)
 
                 if (userFirstName.length > 15)
                     userFirstName = userFirstName.substring(0, 15) + "..."
 
-                viewModel.updateHeader(getString(R.string.grocify), "Hi, $userFirstName")
+                viewModel.updateHeader(getString(R.string.grocify), resources.getString(R.string.hi) + ", " + userFirstName)
 
                 populateCategories()
             }
@@ -95,7 +95,7 @@ class CategoryFragment : Fragment() {
 //                            categoryItemBinding.categoryCount.text = "loading..."
 //                        else
                         categoryItemBinding.categoryCount.text =
-                            categoryProductCounts[category.name].toString() + " items"
+                            categoryProductCounts[category.name].toString() + " " + resources.getString(R.string.items)
                     }
 
                     categoryItemBinding.root.setOnClickListener {
@@ -123,8 +123,7 @@ class CategoryFragment : Fragment() {
                 }
             },
             onFailure = {
-                Log.d("HERE789", "HERE789")
-                Toast.makeText(requireContext(), "Failed to load categories", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), resources.getString(R.string.categories_load_failed), Toast.LENGTH_SHORT)
                     .show()
             }
         )
