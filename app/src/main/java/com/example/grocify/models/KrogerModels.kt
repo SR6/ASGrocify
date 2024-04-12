@@ -31,7 +31,7 @@ data class KrogerProduct(
     @SerializedName("itemInformation") val itemInformation: ItemInformation,
     @SerializedName("temperature") val temperature: Temperature,
     @SerializedName("images") val images: List<Image>,
-    @SerializedName("upc") var ucp: String,
+    @SerializedName("upc") var upc: String,
 )
 
 data class AisleLocation(

@@ -1,5 +1,6 @@
 package com.example.grocify.ui
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -12,16 +13,24 @@ import com.example.grocify.models.KrogerProduct
 import com.example.grocify.db.GlideProductUrl
 import java.io.File
 
-class ProductAdapter(private val viewModel:MainViewModel)
+class ProductAdapter(private val viewModel:MainViewModel,
+    private val navigateToSingleItem: (String) -> Unit )
     : ListAdapter<KrogerProduct, ProductAdapter.VH>(ItemDiff()) {
 
     inner class VH(val rowCategoryBinding : ProductItemBinding)
         : RecyclerView.ViewHolder(rowCategoryBinding.root) {
         init {
             itemView.setOnClickListener {
-                //val currentPos = bindingAdapterPosition
-                //navigateToItems(category)
+                val currentPos = bindingAdapterPosition
+                val prodList = viewModel.observeProductList()
+                val product = prodList[currentPos]
+                //val prodId = product.productId
+                Log.d("ItemNav"," OnClickListener ProductID ${product.productId} UPC ${product.upc}")
+                navigateToSingleItem(product.productId)
                 //notifyDataSetChanged()
+            }
+            itemView.setOnLongClickListener {
+                true
             }
         }
     }

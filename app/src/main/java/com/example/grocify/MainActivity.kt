@@ -83,6 +83,7 @@ class MainActivity : AppCompatActivity() {
 
         for (category in resources.getStringArray(R.array.categories)) {
             lifecycleScope.launch {
+                //commented out to reduce requests to Kroger
 //                viewModel.getProducts(category)
             }
         }

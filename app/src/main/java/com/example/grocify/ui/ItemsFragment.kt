@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.grocify.databinding.RecyclerFragmentBinding
@@ -32,7 +33,11 @@ class ItemsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val rowAdapter = ProductAdapter(viewModel)
+        val rowAdapter = ProductAdapter(viewModel) {
+            //TODO: Add action and findNavController().navigate(action) Need productId
+            val action = ItemsFragmentDirections.actionItemsFragmentToItemFragment(it)
+            findNavController().navigate(action)
+        }
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = rowAdapter
 

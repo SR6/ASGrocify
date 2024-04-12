@@ -27,7 +27,18 @@
         <argument
             android:name="category"
             app:argType="string" />
+        <action
+            android:id="@+id/action_itemsFragment_to_itemFragment"
+            app:destination="@id/itemFragment"/>
 
+    </fragment>
+    <fragment
+        android:id="@+id/itemFragment"
+        android:name="com.example.grocify.ui.ItemFragment"
+        android:label="Single Item" >
+        <argument
+            android:name="productID"
+            app:argType="string"/>
     </fragment>
 
     <fragment

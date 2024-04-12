@@ -8,6 +8,7 @@ import com.example.grocify.api.KrogerClient.krogerService
 import com.example.grocify.db.DatabaseConnection
 import com.example.grocify.models.GrocifyCategory
 import com.example.grocify.models.KrogerLocationsResponse
+import com.example.grocify.models.KrogerProduct
 import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.KrogerProductsResponse
 import com.example.grocify.models.User
@@ -83,7 +84,7 @@ class MainViewModel : ViewModel() {
                     "application/json",
                     null,
                     null,
-                    null,
+                    "01400943", //I have no idea where this is, just the example from the documentation
                     null,
                     null,
                     term)
@@ -192,6 +193,15 @@ class MainViewModel : ViewModel() {
         _favoritesVisible.postValue(favoritesVisible)
         _searchVisible.postValue(searchVisible)
         _showBackButton.postValue(showBackButton)
+    }
+
+
+
+    fun observeProductList(): List<KrogerProduct>{
+        return products.value!!.products
+    }
+    fun observeProduct(): KrogerProduct {
+        return product.value!!.product
     }
 
 
