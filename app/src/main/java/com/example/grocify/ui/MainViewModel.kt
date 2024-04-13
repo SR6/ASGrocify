@@ -1,9 +1,11 @@
 package com.example.grocify.ui
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.grocify.api.KrogerClient.krogerService
 import com.example.grocify.db.DatabaseConnection
 import com.example.grocify.models.GrocifyCategory
@@ -99,19 +101,23 @@ class MainViewModel : ViewModel() {
                 _categoryProductCounts.postValue(temp)
                 _isApiRequestCompleted.value = true
             }
-            catch (_: Exception) { }
+            catch (e: Exception) {
+                Log.e("ItemNav","Error fetching product ${e.message}")
+            }
         }
     }
 
     fun getProductById(productId: String) {
         CoroutineScope(Dispatchers.IO).launch {
+        //viewModelScope.launch{
             try {
                 val token = getToken()
                 val response = krogerService.getProductById(
                     "Bearer $token",
                     "application/json",
-                    productId)
+                    productId.trim())
                 _product.postValue(response)
+                Log.d("ItemNav","Item fetched ${response.product}")
             }
             catch (_: Exception) { }
         }

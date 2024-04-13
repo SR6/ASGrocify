@@ -73,7 +73,7 @@ class ProductAdapter(private val viewModel:MainViewModel,
 //            if (row.inCart) {
 //                holder.rowCategoryBinding.addToCart.setImageResource(R.drawable.ic_delete)
 //            } else {
-                holder.rowCategoryBinding.addToCart.setImageResource(R.drawable.ic_add)
+            holder.rowCategoryBinding.addToCart.setImageResource(R.drawable.ic_add)
 //            }
 
         }

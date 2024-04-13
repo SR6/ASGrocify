@@ -1,7 +1,9 @@
 package com.example.grocify
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -57,6 +59,28 @@ class MainActivity : AppCompatActivity() {
         headerBinding.favorites.setOnClickListener {
             navController.navigate(R.id.navigation_favorites)
         }
+        headerBinding.search.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (!query.isNullOrEmpty()) {
+                    Log.d("search", "MainActivity SearchButton Clicked $query")
+                    lifecycleScope.launch {
+                        //commented out to reduce requests to Kroger
+                        viewModel.getProducts(query)
+                    }
+                    navController.navigate(R.id.navigation_search)
+                }
+                return true
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                //Suggest this stays empty else it will send a new query for every change of character
+                // This method is called when the user changes the text in the SearchView
+                //if(!newText.isNullOrEmpty()) {
+                //    Log.d("search","QueryChange MainActivity $newText")
+                //    navController.navigate(R.id.navigation_search)
+                //}
+                return false
+            }
+        })
 
         viewModel.title.observe(this) { title ->
             headerBinding.title.text = title ?: ""

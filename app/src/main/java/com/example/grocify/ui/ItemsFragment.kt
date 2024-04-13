@@ -33,13 +33,13 @@ class ItemsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val rowAdapter = ProductAdapter(viewModel) {
+        val productAdapter = ProductAdapter(viewModel) {
             //TODO: Add action and findNavController().navigate(action) Need productId
             val action = ItemsFragmentDirections.actionItemsFragmentToItemFragment(it)
             findNavController().navigate(action)
         }
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
-        binding.recycler.adapter = rowAdapter
+        binding.recycler.adapter = productAdapter
 
         lifecycleScope.launch {
             viewModel.getProducts(args.category)
@@ -47,7 +47,7 @@ class ItemsFragment : Fragment() {
 
         viewModel.products.observe(viewLifecycleOwner) { products ->
             if (products != null) {
-                rowAdapter.submitList(products.products)
+                productAdapter.submitList(products.products)
             }
         }
     }
