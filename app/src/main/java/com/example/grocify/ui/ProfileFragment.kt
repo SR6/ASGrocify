@@ -2,12 +2,12 @@ package com.example.grocify.ui
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.grocify.R
 import com.example.grocify.databinding.ProfileFragmentBinding
@@ -31,14 +30,27 @@ class ProfileFragment : Fragment() {
     private var _binding: ProfileFragmentBinding? = null
     private val binding get() = _binding!!
 
+    private var isActionInProgress: Boolean = false
+    private var isToastShown: Boolean = false
+
+    private var validName: Boolean = true
+    private var validEmail: Boolean = true
+    private var validPassword: Boolean = true
+    private var validPaymentMethod: Boolean = true
+    private var validZipCode: Boolean = true
+
+    private var newName: String = ""
+    private var newEmail: String = ""
+    private var newPassword: String = ""
+    private var newPaymentMethod: String = ""
+    private var newZipCode: String = ""
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = ProfileFragmentBinding.inflate(inflater, container, false)
-
-        binding.edit.bringToFront()
 
         viewModel.updateHeader("Profile", null, favoritesVisible = false)
 
@@ -65,17 +77,109 @@ class ProfileFragment : Fragment() {
     }
 
     private fun populateProfile() {
-        var userName = FirebaseAuth.getInstance().currentUser?.displayName
-        val userEmail = FirebaseAuth.getInstance().currentUser?.email
-        val userPassword = FirebaseAuth.getInstance().currentUser?.uid
+        initializeProfile()
 
+        binding.edit.setOnClickListener {
+            updateProfile(true, R.color.black, View.VISIBLE, View.GONE)
+
+            binding.editPassword.setOnFocusChangeListener {_, isFocused ->
+                if (isFocused) {
+                    binding.editPassword.text = null
+                    binding.editPassword.hint = resources.getString(R.string.password)
+                }
+            }
+        }
+
+        binding.cancel.setOnClickListener {
+            updateProfile(false, R.color.gray, View.GONE, View.VISIBLE)
+            removeErrors()
+        }
+
+        binding.save.setOnClickListener {
+            initializeSave()
+
+            val firebaseUser = FirebaseAuth.getInstance().currentUser
+
+            checkErrors()
+
+            if (firebaseUser?.displayName != newName) {
+                val profileUpdates = UserProfileChangeRequest.Builder().setDisplayName(newName).build()
+
+                if (validName)
+                    firebaseUser?.updateProfile(profileUpdates)?.addOnCompleteListener { }
+            }
+
+            if (firebaseUser?.email != newEmail) {
+                if (validEmail)
+                    firebaseUser?.updateEmail(newEmail)?.addOnCompleteListener { }
+            }
+
+            if (validPassword)
+                firebaseUser?.updatePassword(newPassword)?.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.e("HELLO", "HI")
+                    } else {
+                        // Password update failed
+                        val exception = task.exception
+                        // Handle the exception or log the error message
+                        Log.e("YOOO", "Error updating password: ${exception?.message}")
+                    }
+                }
+//                firebaseUser?.updatePassword(newPassword)?.addOnCompleteListener { }
+
+            Log.d("HERE123", "${validFields()}")
+
+            if (!isActionInProgress) {
+                isActionInProgress = true
+                binding.saveButton.isEnabled = false
+
+                lifecycleScope.launch {
+                    if (validFields()) {
+                        viewModel.setIsApiRequestCompleted(false)
+                        viewModel.getLocations(newZipCode)
+
+                        viewModel.isApiRequestCompleted.observe(viewLifecycleOwner) { isCompleted ->
+                            if (isCompleted) {
+                                viewModel.locations.observe(viewLifecycleOwner) { locations ->
+                                    if (locations.data.isEmpty()) {
+                                        validZipCode = false
+                                        binding.editZipCode.error = resources.getString(R.string.no_kroger_location)
+                                    } else {
+                                        binding.editZipCode.error = null
+                                        if (validFields())
+                                            updateUser(newEmail, newName, newPaymentMethod, newZipCode, locations.data[0].locationId)
+                                    }
+
+                                    binding.save.isEnabled = true
+                                    isActionInProgress = false
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        binding.logout.setOnClickListener {
+            val confirmationDialog = ConfirmationDialogFragment {
+                FirebaseAuth.getInstance().signOut()
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.logout_success),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            confirmationDialog.show(parentFragmentManager, resources.getString(R.string.logout))
+        }
+    }
+
+    private fun initializeProfile() {
+        binding.edit.bringToFront()
         binding.cancelOrSave.visibility = View.GONE
-
         binding.edit.setColorFilter(ContextCompat.getColor(requireContext(), R.color.gray))
-
-        binding.editName.setText(userName)
-        binding.editEmail.setText(userEmail)
-        binding.editPassword.setText("Password123")
+        binding.editName.setText(FirebaseAuth.getInstance().currentUser?.displayName)
+        binding.editEmail.setText(FirebaseAuth.getInstance().currentUser?.email)
+        binding.editPassword.setText(FirebaseAuth.getInstance().currentUser?.uid)
 
         viewModel.user.observe(viewLifecycleOwner) {
             if (it != null) {
@@ -83,127 +187,61 @@ class ProfileFragment : Fragment() {
                 binding.editZipCode.setText(it.zipCode)
             }
         }
+    }
 
-        binding.edit.setOnClickListener {
-            updateProfile(true, R.color.black, View.VISIBLE, View.GONE)
+    private fun validFields(): Boolean {
+        return(validName && validEmail && validPassword && validPaymentMethod && validZipCode)
+    }
+
+    private fun checkErrors() {
+        if (newName.isBlank() || newName.length > 32) {
+            validName = false
+            binding.editName.error = resources.getString(R.string.invalid_name)
         }
 
-        binding.cancel.setOnClickListener {
-            updateProfile(false, R.color.gray, View.GONE, View.VISIBLE)
-            binding.editName.error = null
-            binding.editEmail.error = null
-            binding.editPassword.error = null
-            binding.editPaymentMethod.error = null
-            binding.editZipCode.error = null
+        if (newEmail.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+            validEmail = false
+            binding.editEmail.error = resources.getString(R.string.invalid_email_address)
         }
 
-        binding.save.setOnClickListener {
-            var locationId = ""
-
-            var validName = true
-            var validEmail = true
-            var validPassword = true
-            var validPaymentMethod = true
-            var validZipCode = true
-
-            val newName = binding.editName.text.toString()
-            val newEmail = binding.editEmail.text.toString()
-            val newPassword = binding.editPassword.text.toString()
-            var newPaymentMethod = binding.editPaymentMethod.text.toString()
-            val newZipCode = binding.editZipCode.text.toString()
-
-            val firebaseUser = FirebaseAuth.getInstance().currentUser
-
-            if (firebaseUser?.displayName != newName) {
-                if (newName.isBlank() || newName.length > 32) {
-                    validName = false
-                    Toast.makeText(requireContext(), resources.getString(R.string.invalid_name), Toast.LENGTH_SHORT).show()
-                    binding.editName.error = resources.getString(R.string.invalid_name)
-                }
-
-                val profileUpdates = UserProfileChangeRequest.Builder()
-                    .setDisplayName(newName)
-                    .build()
-
-                if (validName)
-                    firebaseUser?.updateProfile(profileUpdates)?.addOnCompleteListener { }
-            }
-
-            if (firebaseUser?.email != newEmail) {
-                if (newEmail.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
-                    validEmail = false
-                    Toast.makeText(requireContext(), resources.getString(R.string.invalid_email_address), Toast.LENGTH_SHORT).show()
-                    binding.editEmail.error = resources.getString(R.string.invalid_email_address)
-                }
-
-                if (validEmail)
-                    firebaseUser?.updateEmail(newEmail)?.addOnCompleteListener { }
-            }
-
-//            if (newPassword.isNotBlank()) {
-//                user?.updatePassword(newPassword)
-//                    ?.addOnCompleteListener {
-//                    }
-//            }
-
-            if (newPaymentMethod.isBlank() || newPaymentMethod.length != 16 || !newPaymentMethod.all { it.isDigit() }) {
-                validPaymentMethod = false
-                Toast.makeText(requireContext(), resources.getString(R.string.invalid_card_number), Toast.LENGTH_SHORT).show()
-                binding.editPaymentMethod.error = resources.getString(R.string.invalid_card_number)
-            }
-
-            if (newZipCode.isBlank() || newZipCode.length != 5 || !newZipCode.all { it.isDigit() }) {
-                validZipCode = false
-                Toast.makeText(requireContext(), resources.getString(R.string.invalid_zip_code), Toast.LENGTH_SHORT).show()
-                binding.editZipCode.error = resources.getString(R.string.invalid_zip_code)
-            }
-
-            if (validZipCode) {
-                lifecycleScope.launch {
-                    viewModel.getLocations(newZipCode)
-                }
-
-                viewModel.locations.observe(viewLifecycleOwner) { locations ->
-                    if (locations.data.isEmpty()) {
-                        validZipCode = false
-                        Toast.makeText(requireContext(), resources.getString(R.string.no_kroger_location), Toast.LENGTH_SHORT).show()
-                        binding.editZipCode.error = resources.getString(R.string.no_kroger_location)
-                    }
-                    else
-                        locationId = locations.data[0].locationId
-                }
-            }
-
-            if (validName && validEmail && validPassword && validPaymentMethod && validZipCode) {
-                viewModel.updateUser(
-                    User(
-                        viewModel.user.value!!.userId,
-                        newEmail,
-                        newName,
-                        viewModel.user.value!!.createdAt,
-                        viewModel.user.value!!.lastLoginAt,
-                        newPaymentMethod,
-                        newZipCode,
-                        locationId
-                    ),
-                    onSuccess = {
-                        Toast.makeText(context, "Profile successfully updated.", Toast.LENGTH_SHORT).show()
-                        updateProfile(false, R.color.gray, View.GONE, View.VISIBLE)
-                    },
-                    onFailure = {
-                        Toast.makeText(context, "Failed to update", Toast.LENGTH_SHORT).show()
-                    }
-                )
-            }
+        if (newPassword.isBlank() || newPassword.length > 32) {
+            validPassword = false
+            binding.editPassword.error = resources.getString(R.string.invalid_password)
         }
 
-        binding.logout.setOnClickListener {
-            val confirmationDialog = ConfirmationDialogFragment {
-                FirebaseAuth.getInstance().signOut()
-                Toast.makeText(requireContext(), "Logged out successfully.", Toast.LENGTH_SHORT).show()
-            }
-            confirmationDialog.show(parentFragmentManager, "LogoutDialog")
+        if (newPaymentMethod.isBlank() || newPaymentMethod.length != 16 || !newPaymentMethod.all { it.isDigit() }) {
+            validPaymentMethod = false
+            binding.editPaymentMethod.error = resources.getString(R.string.invalid_card_number)
         }
+
+        if (newZipCode.isBlank() || newZipCode.length != 5 || !newZipCode.all { it.isDigit() }) {
+            validZipCode = false
+            binding.editZipCode.error = resources.getString(R.string.invalid_zip_code)
+        }
+    }
+
+    private fun removeErrors() {
+        binding.editName.error = null
+        binding.editEmail.error = null
+        binding.editPassword.error = null
+        binding.editPaymentMethod.error = null
+        binding.editZipCode.error = null
+    }
+
+    private fun initializeSave() {
+        validName = true
+        validEmail = true
+        validPassword = true
+        validPaymentMethod = true
+        validZipCode = true
+
+        newName = binding.editName.text.toString()
+        newEmail = binding.editEmail.text.toString()
+        newPassword = binding.editPassword.text.toString()
+        newPaymentMethod = binding.editPaymentMethod.text.toString()
+        newZipCode = binding.editZipCode.text.toString()
+
+        isToastShown = false
     }
 
     private fun updateProfile(isEnabled: Boolean, color: Int, cancelOrSubmitVisibility: Int, logoutVisibility: Int) {
@@ -218,8 +256,49 @@ class ProfileFragment : Fragment() {
         binding.editPassword.setTextColor(ContextCompat.getColor(requireContext(), color))
         binding.editPaymentMethod.setTextColor(ContextCompat.getColor(requireContext(), color))
         binding.editZipCode.setTextColor(ContextCompat.getColor(requireContext(), color))
+        binding.editName.setText(FirebaseAuth.getInstance().currentUser?.displayName)
+        binding.editEmail.setText(FirebaseAuth.getInstance().currentUser?.email)
+        binding.editPassword.setText(FirebaseAuth.getInstance().currentUser?.uid)
+        binding.editPaymentMethod.setText(viewModel.user.value!!.paymentMethod)
+        binding.editZipCode.setText(viewModel.user.value!!.zipCode)
         binding.cancelOrSave.visibility = cancelOrSubmitVisibility
         binding.logout.visibility = logoutVisibility
+    }
+
+    private fun updateUser(newEmail: String, newName: String, newPaymentMethod: String, newZipCode: String, locationId: String) {
+        viewModel.updateUser(
+                User(
+                    viewModel.user.value!!.userId,
+                    newEmail,
+                    newName,
+                    viewModel.user.value!!.createdAt,
+                    viewModel.user.value!!.lastLoginAt,
+                    newPaymentMethod,
+                    newZipCode,
+                    locationId
+                ),
+                onSuccess = {
+                    if (!isToastShown) {
+                        Toast.makeText(
+                            context,
+                            resources.getString(R.string.profile_update_successful),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        updateProfile(false, R.color.gray, View.GONE, View.VISIBLE)
+                        isToastShown = true
+                    }
+                },
+                onFailure = {
+                    if (!isToastShown) {
+                        Toast.makeText(
+                            context,
+                            resources.getString(R.string.profile_update_failed),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        isToastShown = true
+                    }
+                }
+        )
     }
 }
 

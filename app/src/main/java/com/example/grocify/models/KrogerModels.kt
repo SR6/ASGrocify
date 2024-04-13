@@ -13,7 +13,7 @@ data class AuthTokenResponse(
 
 data class KrogerProductsResponse(
     @SerializedName("data") val products: List<KrogerProduct>,
-    @SerializedName("meta") val meta: ProductMeta
+    @SerializedName("meta") val meta: Meta
 )
 
 data class KrogerProductResponse(
@@ -21,17 +21,17 @@ data class KrogerProductResponse(
 )
 
 data class KrogerProduct(
-    @SerializedName("productId") val productId: String,
     @SerializedName("aisleLocations") val aisleLocations: List<AisleLocation>,
     @SerializedName("brand") val brand: String,
     @SerializedName("categories") val categories: List<String>,
     @SerializedName("countryOrigin") val countryOrigin: String,
     @SerializedName("description") val description: String,
-    @SerializedName("items") val items: List<Item>,
-    @SerializedName("itemInformation") val itemInformation: ItemInformation,
-    @SerializedName("temperature") val temperature: Temperature,
     @SerializedName("images") val images: List<Image>,
-    @SerializedName("upc") var upc: String,
+    @SerializedName("itemInformation") val itemInformation: ItemInformation,
+    @SerializedName("items") val items: List<Item>,
+    @SerializedName("productId") val productId: String,
+    @SerializedName("temperature") val temperature: Temperature,
+    @SerializedName("upc") var upc: String
 )
 
 data class AisleLocation(
@@ -40,24 +40,9 @@ data class AisleLocation(
     @SerializedName("number") val number: String? = null,
     @SerializedName("numberOfFacings") val numberOfFacings: String? = null,
     @SerializedName("sequenceNumber") val sequenceNumber: String? = null,
-    @SerializedName("side") val side: String? = null,
     @SerializedName("shelfNumber") val shelfNumber: String? = null,
-    @SerializedName("shelfPositionInBay") val shelfPositionInBay: String? = null
-)
-
-data class Item(
-    @SerializedName("itemId") val itemId: String,
-    @SerializedName("inventory") val inventory: Inventory,
-    @SerializedName("favorite") val favorite: Boolean,
-    @SerializedName("fulfillment") val fulfillment: Fulfillment,
-    @SerializedName("price") val price: Price,
-    @SerializedName("nationalPrice") val nationalPrice: Price,
-    @SerializedName("size") val size: String,
-    @SerializedName("soldBy") val soldBy: String
-)
-
-data class Inventory(
-    @SerializedName("stockLevel") val stockLevel: String
+    @SerializedName("shelfPositionInBay") val shelfPositionInBay: String? = null,
+    @SerializedName("side") val side: String? = null
 )
 
 data class Fulfillment(
@@ -67,11 +52,26 @@ data class Fulfillment(
     @SerializedName("shiptohome") val shiptohome: Boolean
 )
 
-data class Price(
-    @SerializedName("regular") val regular: Double,
-    @SerializedName("promo") val promo: Double,
-    @SerializedName("regularPerUnitEstimate") val regularPerUnitEstimate: Double,
-    @SerializedName("promoPerUnitEstimate") val promoPerUnitEstimate: Double
+data class Image(
+    @SerializedName("default") val default: Boolean,
+    @SerializedName("id") val id: String,
+    @SerializedName("perspective") val perspective: String,
+    @SerializedName("sizes") val sizes: List<Size>
+)
+
+data class Inventory(
+    @SerializedName("stockLevel") val stockLevel: String
+)
+
+data class Item(
+    @SerializedName("favorite") val favorite: Boolean,
+    @SerializedName("fulfillment") val fulfillment: Fulfillment,
+    @SerializedName("inventory") val inventory: Inventory,
+    @SerializedName("itemId") val itemId: String,
+    @SerializedName("nationalPrice") val nationalPrice: Price,
+    @SerializedName("price") val price: Price,
+    @SerializedName("size") val size: String,
+    @SerializedName("soldBy") val soldBy: String
 )
 
 data class ItemInformation(
@@ -80,16 +80,11 @@ data class ItemInformation(
     @SerializedName("width") val width: String
 )
 
-data class Temperature(
-    @SerializedName("indicator") val indicator: String,
-    @SerializedName("heatSensitive") val heatSensitive: Boolean
-)
-
-data class Image(
-    @SerializedName("id") val id: String,
-    @SerializedName("perspective") val perspective: String,
-    @SerializedName("default") val default: Boolean,
-    @SerializedName("sizes") val sizes: List<Size>
+data class Price(
+    @SerializedName("promo") val promo: Double,
+    @SerializedName("promoPerUnitEstimate") val promoPerUnitEstimate: Double,
+    @SerializedName("regular") val regular: Double,
+    @SerializedName("regularPerUnitEstimate") val regularPerUnitEstimate: Double
 )
 
 data class Size(
@@ -98,31 +93,32 @@ data class Size(
     @SerializedName("url") val url: String
 )
 
-data class ProductMeta(
-    @SerializedName("pagination") val pagination: Pagination
+data class Temperature(
+    @SerializedName("heatSensitive") val heatSensitive: Boolean,
+    @SerializedName("indicator") val indicator: String
 )
 
 data class KrogerLocationsResponse(
     @SerializedName("data") val data: List<Location>,
-    @SerializedName("meta") val meta: LocationMeta
+    @SerializedName("meta") val meta: Meta
 )
 
 data class Location(
     @SerializedName("address") val address: Address,
     @SerializedName("chain") val chain: String,
-    @SerializedName("phone") val phone: String,
     @SerializedName("departments") val departments: List<Department>,
+    @SerializedName("divisionNumber") val divisionNumber: String,
     @SerializedName("geolocation") val geolocation: Geolocation,
     @SerializedName("hours") val hours: Hours,
     @SerializedName("locationId") val locationId: String,
-    @SerializedName("storeNumber") val storeNumber: String,
-    @SerializedName("divisionNumber") val divisionNumber: String,
-    @SerializedName("name") val name: String
+    @SerializedName("name") val name: String,
+    @SerializedName("phone") val phone: String,
+    @SerializedName("storeNumber") val storeNumber: String
 )
 
 data class Address(
     @SerializedName("addressLine1") val addressLine1: String,
-    @SerializedName("addressLine2") val addressLine2: String,
+    @SerializedName("addressLine2") val addressLine2: String?,
     @SerializedName("city") val city: String,
     @SerializedName("county") val county: String,
     @SerializedName("state") val state: String,
@@ -130,28 +126,31 @@ data class Address(
 )
 
 data class Department(
+    @SerializedName("address") val address: Address?,
     @SerializedName("departmentId") val departmentId: String,
+    @SerializedName("geolocation") val geolocation: Geolocation?,
+    @SerializedName("hours") val hours: Hours?,
     @SerializedName("name") val name: String,
-    @SerializedName("phone") val phone: String,
-    @SerializedName("hours") val hours: Hours
+    @SerializedName("offsite") val offsite: Boolean?,
+    @SerializedName("phone") val phone: String?
 )
 
 data class Hours(
-    @SerializedName("Open24") val Open24: Boolean,
-    @SerializedName("gmtOffset") val gmtOffset: String,
-    @SerializedName("timezone") val timezone: String,
     @SerializedName("friday") val friday: Day,
+    @SerializedName("gmtOffset") val gmtOffset: String,
     @SerializedName("monday") val monday: Day,
+    @SerializedName("open24") val open24: Boolean,
     @SerializedName("saturday") val saturday: Day,
     @SerializedName("sunday") val sunday: Day,
     @SerializedName("thursday") val thursday: Day,
+    @SerializedName("timezone") val timezone: String,
     @SerializedName("tuesday") val tuesday: Day,
     @SerializedName("wednesday") val wednesday: Day
 )
 
 data class Day(
+    @SerializedName("close") val close: String,
     @SerializedName("open") val open: String,
-    @SerializedName("close") val close: Int,
     @SerializedName("open24") val open24: Boolean
 )
 
@@ -161,13 +160,12 @@ data class Geolocation(
     @SerializedName("longitude") val longitude: Double
 )
 
-data class LocationMeta(
-    @SerializedName("pagination") val pagination: Pagination,
-    @SerializedName("warnings") val warnings: List<String>
+data class Meta(
+    @SerializedName("pagination") val pagination: Pagination
 )
 
 data class Pagination(
-    @SerializedName("start") val start: Int,
     @SerializedName("limit") val limit: Int,
+    @SerializedName("start") val start: Int,
     @SerializedName("total") val total: Int
 )

@@ -10,8 +10,6 @@ import com.example.grocify.R
 import com.example.grocify.databinding.ProductItemBinding
 import com.example.grocify.db.Glide
 import com.example.grocify.models.KrogerProduct
-import com.example.grocify.db.GlideProductUrl
-import java.io.File
 
 class ProductAdapter(private val viewModel:MainViewModel,
     private val navigateToSingleItem: (String) -> Unit )
@@ -53,25 +51,17 @@ class ProductAdapter(private val viewModel:MainViewModel,
         //val itemList = productPick.items
         //val itemPrice = itemList.price
         if (itemPrice != null) {
-            holder.rowCategoryBinding.productPrice.text = itemPrice.regular.toString() //"price".toString()
+            holder.rowCategoryBinding.productPrice.text = "$" + itemPrice.regular.toString() //"price".toString()
         }
         if (!productPick.images.isEmpty()) {
             val imageUrl = productPick.images[0].sizes[0].url
             Glide.loadProductImage(imageUrl, holder.rowCategoryBinding.productImage,250,250)
-            //var imageFile : File = File.createTempFile(imageName,"")
-//            Glide.with (this)
-//                .load(imageName)
-//                .apply(new RequestOptions()
-//                    .placeholder(R.drawable.ic_invalid_image)
-//                    .error(R.drawable.ic_invalid_image)
-//                )
-//                .into(holder.rowCategoryBinding.productPic)
-
         }
 //        if (productPick.inCart) {
 //            holder.rowCategoryBinding.addToCart.setImageResource(R.drawable.ic_delete)
 //        } else {
             holder.rowCategoryBinding.addToCart.setImageResource(R.drawable.ic_add)
+        holder.rowCategoryBinding.addToFavorites.setImageResource(R.drawable.ic_favorites)
 //        }
         //set ClickListener for button to add to Cart
         holder.rowCategoryBinding.addToCart.setOnClickListener{

@@ -2,6 +2,8 @@
 
 <resources>
 
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="add_to_favorites">Add to Favorites</string>
     <string name="cancel">Cancel</string>
     <string name="cart">Cart</string>
     <string name="category">Category</string>
@@ -19,11 +21,16 @@
     <string name="invalid_zip_code">Invalid zip code.</string>
     <string name="items">items</string>
     <string name="logout">Logout</string>
+    <string name="logout_failed">Logout failed.</string>
+    <string name="logout_success">Logout successfully.</string>
     <string name="name">Name</string>
     <string name="no_kroger_location">No Kroger location at that zip code.</string>
     <string name="password">Password</string>
+    <string name="past_transactions">Past Transactions</string>
     <string name="payment_method">Payment Method</string>
     <string name="profile">Profile</string>
+    <string name="profile_update_failed">Failed to update profile.</string>
+    <string name="profile_update_successful">Profile successfully updated.</string>
     <string name="product_image">Product Image</string>
     <string name="save">Save</string>
     <string name="search">Search Grocify</string>

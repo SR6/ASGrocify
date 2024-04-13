@@ -35,6 +35,10 @@ class MainViewModel : ViewModel() {
     private val _locations = MutableLiveData<KrogerLocationsResponse>()
     val locations: LiveData<KrogerLocationsResponse> get() = _locations
 
+
+    private val _isApiRequestCompleted = MutableLiveData<Boolean>()
+    val isApiRequestCompleted: LiveData<Boolean> get() = _isApiRequestCompleted
+
     /* Header globals. */
     private val _title = MutableLiveData<String?>()
     val title: MutableLiveData<String?> get() = _title
@@ -93,6 +97,7 @@ class MainViewModel : ViewModel() {
                 val temp = HashMap(_categoryProductCounts.value ?: hashMapOf())
                 temp[term] = response.meta.pagination.total
                 _categoryProductCounts.postValue(temp)
+                _isApiRequestCompleted.value = true
             }
             catch (_: Exception) { }
         }
@@ -129,9 +134,14 @@ class MainViewModel : ViewModel() {
                     null,
                     null)
                 _locations.postValue(response)
+                _isApiRequestCompleted.postValue(true)
             }
             catch (_: Exception) { }
         }
+    }
+
+    fun setIsApiRequestCompleted(value: Boolean) {
+        _isApiRequestCompleted.value = value
     }
 
     /* Database logic. */
