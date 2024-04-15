@@ -16,6 +16,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.grocify.R
 import com.example.grocify.databinding.ProfileFragmentBinding
 import com.example.grocify.models.User
@@ -170,6 +171,11 @@ class ProfileFragment : Fragment() {
                 ).show()
             }
             confirmationDialog.show(parentFragmentManager, resources.getString(R.string.logout))
+        }
+
+        binding.pastTransactionsTextView.setOnClickListener{
+            val action = ProfileFragmentDirections.actionProfileFragmentToPastPurchasesFragment()
+            findNavController().navigate(action)
         }
     }
 

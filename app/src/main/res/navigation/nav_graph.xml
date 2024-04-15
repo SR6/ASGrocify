@@ -42,6 +42,11 @@
     </fragment>
 
     <fragment
+        android:id="@+id/pastTransactionsFragment"
+        android:label="Past Transactions"
+        android:name="com.example.grocify.ui.PastTransactionsFragment"
+        />
+    <fragment
         android:id="@+id/navigation_search"
         android:name="com.example.grocify.ui.SearchFragment"
         android:label="@string/search"
@@ -57,7 +62,11 @@
         android:id="@+id/navigation_profile"
         android:name="com.example.grocify.ui.ProfileFragment"
         android:label="@string/profile"
-        tools:layout="@layout/profile_fragment" />
+        tools:layout="@layout/profile_fragment" >
+        <action
+            android:id="@+id/action_ProfileFragment_to_PastPurchasesFragment"
+            app:destination="@id/pastTransactionsFragment"/>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_favorites"

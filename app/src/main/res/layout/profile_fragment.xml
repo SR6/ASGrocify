@@ -207,14 +207,15 @@
                 android:contentDescription="@string/past_transactions"/>
 
             <TextView
+                android:id="@+id/pastTransactionsTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/pastTransactionsButton"
                 android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/pastTransactionsButton"
+                android:clickable="false"
                 android:text="@string/past_transactions"
-                android:textSize="20sp"
                 android:textColor="@color/black"
-                android:clickable="false" />
+                android:textSize="20sp" />
 
         </RelativeLayout>
 

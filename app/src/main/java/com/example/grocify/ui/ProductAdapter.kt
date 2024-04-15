@@ -27,9 +27,6 @@ class ProductAdapter(private val viewModel:MainViewModel,
                 navigateToSingleItem(product.productId)
                 //notifyDataSetChanged()
             }
-            itemView.setOnLongClickListener {
-                true
-            }
         }
     }
 
