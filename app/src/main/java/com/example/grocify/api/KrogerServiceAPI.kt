@@ -67,6 +67,7 @@ interface IKrogerService {
         @Header("Authorization") token: String,
         @Header("Accept") accept: String,
         @Path("productId") productId: String,
+        @Query("filter.locationId") locationId: String?
     ): KrogerProductResponse
 
     @GET("locations")

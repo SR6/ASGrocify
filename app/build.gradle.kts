@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.firebase.ui.auth)
     implementation(libs.firebase.ui.storage)
     implementation(libs.glide)
+    implementation(libs.imageSlideshow)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.logging.interceptor)
@@ -93,9 +94,9 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     //noinspection UseTomlInstead
     implementation("com.google.firebase:firebase-storage-ktx")
-    implementation(libs.androidx.swiperefreshlayout)
     //noinspection KaptUsageInsteadOfKsp
     kapt(libs.compiler)
+
     annotationProcessor(libs.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

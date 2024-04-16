@@ -2,16 +2,21 @@
 
 <resources>
 
-    <string name="add_to_cart">Add to Cart</string>
-    <string name="add_to_favorites">Add to Favorites</string>
+    <string name="add_to_cart_failed">Add to cart failed.</string>
+    <string name="add_to_favorites_failed">Add to favorites failed.</string>
+    <string name="back_arrow">Back Arrow</string>
     <string name="cancel">Cancel</string>
     <string name="cart">Cart</string>
+    <string name="cart_load_failed">Failed to load cart.</string>
     <string name="category">Category</string>
+    <string name="categories">Categories</string>
     <string name="categories_load_failed">Failed to load categories.</string>
     <string name="default_location_id">01400513</string>
     <string name="default_zip_code">45202</string>
     <string name="email">Email</string>
     <string name="favorites">Favorites</string>
+    <string name="favorites_load_failed">Failed to load favorites.</string>
+    <string name="forward_arrow">Forward Arrow</string>
     <string name="grocify">Grocify</string>
     <string name="hi">Hi</string>
     <string name="invalid_card_number">Invalid card number.</string>
@@ -19,21 +24,31 @@
     <string name="invalid_name">Invalid name.</string>
     <string name="invalid_password">Invalid password.</string>
     <string name="invalid_zip_code">Invalid zip code.</string>
+    <string name="item">item</string>
     <string name="items">items</string>
     <string name="logout">Logout</string>
     <string name="logout_failed">Logout failed.</string>
     <string name="logout_success">Logout successfully.</string>
     <string name="name">Name</string>
     <string name="no_kroger_location">No Kroger location at that zip code.</string>
+    <string name="on_sale">On Sale</string>
+    <string name="out_of_stock">Out of Stock</string>
     <string name="password">Password</string>
     <string name="past_transactions">Past Transactions</string>
     <string name="payment_method">Payment Method</string>
+    <string name="product">Product</string>
+    <string name="products">Products</string>
     <string name="profile">Profile</string>
     <string name="profile_update_failed">Failed to update profile.</string>
     <string name="profile_update_successful">Profile successfully updated.</string>
     <string name="product_image">Product Image</string>
+    <string name="remove_from_cart_failed">Remove from cart failed.</string>
+    <string name="remove_from_favorites_failed">Remove from favorites failed.</string>
     <string name="save">Save</string>
     <string name="search">Search Grocify</string>
+    <string name="toggle_cart">Toggle Cart</string>
+    <string name="toggle_favorites">Toggle Favorites</string>
+    <string name="unavailable_price">Unavailable\nPrice</string>
     <string name="user">User</string>
     <string name="user_add_failed">Failed to add user.</string>
     <string name="user_load_failed">Failed to load user.</string>

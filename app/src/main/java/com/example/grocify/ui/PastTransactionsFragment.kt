@@ -14,7 +14,7 @@ import com.example.grocify.databinding.RecyclerFragmentBinding
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-class PastTransactionsFragment : Fragment() {
+class PastTransactionsFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: RecyclerFragmentBinding? = null
     private val binding get() = _binding!!

@@ -5,23 +5,38 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.grocify.api.KrogerClient.krogerService
-import com.example.grocify.db.DatabaseConnection
+import com.example.grocify.db.CategoryDatabaseConnection
+import com.example.grocify.db.UserProductDatabaseConnection
+import com.example.grocify.db.UserDatabaseConnection
 import com.example.grocify.models.GrocifyCategory
 import com.example.grocify.models.KrogerLocationsResponse
-import com.example.grocify.models.KrogerProduct
 import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.KrogerProductsResponse
 import com.example.grocify.models.User
+import com.example.grocify.models.UserProduct
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
-class MainViewModel : ViewModel() {
+class MainViewModel: ViewModel() {
     /* Database globals. */
-    private val databaseConnection = DatabaseConnection()
+    enum class DatabaseCollection(val databaseCollection: String) {
+        FAVORITES("favorites"),
+        CART("cart")
+    }
+
+    private val categoryDatabaseConnection = CategoryDatabaseConnection()
+    private val userDatabaseConnection = UserDatabaseConnection()
+    private val cartDatabaseConnection = UserProductDatabaseConnection(DatabaseCollection.CART.databaseCollection)
+    private val favoritesDatabaseConnection = UserProductDatabaseConnection(DatabaseCollection.FAVORITES.databaseCollection)
+
+    private val _favoriteProducts = MutableLiveData<List<UserProduct>?>()
+    val favoriteProducts: LiveData<List<UserProduct>?> get() = _favoriteProducts
+
+    private val _cartProducts = MutableLiveData<List<UserProduct>?>()
+    val cartProducts: LiveData<List<UserProduct>?> get() = _cartProducts
 
     /* API globals. */
     private var cachedToken: String? = null
@@ -36,7 +51,6 @@ class MainViewModel : ViewModel() {
 
     private val _locations = MutableLiveData<KrogerLocationsResponse>()
     val locations: LiveData<KrogerLocationsResponse> get() = _locations
-
 
     private val _isApiRequestCompleted = MutableLiveData<Boolean>()
     val isApiRequestCompleted: LiveData<Boolean> get() = _isApiRequestCompleted
@@ -65,10 +79,6 @@ class MainViewModel : ViewModel() {
     private val _categoryProductCounts = MutableLiveData<HashMap<String, Int>>()
     val categoryProductCounts: LiveData<HashMap<String, Int>> = _categoryProductCounts
 
-    /* Cart globals. */
-    private val _cartProducts = MediatorLiveData<KrogerProductsResponse>()
-    val cartProducts: LiveData<KrogerProductsResponse> = _cartProducts
-
     /* API calls. */
     private suspend fun getToken(): String {
         return if (cachedToken != null && System.currentTimeMillis() < tokenExpirationTime)
@@ -90,7 +100,7 @@ class MainViewModel : ViewModel() {
                     "application/json",
                     null,
                     null,
-                    "01400943", //I have no idea where this is, just the example from the documentation
+                    user.value!!.locationId,
                     null,
                     null,
                     term)
@@ -99,25 +109,23 @@ class MainViewModel : ViewModel() {
                 val temp = HashMap(_categoryProductCounts.value ?: hashMapOf())
                 temp[term] = response.meta.pagination.total
                 _categoryProductCounts.postValue(temp)
-                _isApiRequestCompleted.value = true
+                _isApiRequestCompleted.postValue(true)
             }
-            catch (e: Exception) {
-                Log.e("ItemNav","Error fetching product ${e.message}")
-            }
+            catch (_: Exception) { }
         }
     }
 
     fun getProductById(productId: String) {
         CoroutineScope(Dispatchers.IO).launch {
-        //viewModelScope.launch{
             try {
                 val token = getToken()
                 val response = krogerService.getProductById(
                     "Bearer $token",
                     "application/json",
-                    productId.trim())
+                    productId,
+                    user.value!!.locationId)
                 _product.postValue(response)
-                Log.d("ItemNav","Item fetched ${response.product}")
+                _isApiRequestCompleted.postValue(true)
             }
             catch (_: Exception) { }
         }
@@ -155,7 +163,7 @@ class MainViewModel : ViewModel() {
         onSuccess: (List<GrocifyCategory>) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        databaseConnection.getCategories(
+        categoryDatabaseConnection.getCategories(
             onSuccess = onSuccess,
             onFailure = onFailure
         )
@@ -166,7 +174,7 @@ class MainViewModel : ViewModel() {
         onSuccess: (File) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        databaseConnection.getCategoryImage(
+        categoryDatabaseConnection.getCategoryImage(
             imageFile = imageFile,
             onSuccess = onSuccess,
             onFailure = onFailure
@@ -176,7 +184,7 @@ class MainViewModel : ViewModel() {
     fun getUser(email: String,
                 onSuccess: (User?) -> Unit,
                 onFailure: (Exception) -> Unit) {
-        databaseConnection.getUser(email, { user ->
+        userDatabaseConnection.getUser(email, { user ->
             _user.postValue(user)
             onSuccess(user)
         }, onFailure)
@@ -185,15 +193,69 @@ class MainViewModel : ViewModel() {
     fun addUser(user: User,
                 onSuccess: () -> Unit,
                 onFailure: (Exception) -> Unit) {
-        databaseConnection.addUser(user, onSuccess, onFailure)
         _user.postValue(user)
+        userDatabaseConnection.addUser(user, onSuccess, onFailure)
     }
 
     fun updateUser(user: User,
                    onSuccess: () -> Unit,
                    onFailure: (Exception) -> Unit) {
-        databaseConnection.updateUser(user, onSuccess, onFailure)
         _user.postValue(user)
+        userDatabaseConnection.updateUser(user, onSuccess, onFailure)
+    }
+
+    fun getFavorites(userId: String,
+                     onSuccess: (List<UserProduct>?) -> Unit,
+                     onFailure: (Exception) -> Unit) {
+        favoritesDatabaseConnection.getUserProducts(userId, { userProducts ->
+            _favoriteProducts.postValue(userProducts)
+            onSuccess(userProducts)
+        }, onFailure)
+    }
+
+    fun addToFavorites(userProduct: UserProduct,
+                       onSuccess: () -> Unit,
+                       onFailure: (Exception) -> Unit) {
+        val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
+        currentFavoriteProducts.add(userProduct)
+        _favoriteProducts.postValue(currentFavoriteProducts)
+        favoritesDatabaseConnection.addUserProduct(userProduct, onSuccess, onFailure)
+    }
+
+    fun removeFromFavorites(userProduct: UserProduct,
+                            onSuccess: () -> Unit,
+                            onFailure: (Exception) -> Unit) {
+        val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
+        currentFavoriteProducts.removeIf { it.userProductId == userProduct.userProductId }
+        _favoriteProducts.postValue(currentFavoriteProducts)
+        favoritesDatabaseConnection.removeUserProduct(userProduct, onSuccess, onFailure)
+    }
+
+    fun getCart(userId: String,
+                onSuccess: (List<UserProduct>?) -> Unit,
+                onFailure: (Exception) -> Unit) {
+        cartDatabaseConnection.getUserProducts(userId, { userProducts ->
+            _cartProducts.postValue(userProducts)
+            onSuccess(userProducts)
+        }, onFailure)
+    }
+
+    fun addToCart(userProduct: UserProduct,
+                  onSuccess: () -> Unit,
+                  onFailure: (Exception) -> Unit) {
+        val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
+        currentCartProducts.add(userProduct)
+        _cartProducts.postValue(currentCartProducts)
+        cartDatabaseConnection.addUserProduct(userProduct, onSuccess, onFailure)
+    }
+
+    fun removeFromCart(userProduct: UserProduct,
+                       onSuccess: () -> Unit,
+                       onFailure: (Exception) -> Unit) {
+        val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
+        currentCartProducts.removeIf { it.userProductId == userProduct.userProductId }
+        _cartProducts.postValue(currentCartProducts)
+        cartDatabaseConnection.removeUserProduct(userProduct, onSuccess, onFailure)
     }
 
     /* Header logic. */
@@ -211,36 +273,9 @@ class MainViewModel : ViewModel() {
         _showBackButton.postValue(showBackButton)
     }
 
-
-
-    fun observeProductList(): List<KrogerProduct>{
-        return products.value!!.products
+    fun addCommasToNumber(number: Int): String {
+        val numberString = number.toString()
+        val regex = "(\\d)(?=(\\d{3})+(?!\\d))".toRegex()
+        return numberString.replace(regex, "$1,")
     }
-    fun observeProduct(): KrogerProduct {
-        return product.value!!.product
-    }
-
-
-//    private var cartList = MediatorLiveData<List<KrogerProduct>>().apply {
-//        value = emptyList()
-//    }
-
-
-//    fun observeCartList() : LiveData<List<KrogerProduct>>{
-//        return cartList
-//    }
-//
-//    fun setCartList(item: KrogerProduct){
-//        if (cartList.value == null) {
-//            cartList.postValue(listOf(item))
-//        } else {
-//            if (!item) {
-//                val currentCart = cartList.value!!.filterNot{ it == item }
-//                cartList.postValue(currentCart)
-//            } else {
-//                cartList.postValue(cartList.value?.plus(listOf(item)))
-//            }
-//        }
-//    }
-
 }

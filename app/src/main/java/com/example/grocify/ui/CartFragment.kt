@@ -6,11 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.grocify.databinding.CartFragmentBinding
 import com.example.grocify.databinding.RecyclerFragmentBinding
 
-class CartFragment : Fragment() {
+class CartFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: RecyclerFragmentBinding? = null
     //private var _recyclerBinding: RecyclerFragmentBinding? = null
@@ -32,9 +33,8 @@ class CartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = RecyclerFragmentBinding.bind(view)
-        val productAdapter = ProductAdapter(viewModel) {
-            //Don't think we actually need anything here unless you want to go to single item view from cart?
-        }
+        val productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel, findNavController())
+
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = productAdapter
         //TODO: much like ItemsFragment, load the cartProductList here
@@ -43,6 +43,7 @@ class CartFragment : Fragment() {
 //            //listSize = it.size
 //        }
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

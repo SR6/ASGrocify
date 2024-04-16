@@ -3,19 +3,21 @@ package com.example.grocify.models
 import com.google.firebase.Timestamp
 import com.google.gson.annotations.SerializedName
 
-data class GrocifyProducts(
-    @SerializedName("grocifyProducts") val grocifyProducts: List<GrocifyProduct>,
-)
-
 data class GrocifyProduct(
     @SerializedName("productId") val productId: String,
-    @SerializedName("krogerProductId") val krogerProductId: String,
     @SerializedName("cartCount") val cartCount: Int
+)
+
+data class UserProduct(
+    @SerializedName("userProductId") val userProductId: String,
+    @SerializedName("userId") val userId: String,
+    @SerializedName("productId") val productId: String,
+    @SerializedName("addedAt") val addedAt: Timestamp?
 )
 
 data class GrocifyCategory(
     @SerializedName("name") val name: String,
-    @SerializedName("imageFile") val imageFile: String,
+    @SerializedName("imageFile") val imageFile: String
 )
 
 data class User(

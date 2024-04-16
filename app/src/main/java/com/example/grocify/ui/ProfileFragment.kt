@@ -3,11 +3,9 @@ package com.example.grocify.ui
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -24,7 +22,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.launch
 
-class ProfileFragment : Fragment() {
+class ProfileFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var firebaseAuthCheck: FirebaseAuth.AuthStateListener
 
@@ -116,19 +114,7 @@ class ProfileFragment : Fragment() {
             }
 
             if (validPassword)
-                firebaseUser?.updatePassword(newPassword)?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.e("HELLO", "HI")
-                    } else {
-                        // Password update failed
-                        val exception = task.exception
-                        // Handle the exception or log the error message
-                        Log.e("YOOO", "Error updating password: ${exception?.message}")
-                    }
-                }
-//                firebaseUser?.updatePassword(newPassword)?.addOnCompleteListener { }
-
-            Log.d("HERE123", "${validFields()}")
+                firebaseUser?.updatePassword(newPassword)?.addOnCompleteListener { }
 
             if (!isActionInProgress) {
                 isActionInProgress = true
@@ -145,7 +131,8 @@ class ProfileFragment : Fragment() {
                                     if (locations.data.isEmpty()) {
                                         validZipCode = false
                                         binding.editZipCode.error = resources.getString(R.string.no_kroger_location)
-                                    } else {
+                                    }
+                                    else {
                                         binding.editZipCode.error = null
                                         if (validFields())
                                             updateUser(newEmail, newName, newPaymentMethod, newZipCode, locations.data[0].locationId)

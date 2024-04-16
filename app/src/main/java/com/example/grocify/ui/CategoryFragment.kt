@@ -2,7 +2,6 @@ package com.example.grocify.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +17,7 @@ import com.example.grocify.databinding.CategoryItemBinding
 import com.example.grocify.db.Glide
 import com.google.firebase.auth.FirebaseAuth
 
-class CategoryFragment : Fragment() {
+class CategoryFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var firebaseAuthCheck: FirebaseAuth.AuthStateListener
 
@@ -100,7 +99,7 @@ class CategoryFragment : Fragment() {
 
                     categoryItemBinding.root.setOnClickListener {
                         findNavController().navigate(
-                            CategoryFragmentDirections.actionCategoryFragmentToItemsFragment(
+                            CategoryFragmentDirections.actionCategoryFragmentToProductsFragment(
                                 category.name
                             )
                         )

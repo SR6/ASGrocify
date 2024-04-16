@@ -1,8 +1,15 @@
 package com.example.grocify.ui
 
-import android.util.Log
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Paint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -10,68 +17,154 @@ import com.example.grocify.R
 import com.example.grocify.databinding.ProductItemBinding
 import com.example.grocify.db.Glide
 import com.example.grocify.models.KrogerProduct
+import com.example.grocify.models.UserProduct
+import com.google.firebase.Timestamp
 
-class ProductAdapter(private val viewModel:MainViewModel,
-    private val navigateToSingleItem: (String) -> Unit )
-    : ListAdapter<KrogerProduct, ProductAdapter.VH>(ItemDiff()) {
+class ProductAdapter(
+    private val context: Context,
+    private val viewLifecycleOwner: LifecycleOwner,
+    private val viewModel: MainViewModel,
+    private val navController: NavController
+): ListAdapter<KrogerProduct, ProductAdapter.ViewHolder>(ItemDiff()) {
 
-    inner class VH(val rowCategoryBinding : ProductItemBinding)
-        : RecyclerView.ViewHolder(rowCategoryBinding.root) {
+    @SuppressLint("NotifyDataSetChanged")
+    inner class ViewHolder(val productItemBinding: ProductItemBinding): RecyclerView.ViewHolder(productItemBinding.root) {
         init {
             itemView.setOnClickListener {
-                val currentPos = bindingAdapterPosition
-                val prodList = viewModel.observeProductList()
-                val product = prodList[currentPos]
-                //val prodId = product.productId
-                Log.d("ItemNav"," OnClickListener ProductID ${product.productId} UPC ${product.upc}")
-                navigateToSingleItem(product.productId)
-                //notifyDataSetChanged()
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    navController.navigate(
+                        ProductsFragmentDirections.actionProductsFragmentToProductFragment(
+                            getItem(position).productId,
+                            getItem(position)?.brand ?: context.resources.getString(R.string.grocify)
+                        )
+                    )
+                }
             }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val rowBinding = ProductItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return VH(rowBinding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(ProductItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
+    @SuppressLint("SetTextI18n")
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val product = getItem(position)
 
-        val productPick = getItem(position)
-        //below is mad because it can't translate concatenated strings
-        if (productPick.brand != null) {
-            holder.rowCategoryBinding.productName.text = productPick.brand + " " + productPick.description
-        } else {
-            holder.rowCategoryBinding.productName.text = productPick.description
+        Glide.loadProductImage(product.images[0].sizes[0].url, holder.productItemBinding.productImage,250,250)
+
+        if (product.description.length > 50)
+            holder.productItemBinding.productDescription.text = product.description.substring(0, 50) + "..."
+        else
+            holder.productItemBinding.productDescription.text = product.description
+
+        if (product.items[0].price != null) {
+            if (product.items[0].price!!.promo != 0.0 && product.items[0].price!!.promo < product.items[0].price!!.regular) {
+                holder.productItemBinding.productPrice.text = String.format("$%.2f", product.items[0].price!!.promo)
+                holder.productItemBinding.productPrice.textSize = 20F
+                holder.productItemBinding.onSale.visibility = View.VISIBLE
+                holder.productItemBinding.productOldPrice.text = String.format("$%.2f", product.items[0].price!!.regular)
+                holder.productItemBinding.productOldPrice.visibility = View.VISIBLE
+                holder.productItemBinding.productOldPrice.paintFlags = holder.productItemBinding.productOldPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+
+            }
+            else {
+                holder.productItemBinding.productPrice.text = String.format("$%.2f", product.items[0].price!!.regular)
+                holder.productItemBinding.onSale.visibility = View.GONE
+                holder.productItemBinding.productOldPrice.visibility = View.GONE
+            }
         }
-        val itemPrice = productPick.items[0].price
-        //val itemList = productPick.items
-        //val itemPrice = itemList.price
-        if (itemPrice != null) {
-            holder.rowCategoryBinding.productPrice.text = "$" + itemPrice.regular.toString() //"price".toString()
+        else {
+            holder.productItemBinding.productPrice.text = context.resources.getString(R.string.unavailable_price)
+            holder.productItemBinding.productPrice.textSize = 15F
+            holder.productItemBinding.onSale.visibility = View.GONE
         }
-        if (!productPick.images.isEmpty()) {
-            val imageUrl = productPick.images[0].sizes[0].url
-            Glide.loadProductImage(imageUrl, holder.rowCategoryBinding.productImage,250,250)
+
+        if (product.items[0].inventory != null && product.items[0].inventory!!.stockLevel == "TEMPORARILY_OUT_OF_STOCK") {
+            holder.productItemBinding.outOfStock.visibility = View.VISIBLE
+            holder.productItemBinding.toggleCart.isClickable = false
+            holder.productItemBinding.toggleCart.isEnabled = false
+            holder.productItemBinding.toggleCart.setColorFilter(context.resources.getColor(R.color.gray))
         }
-//        if (productPick.inCart) {
-//            holder.rowCategoryBinding.addToCart.setImageResource(R.drawable.ic_delete)
-//        } else {
-            holder.rowCategoryBinding.addToCart.setImageResource(R.drawable.ic_add)
-        holder.rowCategoryBinding.addToFavorites.setImageResource(R.drawable.ic_favorites)
-//        }
-        //set ClickListener for button to add to Cart
-        holder.rowCategoryBinding.addToCart.setOnClickListener{
-            var row = getItem(position)
-            //we need to decide how we want to do this. Do we have another list that holds just these items?
-//            row.inCart = !row.inCart
-//            viewModel.setCartList(row)
-            //Need to change icon based on item being in cart or not
-//            if (row.inCart) {
-//                holder.rowCategoryBinding.addToCart.setImageResource(R.drawable.ic_delete)
-//            } else {
-            holder.rowCategoryBinding.addToCart.setImageResource(R.drawable.ic_add)
-//            }
+        else {
+            holder.productItemBinding.outOfStock.visibility = View.GONE
+            holder.productItemBinding.toggleCart.isClickable = true
+            holder.productItemBinding.toggleCart.isEnabled = true
+        }
+
+        viewModel.favoriteProducts.observe(viewLifecycleOwner) { favoriteProducts ->
+            holder.productItemBinding.toggleFavorites.setOnClickListener {
+                if (favoriteProducts != null && !favoriteProducts.any { it.productId == product.productId }) {
+                    viewModel.addToFavorites(
+                        UserProduct(viewModel.user.value!!.userId + product.productId,
+                            viewModel.user.value!!.userId,
+                            product.productId,
+                            Timestamp.now()),
+                        onSuccess = {
+                            holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_favorite, null))
+                        },
+                        onFailure = {
+                            Toast.makeText(context, context.resources.getString(R.string.add_to_favorites_failed), Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+                else {
+                    viewModel.removeFromFavorites(
+                        UserProduct(viewModel.user.value!!.userId + product.productId,
+                            viewModel.user.value!!.userId,
+                            product.productId,
+                            null),
+                        onSuccess = {
+                            holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_unfavorite, null))
+                        },
+                        onFailure = {
+                            Toast.makeText(context, context.resources.getString(R.string.remove_from_favorites_failed), Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+            }
+            if (favoriteProducts == null || !favoriteProducts.any { it.productId == product.productId })
+                holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_unfavorite, null))
+            else
+                holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_favorite, null))
+        }
+
+        viewModel.cartProducts.observe(viewLifecycleOwner) { cartProducts ->
+            holder.productItemBinding.toggleCart.setOnClickListener {
+                if (cartProducts != null && !cartProducts.any { it.productId == product.productId }) {
+                        viewModel.addToCart(
+                        UserProduct(viewModel.user.value!!.userId + product.productId,
+                            viewModel.user.value!!.userId,
+                            product.productId,
+                            Timestamp.now()),
+                        onSuccess = {
+                            holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_remove, null))
+                        },
+                        onFailure = {
+                            Toast.makeText(context, context.resources.getString(R.string.add_to_cart_failed), Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+                else {
+                    viewModel.removeFromCart(
+                        UserProduct(viewModel.user.value!!.userId + product.productId,
+                            viewModel.user.value!!.userId,
+                            product.productId,
+                            null),
+                        onSuccess = {
+                            holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_add, null))
+                        },
+                        onFailure = {
+                            Toast.makeText(context, context.resources.getString(R.string.remove_from_cart_failed), Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+            }
+            if (cartProducts == null || !cartProducts.any { it.productId == product.productId })
+                holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_add, null))
+            else
+                holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_remove, null))
 
         }
     }
@@ -82,10 +175,12 @@ class ProductAdapter(private val viewModel:MainViewModel,
         }
 
         override fun areContentsTheSame(oldItem: KrogerProduct, newItem: KrogerProduct): Boolean {
-            return oldItem.itemInformation == newItem.itemInformation &&
-                    oldItem.description == newItem.description &&
-                    oldItem.brand == newItem.brand
-            //what else might need to be checked for comparison? Price once it is fixed?
+            if (oldItem.items[0].price == null || oldItem.items[0].inventory == null)
+                return false
+
+            return oldItem.description == newItem.description &&
+                    oldItem.items[0].price == newItem.items[0].price &&
+                    oldItem.items[0].inventory == newItem.items[0].inventory
         }
     }
 }

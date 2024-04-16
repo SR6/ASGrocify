@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
+        android:gravity="center_horizontal"
         android:textSize="15sp"
         android:textColor="@color/white"
         android:textStyle="bold"
@@ -40,7 +41,7 @@
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_favorites"
+        android:src="@drawable/ic_favorite"
         android:contentDescription="@string/favorites" />
 
     <SearchView

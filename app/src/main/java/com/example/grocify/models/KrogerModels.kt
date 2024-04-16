@@ -17,7 +17,7 @@ data class KrogerProductsResponse(
 )
 
 data class KrogerProductResponse(
-    @SerializedName("product") val product: KrogerProduct,
+    @SerializedName("data") val product: KrogerProduct
 )
 
 data class KrogerProduct(
@@ -66,10 +66,10 @@ data class Inventory(
 data class Item(
     @SerializedName("favorite") val favorite: Boolean,
     @SerializedName("fulfillment") val fulfillment: Fulfillment,
-    @SerializedName("inventory") val inventory: Inventory,
+    @SerializedName("inventory") val inventory: Inventory?,
     @SerializedName("itemId") val itemId: String,
     @SerializedName("nationalPrice") val nationalPrice: Price,
-    @SerializedName("price") val price: Price,
+    @SerializedName("price") val price: Price?,
     @SerializedName("size") val size: String,
     @SerializedName("soldBy") val soldBy: String
 )
