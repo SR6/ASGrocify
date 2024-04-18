@@ -5,22 +5,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/navigation_category">
+    app:startDestination="@id/category_fragment">
 
     <fragment
-        android:id="@+id/navigation_category"
+        android:id="@+id/category_fragment"
         android:name="com.example.grocify.ui.CategoryFragment"
         android:label="@string/categories"
         tools:layout="@layout/category_fragment">
 
         <action
-            android:id="@+id/action_categoryFragment_to_productsFragment"
-            app:destination="@id/productsFragment" />
+            android:id="@+id/action_category_fragment_to_products_fragment"
+            app:destination="@id/products_fragment" />
 
     </fragment>
 
     <fragment
-        android:id="@+id/productsFragment"
+        android:id="@+id/products_fragment"
         android:name="com.example.grocify.ui.ProductsFragment"
         android:label="@string/products"
         tools:layout="@layout/recycler_fragment">
@@ -30,13 +30,48 @@
             app:argType="string" />
 
         <action
-            android:id="@+id/action_productsFragment_to_productFragment"
-            app:destination="@id/productFragment" />
+            android:id="@+id/action_products_fragment_to_product_fragment"
+            app:destination="@id/product_fragment" />
 
     </fragment>
 
     <fragment
-        android:id="@+id/productFragment"
+        android:id="@+id/search_fragment"
+        android:name="com.example.grocify.ui.SearchFragment"
+        android:label="@string/search"
+        tools:layout="@layout/recycler_fragment">
+
+        <action
+            android:id="@+id/action_search_fragment_to_product_fragment"
+            app:destination="@id/product_fragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/cart_fragment"
+        android:name="com.example.grocify.ui.CartFragment"
+        android:label="@string/cart">
+
+        <action
+            android:id="@+id/action_cart_fragment_to_product_fragment"
+            app:destination="@id/product_fragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/favorites_fragment"
+        android:name="com.example.grocify.ui.FavoritesFragment"
+        android:label="@string/favorites"
+        tools:layout="@layout/recycler_fragment">
+
+        <action
+            android:id="@+id/action_favorites_fragment_to_product_fragment"
+            app:destination="@id/product_fragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/product_fragment"
         android:name="com.example.grocify.ui.ProductFragment"
         android:label="@string/product"
         tools:layout="@layout/product_fragment">
@@ -52,36 +87,21 @@
     </fragment>
 
     <fragment
-        android:id="@+id/pastTransactionsFragment"
-        android:label="Past Transactions"
-        android:name="com.example.grocify.ui.PastTransactionsFragment"
-        />
-    <fragment
-        android:id="@+id/navigation_search"
-        android:name="com.example.grocify.ui.SearchFragment"
-        android:label="@string/search"
-        tools:layout="@layout/search_fragment" />
-
-    <fragment
-        android:id="@+id/navigation_cart"
-        android:name="com.example.grocify.ui.CartFragment"
-        android:label="@string/cart"
-        tools:layout="@layout/cart_fragment" />
-
-    <fragment
-        android:id="@+id/navigation_profile"
+        android:id="@+id/profile_fragment"
         android:name="com.example.grocify.ui.ProfileFragment"
         android:label="@string/profile"
-        tools:layout="@layout/profile_fragment" >
+        tools:layout="@layout/profile_fragment">
+
         <action
-            android:id="@+id/action_ProfileFragment_to_PastPurchasesFragment"
-            app:destination="@id/pastTransactionsFragment"/>
+            android:id="@+id/action_profile_fragment_to_past_purchases_fragment"
+            app:destination="@id/past_transactions_fragment" />
+
     </fragment>
 
     <fragment
-        android:id="@+id/navigation_favorites"
-        android:name="com.example.grocify.ui.FavoritesFragment"
-        android:label="@string/favorites"
-        tools:layout="@layout/favorites_fragment" />
+        android:id="@+id/past_transactions_fragment"
+        android:name="com.example.grocify.ui.PastTransactionsFragment"
+        android:label="@string/past_transactions"
+        tools:layout="@layout/recycler_fragment" />
 
 </navigation>

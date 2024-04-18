@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LifecycleOwner
-import androidx.navigation.NavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -24,25 +23,21 @@ class ProductAdapter(
     private val context: Context,
     private val viewLifecycleOwner: LifecycleOwner,
     private val viewModel: MainViewModel,
-    private val navController: NavController
 ): ListAdapter<KrogerProduct, ProductAdapter.ViewHolder>(ItemDiff()) {
-
-    @SuppressLint("NotifyDataSetChanged")
     inner class ViewHolder(val productItemBinding: ProductItemBinding): RecyclerView.ViewHolder(productItemBinding.root) {
         init {
             itemView.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    navController.navigate(
-                        ProductsFragmentDirections.actionProductsFragmentToProductFragment(
-                            getItem(position).productId,
-                            getItem(position)?.brand ?: context.resources.getString(R.string.grocify)
-                        )
-                    )
+                    val productId = getItem(position).productId
+                    val brand = getItem(position)?.brand ?: context.resources.getString(R.string.grocify)
+                    onItemClicked(productId, brand)
                 }
             }
         }
     }
+
+    var onItemClicked: (productId: String, brand: String) -> Unit = { _, _ -> }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(ProductItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -60,9 +55,9 @@ class ProductAdapter(
             holder.productItemBinding.productDescription.text = product.description
 
         if (product.items[0].price != null) {
+            holder.productItemBinding.productPrice.textSize = 20F
             if (product.items[0].price!!.promo != 0.0 && product.items[0].price!!.promo < product.items[0].price!!.regular) {
                 holder.productItemBinding.productPrice.text = String.format("$%.2f", product.items[0].price!!.promo)
-                holder.productItemBinding.productPrice.textSize = 20F
                 holder.productItemBinding.onSale.visibility = View.VISIBLE
                 holder.productItemBinding.productOldPrice.text = String.format("$%.2f", product.items[0].price!!.regular)
                 holder.productItemBinding.productOldPrice.visibility = View.VISIBLE
@@ -94,78 +89,81 @@ class ProductAdapter(
         }
 
         viewModel.favoriteProducts.observe(viewLifecycleOwner) { favoriteProducts ->
-            holder.productItemBinding.toggleFavorites.setOnClickListener {
-                if (favoriteProducts != null && !favoriteProducts.any { it.productId == product.productId }) {
-                    viewModel.addToFavorites(
-                        UserProduct(viewModel.user.value!!.userId + product.productId,
-                            viewModel.user.value!!.userId,
-                            product.productId,
-                            Timestamp.now()),
-                        onSuccess = {
-                            holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_favorite, null))
-                        },
-                        onFailure = {
-                            Toast.makeText(context, context.resources.getString(R.string.add_to_favorites_failed), Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                }
-                else {
-                    viewModel.removeFromFavorites(
-                        UserProduct(viewModel.user.value!!.userId + product.productId,
-                            viewModel.user.value!!.userId,
-                            product.productId,
-                            null),
-                        onSuccess = {
-                            holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_unfavorite, null))
-                        },
-                        onFailure = {
-                            Toast.makeText(context, context.resources.getString(R.string.remove_from_favorites_failed), Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                }
+            val isInFavorites = favoriteProducts?.any { it.productId == product.productId } ?: false
+            val drawableId = if (!isInFavorites) R.drawable.ic_unfavorite else R.drawable.ic_favorite
+            holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, drawableId, null))
+        }
+
+        holder.productItemBinding.toggleFavorites.setOnClickListener {
+            val isInFavorites = viewModel.favoriteProducts.value?.any { it.productId == product.productId } ?: false
+
+            if (!isInFavorites) {
+                viewModel.addToFavorites(
+                    UserProduct(viewModel.user.value!!.userId + product.productId,
+                        viewModel.user.value!!.userId,
+                        product.productId,
+                        Timestamp.now()),
+                    onSuccess = {
+                        holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_favorite, null))
+                    },
+                    onFailure = {
+                        Toast.makeText(context, context.resources.getString(R.string.add_to_favorites_failed), Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
-            if (favoriteProducts == null || !favoriteProducts.any { it.productId == product.productId })
-                holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_unfavorite, null))
-            else
-                holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_favorite, null))
+            else {
+                viewModel.removeFromFavorites(
+                    UserProduct(viewModel.user.value!!.userId + product.productId,
+                        viewModel.user.value!!.userId,
+                        product.productId,
+                        null),
+                    onSuccess = {
+                        holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_unfavorite, null))
+                    },
+                    onFailure = {
+                        Toast.makeText(context, context.resources.getString(R.string.remove_from_favorites_failed), Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
         }
 
         viewModel.cartProducts.observe(viewLifecycleOwner) { cartProducts ->
-            holder.productItemBinding.toggleCart.setOnClickListener {
-                if (cartProducts != null && !cartProducts.any { it.productId == product.productId }) {
-                        viewModel.addToCart(
-                        UserProduct(viewModel.user.value!!.userId + product.productId,
-                            viewModel.user.value!!.userId,
-                            product.productId,
-                            Timestamp.now()),
-                        onSuccess = {
-                            holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_remove, null))
-                        },
-                        onFailure = {
-                            Toast.makeText(context, context.resources.getString(R.string.add_to_cart_failed), Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                }
-                else {
-                    viewModel.removeFromCart(
-                        UserProduct(viewModel.user.value!!.userId + product.productId,
-                            viewModel.user.value!!.userId,
-                            product.productId,
-                            null),
-                        onSuccess = {
-                            holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_add, null))
-                        },
-                        onFailure = {
-                            Toast.makeText(context, context.resources.getString(R.string.remove_from_cart_failed), Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                }
-            }
-            if (cartProducts == null || !cartProducts.any { it.productId == product.productId })
-                holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_add, null))
-            else
-                holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_remove, null))
+            val isInCart = cartProducts?.any { it.productId == product.productId } ?: false
+            val drawableId = if (!isInCart) R.drawable.ic_add else R.drawable.ic_remove
+            holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, drawableId, null))
+        }
 
+        holder.productItemBinding.toggleCart.setOnClickListener {
+            val isInCart = viewModel.cartProducts.value?.any { it.productId == product.productId } ?: false
+
+            if (!isInCart) {
+                viewModel.addToCart(
+                    UserProduct(viewModel.user.value!!.userId + product.productId,
+                        viewModel.user.value!!.userId,
+                        product.productId,
+                        Timestamp.now()),
+                    onSuccess = {
+                        holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_remove, null))
+                    },
+                    onFailure = {
+                        Toast.makeText(context, context.resources.getString(R.string.add_to_cart_failed), Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+            else {
+                viewModel.removeFromCart(
+                    UserProduct(viewModel.user.value!!.userId + product.productId,
+                        viewModel.user.value!!.userId,
+                        product.productId,
+                        null),
+                    onSuccess = {
+                        holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_add, null))
+                    },
+                    onFailure = {
+                        Toast.makeText(context, context.resources.getString(R.string.remove_from_cart_failed), Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
         }
     }
 

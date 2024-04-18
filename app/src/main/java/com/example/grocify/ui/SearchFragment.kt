@@ -1,54 +1,137 @@
 package com.example.grocify.ui
 
+import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.grocify.MainActivity
+import com.example.grocify.R
 import com.example.grocify.databinding.RecyclerFragmentBinding
+import kotlinx.coroutines.launch
 
 class SearchFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
 
-    //    private var _binding: SearchFragmentBinding? = null
-    private var _binding : RecyclerFragmentBinding? = null
+    private var _binding: RecyclerFragmentBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var productAdapter: ProductAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = RecyclerFragmentBinding.inflate(inflater,container,false)
+        _binding = RecyclerFragmentBinding.inflate(inflater, container,false)
 
-        viewModel.updateHeader(null, "50 items", favoritesVisible = false, searchVisible = true)
+        viewModel.updateHeader(
+            null,
+            null,
+            favoritesVisible = false,
+            searchVisible = true,
+            showBackButton = false)
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel, findNavController())
 
-        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
+        productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel)
+        productAdapter.onItemClicked = { productId, brand ->
+            findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToProductFragment(productId, brand))
+        }
+
         binding.recycler.adapter = productAdapter
+        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
 
+        val headerBinding = (requireActivity() as MainActivity).headerBinding
 
-        Log.d("Search","in onViewCreated of SearchFragment")
+        headerBinding.search.setQuery(null, false)
 
-        viewModel.products.observe(viewLifecycleOwner) { products ->
-            if (products != null) {
-                productAdapter.submitList(products.products)
+        headerBinding.search.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (!query.isNullOrEmpty()) {
+                    productAdapter.submitList(emptyList())
+                    binding.loading.root.visibility = View.VISIBLE
+                    binding.noProductsFound.visibility = View.GONE
+
+                    hideKeyboard()
+                    headerBinding.search.clearFocus()
+
+                    lifecycleScope.launch {
+                        viewModel.setIsApiRequestCompleted(false)
+                        viewModel.getProducts(query)
+                    }
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
+
+        viewModel.clearProducts()
+
+        viewModel.isApiRequestCompleted.observe(viewLifecycleOwner) { isCompleted ->
+            if (isCompleted) {
+                viewModel.products.observe(viewLifecycleOwner) { products ->
+                    if (products != null) {
+                        binding.loading.root.visibility = View.GONE
+                        if (products.products.isEmpty()) {
+                            viewModel.clearProducts()
+                            productAdapter.submitList(emptyList())
+                            binding.noProductsFound.visibility = View.VISIBLE
+                        }
+                        else {
+                            binding.noProductsFound.visibility = View.GONE
+                            productAdapter.submitList(products.products)
+
+                            if (products.products.size == 1)
+                                viewModel.updateHeader(
+                                    null,
+                                    products.meta.pagination.total.toString()
+                                            + "\n" + resources.getString(R.string.item),
+                                    favoritesVisible = false,
+                                    searchVisible = true,
+                                    showBackButton = false)
+                            else
+                                viewModel.updateHeader(
+                                    null,
+                                    viewModel.addCommasToNumber(products.meta.pagination.total)
+                                            + "\n" + resources.getString(R.string.items),
+                                    favoritesVisible = false,
+                                    searchVisible = true,
+                                    showBackButton = false)
+                        }
+                    }
+                }
             }
         }
     }
 
+    fun Fragment.hideKeyboard() {
+        val input = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        input.hideSoftInputFromWindow(requireActivity().window.decorView.rootView.windowToken, 0)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        productAdapter.submitList(emptyList())
+    }
+
     override fun onDestroyView() {
-        _binding = null
         super.onDestroyView()
+        _binding = null
+        viewModel.clearProducts()
     }
 }

@@ -1,27 +1,19 @@
 package com.example.grocify
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.RelativeLayout
-import android.widget.SearchView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
 import com.example.grocify.databinding.ActivityMainBinding
 import com.example.grocify.databinding.HeaderBinding
 import com.example.grocify.models.User
 import com.example.grocify.ui.AuthUser
 import com.example.grocify.ui.MainViewModel
-import com.google.firebase.FirebaseApp
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -32,28 +24,109 @@ class MainActivity: AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var authUser : AuthUser
 
+    lateinit var headerBinding: HeaderBinding
+
+    private var _binding: ActivityMainBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        _binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        FirebaseApp.initializeApp(this)
+        navController = (supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment).navController
+        binding.tabbedNavigation.setOnNavigationItemSelectedListener(navListener)
 
         authUser = AuthUser(activityResultRegistry)
         lifecycle.addObserver(authUser)
 
-        val firebaseAuthCheck = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            if (firebaseAuth.currentUser != null)
+        binding.loading.root.visibility = View.VISIBLE
+
+        viewModel.firebaseAuthCheck = FirebaseAuth.AuthStateListener {
+            if (FirebaseAuth.getInstance().currentUser != null) {
                 initializeUser()
+                viewModel.user.observe(this@MainActivity) { user ->
+                    populateGrocify()
+                    if (user != null)
+                        populateGrocify()
+                }
+            }
+
         }
+        FirebaseAuth.getInstance().addAuthStateListener(viewModel.firebaseAuthCheck)
+    }
 
-        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuthCheck)
+    private val navListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+        when (item.itemId) {
+            R.id.category_fragment, R.id.search_fragment, R.id.cart_fragment, R.id.profile_fragment -> {
+                navController.popBackStack(navController.graph.startDestinationId, false)
+                navController.navigate(item.itemId)
+                true
+            }
+            else -> false
+        }
+    }
 
-        val binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+        viewModel.clearUser()
+        FirebaseAuth.getInstance().removeAuthStateListener(viewModel.firebaseAuthCheck)
+    }
 
-        val headerBinding = HeaderBinding.inflate(layoutInflater)
+    private fun initializeUser() {
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
 
-        navController = (supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment).navController
-        binding.tabbedNavigation.setupWithNavController(navController)
+        viewModel.getUser(firebaseUser!!.email!!, onSuccess = { user ->
+            if (user == null) {
+                viewModel.addUser(
+                    User(UUID.randomUUID().toString(),
+                        firebaseUser.email!!,
+                        firebaseUser.displayName!!,
+                        Timestamp.now(),
+                        Timestamp.now(),
+                        "",
+                        resources.getString(R.string.default_zip_code),
+                        resources.getString(R.string.default_location_id)),
+                    onSuccess = {
+                        if (navController.currentDestination?.id != R.id.category_fragment)
+                            navController.navigate(R.id.category_fragment)
+                    },
+                    onFailure = {
+                        Toast.makeText(applicationContext, resources.getString(R.string.user_add_failed), Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+            else {
+                viewModel.updateUser(
+                    User(user.userId,
+                        firebaseUser.email!!,
+                        firebaseUser.displayName!!,
+                        user.createdAt,
+                        Timestamp.now(),
+                        user.paymentMethod,
+                        user.zipCode,
+                        user.locationId),
+                    onSuccess = {
+                        initializeCartAndFavorites()
+                        if (navController.currentDestination?.id != R.id.category_fragment)
+                            navController.navigate(R.id.category_fragment)
+                    },
+                    onFailure = {
+                        Toast.makeText(applicationContext, resources.getString(R.string.user_update_failed), Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+        },
+        onFailure = {
+            Toast.makeText(applicationContext, resources.getString(R.string.user_load_failed), Toast.LENGTH_SHORT).show()
+        })
+    }
+
+    private fun populateGrocify() {
+        binding.loading.root.visibility = View.GONE
+
+        headerBinding = HeaderBinding.inflate(layoutInflater)
 
         supportActionBar?.let{
             it.setDisplayShowTitleEnabled(false)
@@ -62,7 +135,7 @@ class MainActivity: AppCompatActivity() {
         }
 
         headerBinding.favorites.setOnClickListener {
-            navController.navigate(R.id.navigation_favorites)
+            navController.navigate(R.id.favorites_fragment)
         }
 
         viewModel.title.observe(this) { title ->
@@ -88,81 +161,11 @@ class MainActivity: AppCompatActivity() {
             }
         }
 
-        headerBinding.search.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                if (!query.isNullOrEmpty()) {
-                    hideKeyboard()
-                    lifecycleScope.launch {
-                        viewModel.getProducts(query)
-                    }
-                }
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return false
-            }
-        })
-
         for (category in resources.getStringArray(R.array.categories)) {
             lifecycleScope.launch {
                 //commented out to reduce requests to Kroger
 //                viewModel.getProducts(category)
             }
-        }
-
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        supportActionBar?.setDisplayShowHomeEnabled(false)
-        return navController.navigateUp() || super.onSupportNavigateUp()
-    }
-
-    private fun initializeUser() {
-        val firebaseUser = FirebaseAuth.getInstance().currentUser
-
-        if (firebaseUser != null) {
-            viewModel.getUser(firebaseUser.email!!, onSuccess = { user ->
-                if (user == null) {
-                    viewModel.addUser(
-                        User(UUID.randomUUID().toString(),
-                            firebaseUser.email!!,
-                            firebaseUser.displayName!!,
-                            Timestamp.now(),
-                            Timestamp.now(),
-                            "",
-                            resources.getString(R.string.default_zip_code),
-                            resources.getString(R.string.default_location_id)),
-                        onSuccess = { },
-                        onFailure = {
-                            Toast.makeText(applicationContext, resources.getString(R.string.user_add_failed), Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                }
-                else {
-                    viewModel.updateUser(
-                        User(user.userId,
-                            firebaseUser.email!!,
-                            firebaseUser.displayName!!,
-                            user.createdAt,
-                            Timestamp.now(),
-                            user.paymentMethod,
-                            user.zipCode,
-                            user.locationId),
-                        onSuccess = {
-                            initializeCartAndFavorites()
-                            if (navController.currentDestination?.id != R.id.navigation_category)
-                                navController.navigateUp()
-                        },
-                        onFailure = {
-                            Toast.makeText(applicationContext, resources.getString(R.string.user_update_failed), Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                }
-            }, onFailure = {
-                Toast.makeText(applicationContext, resources.getString(R.string.user_load_failed), Toast.LENGTH_SHORT).show()
-            })
         }
     }
 
@@ -181,8 +184,9 @@ class MainActivity: AppCompatActivity() {
         )
     }
 
-    fun hideKeyboard() {
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(window.decorView.rootView.windowToken, 0)
+    override fun onSupportNavigateUp(): Boolean {
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportActionBar?.setDisplayShowHomeEnabled(false)
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 }

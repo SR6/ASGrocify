@@ -19,7 +19,6 @@ import com.google.firebase.auth.FirebaseAuth
 
 class CategoryFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
-    private lateinit var firebaseAuthCheck: FirebaseAuth.AuthStateListener
 
     private var _binding: CategoryFragmentBinding? = null
     private val binding get() = _binding!!
@@ -34,35 +33,32 @@ class CategoryFragment: Fragment() {
         return binding.root
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        firebaseAuthCheck = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            val firebaseUser = firebaseAuth.currentUser
-            if (firebaseUser != null) {
-                var userFirstName =
-                    FirebaseAuth.getInstance().currentUser?.displayName?.split(" ")?.firstOrNull()
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                val userDisplayName = FirebaseAuth.getInstance().currentUser?.displayName
+                var userFirstName = userDisplayName?.split(" ")?.firstOrNull()
 
-                if (userFirstName.isNullOrBlank())
-                    userFirstName = resources.getString(R.string.user)
+                if (userFirstName != null) {
+                    if (userFirstName.length > 15)
+                        userFirstName = userFirstName.substring(0, 15) + "..."
+                }
 
-                if (userFirstName.length > 15)
-                    userFirstName = userFirstName.substring(0, 15) + "..."
-
-                viewModel.updateHeader(getString(R.string.grocify), resources.getString(R.string.hi) + ", " + userFirstName)
+                viewModel.updateHeader(
+                    getString(R.string.grocify),
+                    getString(R.string.hi) + ", " + userFirstName
+                )
 
                 populateCategories()
             }
         }
-
-        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuthCheck)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        FirebaseAuth.getInstance().removeAuthStateListener(firebaseAuthCheck)
     }
 
     @SuppressLint("SetTextI18n")

@@ -6,9 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.grocify.databinding.CartFragmentBinding
 import com.example.grocify.databinding.RecyclerFragmentBinding
 
 class CartFragment: Fragment() {
@@ -33,10 +30,16 @@ class CartFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = RecyclerFragmentBinding.bind(view)
-        val productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel, findNavController())
-
-        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
-        binding.recycler.adapter = productAdapter
+//        val productAdapter = ProductAdapter(
+//            requireContext(),
+//            viewLifecycleOwner,
+//            viewModel,
+//            findNavController(),
+//            ProductAdapter.FragmentDirections.CART
+//        )
+//
+//        binding.recycler.adapter = productAdapter
+//        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         //TODO: much like ItemsFragment, load the cartProductList here
 //        viewModel.observeCartList().observe(viewLifecycleOwner){
 //            rowAdapter.submitList(it)

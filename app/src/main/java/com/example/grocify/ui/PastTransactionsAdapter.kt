@@ -7,9 +7,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.grocify.R
 
-class PastPurchaseAdapter(private val viewModel:MainViewModel, private val purchases: List<PastTransactionsFragment.PurchaseItem>)
-    :RecyclerView.Adapter<PastPurchaseAdapter.PurchaseViewHolder>(){
-
+class PastPurchaseAdapter(
+    private val viewModel:MainViewModel,
+    private val purchases: List<PastTransactionsFragment.PurchaseItem>
+): RecyclerView.Adapter<PastPurchaseAdapter.PurchaseViewHolder>() {
     inner class PurchaseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val itemCountTextView: TextView = itemView.findViewById(R.id.numItems)
         val totalCostTextView: TextView = itemView.findViewById(R.id.totalCost)

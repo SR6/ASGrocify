@@ -1,6 +1,5 @@
 package com.example.grocify.ui
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
 import android.util.Patterns
@@ -24,7 +23,6 @@ import kotlinx.coroutines.launch
 
 class ProfileFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
-    private lateinit var firebaseAuthCheck: FirebaseAuth.AuthStateListener
 
     private var _binding: ProfileFragmentBinding? = null
     private val binding get() = _binding!!
@@ -56,23 +54,18 @@ class ProfileFragment: Fragment() {
         return binding.root
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        firebaseAuthCheck = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            val firebaseUser = firebaseAuth.currentUser
-            if (firebaseUser != null)
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            if (user != null)
                 populateProfile()
         }
-
-        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuthCheck)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        FirebaseAuth.getInstance().removeAuthStateListener(firebaseAuthCheck)
     }
 
     private fun populateProfile() {
@@ -109,8 +102,15 @@ class ProfileFragment: Fragment() {
             }
 
             if (firebaseUser?.email != newEmail) {
-                if (validEmail)
-                    firebaseUser?.updateEmail(newEmail)?.addOnCompleteListener { }
+                if (validEmail) {
+                    firebaseUser?.updateEmail(newEmail)?.addOnCompleteListener { updateEmail ->
+                        if (updateEmail.isSuccessful) {
+                            // database call (using viewmodel function) to remove user
+                        }
+                        else
+                            validEmail = false
+                    }
+                }
             }
 
             if (validPassword)
@@ -160,7 +160,7 @@ class ProfileFragment: Fragment() {
             confirmationDialog.show(parentFragmentManager, resources.getString(R.string.logout))
         }
 
-        binding.pastTransactionsTextView.setOnClickListener{
+        binding.pastTransactionsTextView.setOnClickListener {
             val action = ProfileFragmentDirections.actionProfileFragmentToPastPurchasesFragment()
             findNavController().navigate(action)
         }

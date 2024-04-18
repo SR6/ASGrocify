@@ -9,7 +9,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.viewModelScope
 import com.example.grocify.databinding.ProductFragmentBinding
 import androidx.navigation.fragment.navArgs
-import com.denzcoskun.imageslider.ImageSlider
 import com.denzcoskun.imageslider.models.SlideModel
 import kotlinx.coroutines.launch
 

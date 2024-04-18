@@ -1,8 +1,6 @@
 package com.example.grocify.ui
 
-import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.grocify.api.KrogerClient.krogerService
@@ -15,12 +13,16 @@ import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.KrogerProductsResponse
 import com.example.grocify.models.User
 import com.example.grocify.models.UserProduct
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
 class MainViewModel: ViewModel() {
+    /* Auth global */
+    lateinit var firebaseAuthCheck: FirebaseAuth.AuthStateListener
+
     /* Database globals. */
     enum class DatabaseCollection(val databaseCollection: String) {
         FAVORITES("favorites"),
@@ -43,8 +45,8 @@ class MainViewModel: ViewModel() {
     private var tokenExpirationTime: Long = 0
 
     /* API response globals. */
-    private val _products = MutableLiveData<KrogerProductsResponse>()
-    val products: LiveData<KrogerProductsResponse> get() = _products
+    private val _products = MutableLiveData<KrogerProductsResponse?>()
+    val products: LiveData<KrogerProductsResponse?> get() = _products
 
     private val _product = MutableLiveData<KrogerProductResponse>()
     val product: LiveData<KrogerProductResponse> get() = _product
@@ -105,14 +107,18 @@ class MainViewModel: ViewModel() {
                     null,
                     term)
                 _products.postValue(response)
+                _isApiRequestCompleted.postValue(true)
 
                 val temp = HashMap(_categoryProductCounts.value ?: hashMapOf())
                 temp[term] = response.meta.pagination.total
                 _categoryProductCounts.postValue(temp)
-                _isApiRequestCompleted.postValue(true)
             }
             catch (_: Exception) { }
         }
+    }
+
+    fun clearProducts() {
+        _products.value = null
     }
 
     fun getProductById(productId: String) {
@@ -202,6 +208,10 @@ class MainViewModel: ViewModel() {
                    onFailure: (Exception) -> Unit) {
         _user.postValue(user)
         userDatabaseConnection.updateUser(user, onSuccess, onFailure)
+    }
+
+    fun clearUser() {
+        _user.postValue(null)
     }
 
     fun getFavorites(userId: String,
