@@ -19,7 +19,7 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/productImage"
+            android:id="@+id/product_image"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -40,7 +40,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/outOfStock"
+                android:id="@+id/out_of_stock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -49,7 +49,7 @@
                 android:textColor="@color/red" />
 
             <TextView
-                android:id="@+id/productDescription"
+                android:id="@+id/product_description"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal"
@@ -70,7 +70,7 @@
             android:layout_marginEnd="16dp">
 
             <TextView
-                android:id="@+id/onSale"
+                android:id="@+id/on_sale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -79,7 +79,7 @@
                 android:textColor="@color/red" />
 
             <TextView
-                android:id="@+id/productOldPrice"
+                android:id="@+id/product_old_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -87,7 +87,7 @@
                 android:textSize="15sp" />
 
             <TextView
-                android:id="@+id/productPrice"
+                android:id="@+id/product_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -102,7 +102,7 @@
                 android:layout_marginTop="16dp">
 
                 <ImageButton
-                    android:id="@+id/toggleFavorites"
+                    android:id="@+id/toggle_favorites"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
@@ -113,7 +113,7 @@
                     app:srcCompat="@drawable/ic_unfavorite" />
 
                 <ImageButton
-                    android:id="@+id/toggleCart"
+                    android:id="@+id/toggle_cart"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"

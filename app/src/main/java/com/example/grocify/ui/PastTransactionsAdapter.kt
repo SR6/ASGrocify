@@ -12,9 +12,9 @@ class PastPurchaseAdapter(
     private val purchases: List<PastTransactionsFragment.PurchaseItem>
 ): RecyclerView.Adapter<PastPurchaseAdapter.PurchaseViewHolder>() {
     inner class PurchaseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val itemCountTextView: TextView = itemView.findViewById(R.id.numItems)
-        val totalCostTextView: TextView = itemView.findViewById(R.id.totalCost)
-        val dateTextView: TextView = itemView.findViewById(R.id.purchaseDate)
+        val itemCountTextView: TextView = itemView.findViewById(R.id.num_items)
+        val totalCostTextView: TextView = itemView.findViewById(R.id.total_cost)
+        val dateTextView: TextView = itemView.findViewById(R.id.purchase_date)
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PurchaseViewHolder {
         val view = LayoutInflater.from(parent.context)

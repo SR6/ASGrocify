@@ -19,35 +19,35 @@
         android:layout_margin="8dp">
 
         <TextView
-            android:id="@+id/purchaseDate"
+            android:id="@+id/purchase_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:text="TextView"
-            app:layout_constraintEnd_toStartOf="@id/numItems"
+            app:layout_constraintEnd_toStartOf="@id/num_items"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/numItems"
+            android:id="@+id/num_items"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:text="TextView"
-            app:layout_constraintEnd_toStartOf="@id/totalCost"
-            app:layout_constraintStart_toEndOf="@id/purchaseDate"
+            app:layout_constraintEnd_toStartOf="@id/total_cost"
+            app:layout_constraintStart_toEndOf="@id/purchase_date"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_constraintHorizontal_chainStyle="spread_inside" />
 
         <TextView
-            android:id="@+id/totalCost"
+            android:id="@+id/total_cost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:text="TextView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/numItems"
+            app:layout_constraintStart_toEndOf="@id/num_items"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_constraintHorizontal_chainStyle="spread_inside" />
     </androidx.constraintlayout.widget.ConstraintLayout>

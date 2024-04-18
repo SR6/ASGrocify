@@ -51,10 +51,10 @@
                         android:text="@string/name"
                         android:textColor="@color/black"
                         android:textSize="25sp"
-                        android:labelFor="@id/editName" />
+                        android:labelFor="@id/edit_name" />
 
                     <EditText
-                        android:id="@+id/editName"
+                        android:id="@+id/edit_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -78,10 +78,10 @@
                         android:text="@string/email"
                         android:textColor="@color/black"
                         android:textSize="25sp"
-                        android:labelFor="@id/editEmail" />
+                        android:labelFor="@id/edit_email" />
 
                     <EditText
-                        android:id="@+id/editEmail"
+                        android:id="@+id/edit_email"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -105,10 +105,10 @@
                         android:text="@string/password"
                         android:textColor="@color/black"
                         android:textSize="25sp"
-                        android:labelFor="@id/editPassword" />
+                        android:labelFor="@id/edit_password" />
 
                     <EditText
-                        android:id="@+id/editPassword"
+                        android:id="@+id/edit_password"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -123,7 +123,7 @@
                         tools:ignore="Autofill,LabelFor" />
 
                     <TextView
-                        android:id="@+id/paymentMethod"
+                        android:id="@+id/payment_method"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -132,10 +132,10 @@
                         android:text="@string/payment_method"
                         android:textColor="@color/black"
                         android:textSize="25sp"
-                        android:labelFor="@id/editPaymentMethod" />
+                        android:labelFor="@id/edit_payment_method" />
 
                     <EditText
-                        android:id="@+id/editPaymentMethod"
+                        android:id="@+id/edit_payment_method"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -150,7 +150,7 @@
                         tools:ignore="Autofill,LabelFor" />
 
                     <TextView
-                        android:id="@+id/zipCode"
+                        android:id="@+id/zip_code"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -159,10 +159,10 @@
                         android:text="@string/zip_code"
                         android:textColor="@color/black"
                         android:textSize="25sp"
-                        android:labelFor="@id/editZipCode" />
+                        android:labelFor="@id/edit_zip_code" />
 
                     <EditText
-                        android:id="@+id/editZipCode"
+                        android:id="@+id/edit_zip_code"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -181,7 +181,7 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/pastTransactions"
+            android:id="@+id/past_transactions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
@@ -196,7 +196,7 @@
             tools:ignore="RelativeOverlap">
 
             <ImageButton
-                android:id="@+id/pastTransactionsButton"
+                android:id="@+id/past_transactions_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
@@ -207,11 +207,11 @@
                 android:contentDescription="@string/past_transactions"/>
 
             <TextView
-                android:id="@+id/pastTransactionsTextView"
+                android:id="@+id/past_transactions_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/pastTransactionsButton"
+                android:layout_toEndOf="@id/past_transactions_button"
                 android:clickable="false"
                 android:text="@string/past_transactions"
                 android:textColor="@color/black"
@@ -220,7 +220,7 @@
         </RelativeLayout>
 
         <LinearLayout
-            android:id="@+id/cancelOrSave"
+            android:id="@+id/cancel_or_save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -243,7 +243,7 @@
                 tools:ignore="RelativeOverlap">
 
                 <ImageButton
-                    android:id="@+id/cancelButton"
+                    android:id="@+id/cancel_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
@@ -256,7 +256,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/cancelButton"
+                    android:layout_toEndOf="@id/cancel_button"
                     android:layout_centerVertical="true"
                     android:text="@string/cancel"
                     android:textSize="20sp"
@@ -280,7 +280,7 @@
                 tools:ignore="RelativeOverlap">
 
                 <ImageButton
-                    android:id="@+id/saveButton"
+                    android:id="@+id/save_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
@@ -293,7 +293,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/saveButton"
+                    android:layout_toEndOf="@id/save_button"
                     android:layout_centerVertical="true"
                     android:text="@string/save"
                     android:textSize="20sp"
@@ -320,7 +320,7 @@
             tools:ignore="RelativeOverlap">
 
             <ImageButton
-                android:id="@+id/logoutButton"
+                android:id="@+id/logout_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
@@ -333,7 +333,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/logoutButton"
+                android:layout_toEndOf="@id/logout_button"
                 android:layout_centerVertical="true"
                 android:text="@string/logout"
                 android:textSize="20sp"
