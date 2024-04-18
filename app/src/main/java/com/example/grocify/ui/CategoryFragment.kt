@@ -90,7 +90,11 @@ class CategoryFragment: Fragment() {
 //                            categoryItemBinding.categoryCount.text = "loading..."
 //                        else
                         categoryItemBinding.categoryCount.text =
-                            categoryProductCounts[category.name].toString() + " " + resources.getString(R.string.items)
+                            resources.getQuantityString(
+                                R.plurals.items_quantity,
+                                categoryProductCounts[category.name] ?: 0,
+                                viewModel.addCommasToNumber(categoryProductCounts[category.name] ?: 0)
+                            )
                     }
 
                     categoryItemBinding.root.setOnClickListener {

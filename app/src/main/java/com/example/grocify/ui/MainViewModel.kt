@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class MainViewModel: ViewModel() {
@@ -48,8 +49,8 @@ class MainViewModel: ViewModel() {
     private val _products = MutableLiveData<KrogerProductsResponse?>()
     val products: LiveData<KrogerProductsResponse?> get() = _products
 
-    private val _product = MutableLiveData<KrogerProductResponse>()
-    val product: LiveData<KrogerProductResponse> get() = _product
+//    private val _product = MutableLiveData<KrogerProductResponse>()
+//    val product: LiveData<KrogerProductResponse> get() = _product
 
     private val _locations = MutableLiveData<KrogerLocationsResponse>()
     val locations: LiveData<KrogerLocationsResponse> get() = _locations
@@ -121,8 +122,8 @@ class MainViewModel: ViewModel() {
         _products.value = null
     }
 
-    fun getProductById(productId: String) {
-        CoroutineScope(Dispatchers.IO).launch {
+    suspend fun getProductById(productId: String): KrogerProductResponse? {
+        return withContext(Dispatchers.IO) {
             try {
                 val token = getToken()
                 val response = krogerService.getProductById(
@@ -130,12 +131,15 @@ class MainViewModel: ViewModel() {
                     "application/json",
                     productId,
                     user.value!!.locationId)
-                _product.postValue(response)
                 _isApiRequestCompleted.postValue(true)
+                response
             }
-            catch (_: Exception) { }
+            catch (_: Exception) {
+                null
+            }
         }
     }
+
 
     fun getLocations(zipCode: String) {
         CoroutineScope(Dispatchers.IO).launch {

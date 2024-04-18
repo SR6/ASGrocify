@@ -95,25 +95,19 @@ class SearchFragment: Fragment() {
                         else {
                             binding.noProductsFound.visibility = View.GONE
                             productAdapter.submitList(products.products)
-
-                            if (products.products.size == 1)
-                                viewModel.updateHeader(
-                                    null,
-                                    products.meta.pagination.total.toString()
-                                            + "\n" + resources.getString(R.string.item),
-                                    favoritesVisible = false,
-                                    searchVisible = true,
-                                    showBackButton = false)
-                            else
-                                viewModel.updateHeader(
-                                    null,
-                                    viewModel.addCommasToNumber(products.meta.pagination.total)
-                                            + "\n" + resources.getString(R.string.items),
-                                    favoritesVisible = false,
-                                    searchVisible = true,
-                                    showBackButton = false)
                         }
                     }
+                    viewModel.updateHeader(
+                        null,
+                        resources.getQuantityString(
+                            R.plurals.items_quantity,
+                            products?.meta?.pagination?.total ?: 0,
+                            viewModel.addCommasToNumber(products?.meta?.pagination?.total ?: 0)
+                        ),
+                        favoritesVisible = false,
+                        searchVisible = true,
+                        showBackButton = false
+                    )
                 }
             }
         }

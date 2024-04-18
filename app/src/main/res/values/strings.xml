@@ -24,8 +24,6 @@
     <string name="invalid_name">Invalid name.</string>
     <string name="invalid_password">Invalid password.</string>
     <string name="invalid_zip_code">Invalid zip code.</string>
-    <string name="item">item</string>
-    <string name="items">items</string>
     <string name="logout">Logout</string>
     <string name="logout_failed">Logout failed.</string>
     <string name="logout_success">Logout successfully.</string>
@@ -55,5 +53,10 @@
     <string name="user_load_failed">Failed to load user.</string>
     <string name="user_update_failed">Failed to update user.</string>
     <string name="zip_code">Zip Code</string>
+
+    <plurals name="items_quantity">
+        <item quantity="one">%s\nitem</item>
+        <item quantity="other">%s\nitems</item>
+    </plurals>
 
 </resources>

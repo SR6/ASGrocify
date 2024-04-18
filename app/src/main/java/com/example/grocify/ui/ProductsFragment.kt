@@ -41,7 +41,6 @@ class ProductsFragment: Fragment() {
         return binding.root
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -76,29 +75,19 @@ class ProductsFragment: Fragment() {
                         else {
                             binding.noProductsFound.visibility = View.GONE
                             productAdapter.submitList(products.products)
-
-                            var category = args.category
-                            if (category.length > 14)
-                                category = category.substring(0, 14) + "..."
-
-                            if (products.products.size == 1)
-                                viewModel.updateHeader(
-                                    category,
-                                    products.meta.pagination.total.toString() +
-                                            resources.getString(R.string.item),
-                                    favoritesVisible = true,
-                                    searchVisible = false,
-                                    showBackButton = true)
-                            else
-                                viewModel.updateHeader(
-                                    category,
-                                    viewModel.addCommasToNumber(products.meta.pagination.total)
-                                            + "\n" + resources.getString(R.string.items),
-                                    favoritesVisible = true,
-                                    searchVisible = false,
-                                    showBackButton = true)
                         }
                     }
+                    viewModel.updateHeader(
+                        if (args.category.length > 14) args.category.substring(0, 14) + "..." else args.category,
+                        resources.getQuantityString(
+                            R.plurals.items_quantity,
+                            products?.meta?.pagination?.total ?: 0,
+                            viewModel.addCommasToNumber(products?.meta?.pagination?.total ?: 0)
+                        ),
+                        favoritesVisible = true,
+                        searchVisible = false,
+                        showBackButton = true
+                    )
                 }
             }
         }

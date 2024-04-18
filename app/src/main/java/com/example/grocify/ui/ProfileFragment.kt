@@ -260,37 +260,29 @@ class ProfileFragment: Fragment() {
 
     private fun updateUser(newEmail: String, newName: String, newPaymentMethod: String, newZipCode: String, locationId: String) {
         viewModel.updateUser(
-                User(
-                    viewModel.user.value!!.userId,
-                    newEmail,
-                    newName,
-                    viewModel.user.value!!.createdAt,
-                    viewModel.user.value!!.lastLoginAt,
-                    newPaymentMethod,
-                    newZipCode,
-                    locationId
-                ),
-                onSuccess = {
-                    if (!isToastShown) {
-                        Toast.makeText(
-                            context,
-                            resources.getString(R.string.profile_update_successful),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        updateProfile(false, R.color.gray, View.GONE, View.VISIBLE)
-                        isToastShown = true
-                    }
-                },
-                onFailure = {
-                    if (!isToastShown) {
-                        Toast.makeText(
-                            context,
-                            resources.getString(R.string.profile_update_failed),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        isToastShown = true
-                    }
+            User(
+                viewModel.user.value!!.userId,
+                newEmail,
+                newName,
+                viewModel.user.value!!.createdAt,
+                viewModel.user.value!!.lastLoginAt,
+                newPaymentMethod,
+                newZipCode,
+                locationId
+            ),
+            onSuccess = {
+                if (!isToastShown) {
+                    Toast.makeText(context, resources.getString(R.string.profile_update_successful), Toast.LENGTH_SHORT).show()
+                    updateProfile(false, R.color.gray, View.GONE, View.VISIBLE)
+                    isToastShown = true
                 }
+            },
+            onFailure = {
+                if (!isToastShown) {
+                    Toast.makeText(context, resources.getString(R.string.profile_update_failed), Toast.LENGTH_SHORT).show()
+                    isToastShown = true
+                }
+            }
         )
     }
 }

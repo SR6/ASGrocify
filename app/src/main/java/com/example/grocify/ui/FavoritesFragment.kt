@@ -1,7 +1,7 @@
 package com.example.grocify.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.grocify.R
 import com.example.grocify.databinding.RecyclerFragmentBinding
 import com.example.grocify.models.KrogerProduct
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class FavoritesFragment: Fragment() {
@@ -40,6 +39,7 @@ class FavoritesFragment: Fragment() {
         return binding.root
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -53,60 +53,48 @@ class FavoritesFragment: Fragment() {
 
         binding.loading.root.visibility = View.VISIBLE
 
-        viewModel.favoriteProducts.observe(viewLifecycleOwner) { favoriteProducts ->
-            if (favoriteProducts != null) {
-                val products = mutableListOf<KrogerProduct>()
-                lifecycleScope.launch {
-//                    for (favoriteProduct in favoriteProducts) {
-//                        viewModel.getProductById(favoriteProduct.productId)
-//
-//                        viewModel.product.observe(viewLifecycleOwner) { product ->
-//                            product?.let {
-//                                products.add(product.product)
-//                            }
-//                        }
-//                    }
-                    val deferredProducts = favoriteProducts.map { favoriteProduct ->
-                        async {
-                            viewModel.getProductById(favoriteProduct.productId)
+        val products = mutableListOf<KrogerProduct>()
 
-                            viewModel.product.observe(viewLifecycleOwner) { product ->
-                                product?.let {
-                                    products.add(product.product)
-                                }
-                            }
+        viewModel.favoriteProducts.observe(viewLifecycleOwner) { favoriteProducts ->
+            products.clear()
+            lifecycleScope.launch {
+                if (favoriteProducts != null) {
+                    favoriteProducts.forEach { favoriteProduct ->
+                        if (products.none { it.productId == favoriteProduct.productId }) {
+                            val product = viewModel.getProductById(favoriteProduct.productId)
+                            product?.product?.let { products.add(it) }
                         }
                     }
-
-                    deferredProducts.forEach { it.await() }
-
                     binding.loading.root.visibility = View.GONE
-                    productAdapter.submitList(products)
-
-                    if (products.size == 1)
-                        viewModel.updateHeader(
-                            "Favorites",
-                            products.size.toString()
-                                    + "\n" + resources.getString(R.string.item),
-                            favoritesVisible = false,
-                            searchVisible = false,
-                            showBackButton = false)
-                    else
-                        viewModel.updateHeader(
-                            "Favorites",
-                            viewModel.addCommasToNumber(products.size)
-                                    + "\n" + resources.getString(R.string.items),
-                            favoritesVisible = false,
-                            searchVisible = false,
-                            showBackButton = false)
+                    if (products.isEmpty()) {
+                        viewModel.clearProducts()
+                        productAdapter.submitList(emptyList())
+                        binding.noProductsFound.visibility = View.VISIBLE
+                    }
+                    else {
+                        binding.noProductsFound.visibility = View.GONE
+                        productAdapter.submitList(products)
+                        productAdapter.notifyDataSetChanged()
+                    }
                 }
-            }
-            else {
-                Log.d("HERE1", "HERE")
-                binding.loading.root.visibility = View.GONE
-                binding.noProductsFound.visibility = View.VISIBLE
+                viewModel.updateHeader(
+                    getString(R.string.favorites),
+                    resources.getQuantityString(
+                        R.plurals.items_quantity,
+                        products.size,
+                        viewModel.addCommasToNumber(products.size)
+                    ),
+                    favoritesVisible = false,
+                    searchVisible = false,
+                    showBackButton = false
+                )
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        productAdapter.submitList(emptyList())
     }
 
     override fun onDestroyView() {

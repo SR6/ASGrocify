@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.lifecycleScope
 import com.example.grocify.databinding.ProductFragmentBinding
 import androidx.navigation.fragment.navArgs
 import com.denzcoskun.imageslider.models.SlideModel
@@ -40,15 +40,12 @@ class ProductFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.viewModelScope.launch {
+        lifecycleScope.launch {
             viewModel.setIsApiRequestCompleted(false)
-            viewModel.getProductById(args.productId)
-        }
-
-        viewModel.isApiRequestCompleted.observe(viewLifecycleOwner) { isCompleted ->
+            val product = viewModel.getProductById(args.productId)
+            viewModel.isApiRequestCompleted.observe(viewLifecycleOwner) { isCompleted ->
             if (isCompleted) {
-                viewModel.product.observe(viewLifecycleOwner) { product ->
-                    var productBrand = args.productBrand
+                var productBrand = args.productBrand
                     if (productBrand.length > 20)
                         productBrand = productBrand.substring(0, 20) + "..."
 
@@ -62,7 +59,7 @@ class ProductFragment: Fragment() {
 
                     val productImageUrls = ArrayList<SlideModel>()
 
-                    product.product.images.forEach { image ->
+                    product?.product?.images?.forEach { image ->
                         image.sizes.filter { size ->
                             size.size == "xlarge"
                         }.map { size ->
@@ -71,9 +68,7 @@ class ProductFragment: Fragment() {
                             productImageUrls.add(slideModel)
                         }
                     }
-//                    ImageSlider()
                     binding.productImages.setImageList(productImageUrls)
-
                 }
             }
         }
