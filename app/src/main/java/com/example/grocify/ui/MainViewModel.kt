@@ -52,14 +52,17 @@ class MainViewModel: ViewModel() {
     private val _products = MutableLiveData<KrogerProductsResponse?>()
     val products: LiveData<KrogerProductsResponse?> get() = _products
 
-    private val _locations = MutableLiveData<KrogerLocationsResponse>()
-    val locations: LiveData<KrogerLocationsResponse> get() = _locations
+    private val _searchProducts = MutableLiveData<KrogerProductsResponse?>()
+    val searchProducts: LiveData<KrogerProductsResponse?> get() = _searchProducts
 
     private val _cartProducts = MutableLiveData<List<KrogerProduct>?>()
     val cartProducts: LiveData<List<KrogerProduct>?> get() = _cartProducts
 
     private val _favoriteProducts = MutableLiveData<List<KrogerProduct>?>()
     val favoriteProducts: LiveData<List<KrogerProduct>?> get() = _favoriteProducts
+
+    private val _locations = MutableLiveData<KrogerLocationsResponse>()
+    val locations: LiveData<KrogerLocationsResponse> get() = _locations
 
     private val _isApiRequestCompleted = MutableLiveData<Boolean>()
     val isApiRequestCompleted: LiveData<Boolean> get() = _isApiRequestCompleted
@@ -100,7 +103,7 @@ class MainViewModel: ViewModel() {
         }
     }
 
-    fun getProducts(term: String) {
+    fun getProducts(term: String, isSearchProducts: Boolean = false) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val token = getToken()
@@ -113,7 +116,10 @@ class MainViewModel: ViewModel() {
                     null,
                     null,
                     term)
-                _products.postValue(response)
+                if (!isSearchProducts)
+                    _products.postValue(response)
+                else
+                    _searchProducts.postValue(response)
                 _isApiRequestCompleted.postValue(true)
 
                 val temp = HashMap(_categoryProductCounts.value ?: hashMapOf())
@@ -122,10 +128,6 @@ class MainViewModel: ViewModel() {
             }
             catch (_: Exception) { }
         }
-    }
-
-    fun clearProducts() {
-        _products.value = null
     }
 
     suspend fun getProductById(productId: String): KrogerProductResponse? {

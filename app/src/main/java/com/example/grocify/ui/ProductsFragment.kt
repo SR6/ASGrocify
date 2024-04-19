@@ -58,15 +58,12 @@ class ProductsFragment: Fragment() {
             viewModel.getProducts(args.category)
         }
 
-        viewModel.clearProducts()
-
         viewModel.isApiRequestCompleted.observe(viewLifecycleOwner) { isCompleted ->
             if (isCompleted) {
                 viewModel.products.observe(viewLifecycleOwner) { products ->
                     if (products != null) {
                         binding.loading.root.visibility = View.GONE
                         if (products.products.isEmpty()) {
-                            viewModel.clearProducts()
                             productAdapter.submitList(emptyList())
                             binding.noProductsFound.visibility = View.VISIBLE
                         }
@@ -90,14 +87,8 @@ class ProductsFragment: Fragment() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        productAdapter.submitList(emptyList())
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        viewModel.clearProducts()
     }
 }

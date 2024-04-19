@@ -36,13 +36,12 @@ class FavoritesFragment: Fragment() {
         return binding.root
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel, true)
         productAdapter.onItemClicked = { productId, brand ->
-            findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToProductFragment(productId, brand))
+            findNavController().navigate(FavoritesFragmentDirections.actionFavoritesFragmentToProductFragment(productId, brand))
         }
 
         binding.recycler.adapter = productAdapter
@@ -79,11 +78,6 @@ class FavoritesFragment: Fragment() {
                 showBackButton = true
             )
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        productAdapter.submitList(emptyList())
     }
 
     override fun onDestroyView() {

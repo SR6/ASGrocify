@@ -4,6 +4,7 @@
 
     <string name="add_to_cart_failed">Add to cart failed.</string>
     <string name="add_to_favorites_failed">Add to favorites failed.</string>
+    <string name="available">available</string>
     <string name="back_arrow">Back Arrow</string>
     <string name="cancel">Cancel</string>
     <string name="cart">Cart</string>

@@ -37,7 +37,7 @@ class CartFragment: Fragment() {
         return binding.root
     }
 
-    @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -81,21 +81,23 @@ class CartFragment: Fragment() {
             var totalPrice = 0.0
             var totalProductsAvailableToPurchase = 0
             cartProducts?.forEach { product ->
-                if (product.items[0].price != null && product.items[0].inventory != null && product.items[0].inventory!!.stockLevel != "TEMPORARILY_OUT_OF_STOCK") {
-                    totalPrice += if (product.items[0].price!!.promo != 0.0 && product.items[0].price!!.promo < product.items[0].price!!.regular)
-                        product.items[0].price!!.promo
-                    else
-                        product.items[0].price!!.regular
-                    totalProductsAvailableToPurchase++
+                if (product.items[0].price != null) {
+                    if (product.items.firstOrNull()?.inventory?.stockLevel != "TEMPORARILY_OUT_OF_STOCK") {
+                        totalProductsAvailableToPurchase++
+                        product.items.firstOrNull()?.price?.let { price ->
+                            totalPrice += if (price.promo != 0.0 && price.promo < price.regular) price.promo else price.regular
+                        }
+                    }
                 }
             }
             binding.totalItems.text = String.format(
-                "Total (%s)",
+                "Total (%s) %s",
                 resources.getQuantityString(
                     R.plurals.items_quantity,
                     totalProductsAvailableToPurchase,
                     viewModel.addCommasToNumber(totalProductsAvailableToPurchase)
-                )
+                ),
+                resources.getString(R.string.available)
             )
             binding.totalPrice.text = String.format("$%.2f", totalPrice)
             binding.cardNumber.text = viewModel.obfuscateCardNumber(
@@ -103,12 +105,6 @@ class CartFragment: Fragment() {
                 viewModel.user.value!!.paymentMethod
             )
         }
-    }
-
-
-    override fun onPause() {
-        super.onPause()
-        productAdapter.submitList(emptyList())
     }
 
     override fun onDestroyView() {

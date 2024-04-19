@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.grocify.MainActivity
 import com.example.grocify.R
+import com.example.grocify.databinding.HeaderBinding
 import com.example.grocify.databinding.RecyclerFragmentBinding
 import kotlinx.coroutines.launch
 
@@ -23,7 +24,11 @@ class SearchFragment: Fragment() {
     private var _binding: RecyclerFragmentBinding? = null
     private val binding get() = _binding!!
 
+    private var _headerBinding: HeaderBinding? = null
+    private val headerBinding get() = _headerBinding!!
+
     private lateinit var productAdapter: ProductAdapter
+    private var isNavigatingToProduct = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,14 +52,13 @@ class SearchFragment: Fragment() {
         productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel, false)
         productAdapter.onItemClicked = { productId, brand ->
             findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToProductFragment(productId, brand))
+            isNavigatingToProduct = true
         }
 
         binding.recycler.adapter = productAdapter
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
 
-        val headerBinding = (requireActivity() as MainActivity).headerBinding
-
-        headerBinding.search.setQuery(null, false)
+        _headerBinding = (requireActivity() as MainActivity).headerBinding
 
         headerBinding.search.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -68,7 +72,7 @@ class SearchFragment: Fragment() {
 
                     lifecycleScope.launch {
                         viewModel.setIsApiRequestCompleted(false)
-                        viewModel.getProducts(query)
+                        viewModel.getProducts(query, true)
                     }
                 }
                 return true
@@ -79,15 +83,12 @@ class SearchFragment: Fragment() {
             }
         })
 
-        viewModel.clearProducts()
-
         viewModel.isApiRequestCompleted.observe(viewLifecycleOwner) { isCompleted ->
             if (isCompleted) {
-                viewModel.products.observe(viewLifecycleOwner) { products ->
+                viewModel.searchProducts.observe(viewLifecycleOwner) { products ->
                     if (products != null) {
                         binding.loading.root.visibility = View.GONE
                         if (products.products.isEmpty()) {
-                            viewModel.clearProducts()
                             productAdapter.submitList(emptyList())
                             binding.noProductsFound.visibility = View.VISIBLE
                         }
@@ -111,19 +112,24 @@ class SearchFragment: Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        if (!isNavigatingToProduct) {
+            productAdapter.submitList(emptyList())
+            headerBinding.search.setQuery("", false)
+        }
+        isNavigatingToProduct = false
+    }
+
+
     fun Fragment.hideKeyboard() {
         val input = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         input.hideSoftInputFromWindow(requireActivity().window.decorView.rootView.windowToken, 0)
     }
 
-    override fun onPause() {
-        super.onPause()
-        productAdapter.submitList(emptyList())
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        viewModel.clearProducts()
     }
 }
