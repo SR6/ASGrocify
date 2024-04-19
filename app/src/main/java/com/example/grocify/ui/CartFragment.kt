@@ -13,7 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.grocify.R
 import com.example.grocify.databinding.CartFragmentBinding
 import com.example.grocify.models.KrogerProduct
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CartFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -39,7 +41,7 @@ class CartFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel)
+        productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel, true)
         productAdapter.onItemClicked = { productId, brand ->
             findNavController().navigate(CartFragmentDirections.actionCartFragmentToProductFragment(productId, brand))
         }
@@ -49,70 +51,60 @@ class CartFragment: Fragment() {
 
         binding.recyclerFragment.loading.root.visibility = View.VISIBLE
 
-
         viewModel.cartProducts.observe(viewLifecycleOwner) { cartProducts ->
-            val products = mutableListOf<KrogerProduct>()
-            products.clear()
-            lifecycleScope.launch {
-                if (cartProducts != null) {
-                    cartProducts.forEach { cartProduct ->
-                        if (products.none { it.productId == cartProduct.productId }) {
-                            val product = viewModel.getProductById(cartProduct.productId)
-                            product?.product?.let { products.add(it) }
-                        }
-                    }
-                    binding.recyclerFragment.loading.root.visibility = View.GONE
-                    if (products.isEmpty())
-                        displayNoProductsFound()
-                    else {
-                        binding.recyclerFragment.noProductsFound.visibility = View.GONE
-                        productAdapter.submitList(products)
-                    }
+            if (cartProducts != null) {
+                binding.recyclerFragment.loading.root.visibility = View.GONE
+                if (cartProducts.isEmpty()) {
+                    productAdapter.submitList(emptyList())
+                    binding.recyclerFragment.noProductsFound.visibility = View.VISIBLE
                 }
                 else {
-                    binding.recyclerFragment.loading.root.visibility = View.GONE
-                    displayNoProductsFound()
+                    binding.recyclerFragment.noProductsFound.visibility = View.GONE
+                    productAdapter.submitList(cartProducts)
                 }
-
-                viewModel.updateHeader(
-                    getString(R.string.cart),
-                    resources.getQuantityString(
-                        R.plurals.items_quantity_header,
-                        products.size,
-                        viewModel.addCommasToNumber(products.size)
-                    )
-                )
-
-                var totalPrice = 0.0
-                var totalProductsAvailableToPurchase = 0
-                products.forEach { product ->
-                    if (product.items[0].price != null && product.items[0].inventory != null && product.items[0].inventory!!.stockLevel != "TEMPORARILY_OUT_OF_STOCK") {
-                        totalPrice += if (product.items[0].price!!.promo != 0.0 && product.items[0].price!!.promo < product.items[0].price!!.regular)
-                            product.items[0].price!!.promo
-                        else
-                            product.items[0].price!!.regular
-                        totalProductsAvailableToPurchase++
-                    }
-                }
-                binding.totalItems.text = String.format(
-                    "Total (%s)",
-                    resources.getQuantityString(
-                        R.plurals.items_quantity,
-                        totalProductsAvailableToPurchase,
-                        viewModel.addCommasToNumber(totalProductsAvailableToPurchase)
-                    )
-                )
-                binding.totalPrice.text = String.format("$%.2f", totalPrice)
-                binding.cardNumber.text = viewModel.obfuscateCardNumber(requireContext(), viewModel.user.value!!.paymentMethod)
             }
+            else {
+                binding.recyclerFragment.loading.root.visibility = View.GONE
+                productAdapter.submitList(emptyList())
+                binding.recyclerFragment.noProductsFound.visibility = View.VISIBLE
+            }
+
+            viewModel.updateHeader(
+                getString(R.string.cart),
+                resources.getQuantityString(
+                    R.plurals.items_quantity_header,
+                    cartProducts?.size ?: 0,
+                    viewModel.addCommasToNumber(cartProducts?.size ?: 0)
+                )
+            )
+
+            var totalPrice = 0.0
+            var totalProductsAvailableToPurchase = 0
+            cartProducts?.forEach { product ->
+                if (product.items[0].price != null && product.items[0].inventory != null && product.items[0].inventory!!.stockLevel != "TEMPORARILY_OUT_OF_STOCK") {
+                    totalPrice += if (product.items[0].price!!.promo != 0.0 && product.items[0].price!!.promo < product.items[0].price!!.regular)
+                        product.items[0].price!!.promo
+                    else
+                        product.items[0].price!!.regular
+                    totalProductsAvailableToPurchase++
+                }
+            }
+            binding.totalItems.text = String.format(
+                "Total (%s)",
+                resources.getQuantityString(
+                    R.plurals.items_quantity,
+                    totalProductsAvailableToPurchase,
+                    viewModel.addCommasToNumber(totalProductsAvailableToPurchase)
+                )
+            )
+            binding.totalPrice.text = String.format("$%.2f", totalPrice)
+            binding.cardNumber.text = viewModel.obfuscateCardNumber(
+                requireContext(),
+                viewModel.user.value!!.paymentMethod
+            )
         }
     }
 
-    private fun displayNoProductsFound() {
-        viewModel.clearProducts()
-        productAdapter.submitList(emptyList())
-        binding.recyclerFragment.noProductsFound.visibility = View.VISIBLE
-    }
 
     override fun onPause() {
         super.onPause()

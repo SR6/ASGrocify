@@ -7,13 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.grocify.R
 import com.example.grocify.databinding.RecyclerFragmentBinding
-import com.example.grocify.models.KrogerProduct
-import kotlinx.coroutines.launch
 
 class FavoritesFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -43,7 +40,7 @@ class FavoritesFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel)
+        productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel, true)
         productAdapter.onItemClicked = { productId, brand ->
             findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToProductFragment(productId, brand))
         }
@@ -54,46 +51,34 @@ class FavoritesFragment: Fragment() {
         binding.loading.root.visibility = View.VISIBLE
 
         viewModel.favoriteProducts.observe(viewLifecycleOwner) { favoriteProducts ->
-            val products = mutableListOf<KrogerProduct>()
-            products.clear()
-            lifecycleScope.launch {
-                if (favoriteProducts != null) {
-                    favoriteProducts.forEach { favoriteProduct ->
-                        if (products.none { it.productId == favoriteProduct.productId }) {
-                            val product = viewModel.getProductById(favoriteProduct.productId)
-                            product?.product?.let { products.add(it) }
-                        }
-                    }
-                    binding.loading.root.visibility = View.GONE
-                    if (products.isEmpty())
-                        displayNoProductsFound()
-                    else {
-                        binding.noProductsFound.visibility = View.GONE
-                        productAdapter.submitList(products)
-                    }
+            if (favoriteProducts != null) {
+                binding.loading.root.visibility = View.GONE
+                if (favoriteProducts.isEmpty()){
+                    productAdapter.submitList(emptyList())
+                    binding.noProductsFound.visibility = View.VISIBLE
                 }
                 else {
-                    binding.loading.root.visibility = View.GONE
-                    displayNoProductsFound()
+                    binding.noProductsFound.visibility = View.GONE
+                    productAdapter.submitList(favoriteProducts)
                 }
-                viewModel.updateHeader(
-                    getString(R.string.favorites),
-                    resources.getQuantityString(
-                        R.plurals.items_quantity_header,
-                        products.size,
-                        viewModel.addCommasToNumber(products.size)
-                    ),
-                    favoritesVisible = false,
-                    showBackButton = true
-                )
             }
-        }
-    }
+            else {
+                binding.loading.root.visibility = View.GONE
+                productAdapter.submitList(emptyList())
+                binding.noProductsFound.visibility = View.VISIBLE
+            }
 
-    private fun displayNoProductsFound() {
-        viewModel.clearProducts()
-        productAdapter.submitList(emptyList())
-        binding.noProductsFound.visibility = View.VISIBLE
+            viewModel.updateHeader(
+                getString(R.string.favorites),
+                resources.getQuantityString(
+                    R.plurals.items_quantity_header,
+                    favoriteProducts?.size ?: 0,
+                    viewModel.addCommasToNumber(favoriteProducts?.size ?: 0)
+                ),
+                favoritesVisible = false,
+                showBackButton = true
+            )
+        }
     }
 
     override fun onPause() {

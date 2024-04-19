@@ -42,7 +42,7 @@ class ProductsFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel)
+        productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel, false)
         productAdapter.onItemClicked = { productId, brand ->
             findNavController().navigate(ProductsFragmentDirections.actionProductsFragmentToProductFragment(productId, brand))
         }

@@ -11,6 +11,7 @@ import com.example.grocify.db.UserProductDatabaseConnection
 import com.example.grocify.db.UserDatabaseConnection
 import com.example.grocify.models.GrocifyCategory
 import com.example.grocify.models.KrogerLocationsResponse
+import com.example.grocify.models.KrogerProduct
 import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.KrogerProductsResponse
 import com.example.grocify.models.User
@@ -37,11 +38,11 @@ class MainViewModel: ViewModel() {
     private val cartDatabaseConnection = UserProductDatabaseConnection(DatabaseCollection.CART.databaseCollection)
     private val favoritesDatabaseConnection = UserProductDatabaseConnection(DatabaseCollection.FAVORITES.databaseCollection)
 
-    private val _favoriteProducts = MutableLiveData<List<UserProduct>?>()
-    val favoriteProducts: LiveData<List<UserProduct>?> get() = _favoriteProducts
+    private val _favoriteUserProducts = MutableLiveData<List<UserProduct>?>()
+    val favoriteUserProducts: LiveData<List<UserProduct>?> get() = _favoriteUserProducts
 
-    private val _cartProducts = MutableLiveData<List<UserProduct>?>()
-    val cartProducts: LiveData<List<UserProduct>?> get() = _cartProducts
+    private val _cartUserProducts = MutableLiveData<List<UserProduct>?>()
+    val cartUserProducts: LiveData<List<UserProduct>?> get() = _cartUserProducts
 
     /* API globals. */
     private var cachedToken: String? = null
@@ -51,11 +52,14 @@ class MainViewModel: ViewModel() {
     private val _products = MutableLiveData<KrogerProductsResponse?>()
     val products: LiveData<KrogerProductsResponse?> get() = _products
 
-//    private val _product = MutableLiveData<KrogerProductResponse>()
-//    val product: LiveData<KrogerProductResponse> get() = _product
-
     private val _locations = MutableLiveData<KrogerLocationsResponse>()
     val locations: LiveData<KrogerLocationsResponse> get() = _locations
+
+    private val _cartProducts = MutableLiveData<List<KrogerProduct>?>()
+    val cartProducts: LiveData<List<KrogerProduct>?> get() = _cartProducts
+
+    private val _favoriteProducts = MutableLiveData<List<KrogerProduct>?>()
+    val favoriteProducts: LiveData<List<KrogerProduct>?> get() = _favoriteProducts
 
     private val _isApiRequestCompleted = MutableLiveData<Boolean>()
     val isApiRequestCompleted: LiveData<Boolean> get() = _isApiRequestCompleted
@@ -141,7 +145,6 @@ class MainViewModel: ViewModel() {
             }
         }
     }
-
 
     fun getLocations(zipCode: String) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -229,8 +232,19 @@ class MainViewModel: ViewModel() {
                      onSuccess: (List<UserProduct>?) -> Unit,
                      onFailure: (Exception) -> Unit) {
         favoritesDatabaseConnection.getUserProducts(userId, { userProducts ->
-            _favoriteProducts.postValue(userProducts)
-            onSuccess(userProducts)
+            CoroutineScope(Dispatchers.IO).launch {
+                _favoriteUserProducts.postValue(userProducts)
+                _favoriteProducts.postValue(null)
+                userProducts?.forEach { userProduct ->
+                    val product = getProductById(userProduct.productId)
+                    product?.let { favoriteProduct ->
+                        val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
+                        currentFavoriteProducts.add(favoriteProduct.product)
+                        _favoriteProducts.postValue(currentFavoriteProducts)
+                    }
+                }
+                onSuccess(userProducts)
+            }
         }, onFailure)
     }
 
@@ -238,10 +252,23 @@ class MainViewModel: ViewModel() {
                        onSuccess: () -> Unit,
                        onFailure: (Exception) -> Unit) {
         favoritesDatabaseConnection.addUserProduct(userProduct, {
-            val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
-            currentFavoriteProducts.add(userProduct)
-            _favoriteProducts.postValue(currentFavoriteProducts)
-            onSuccess()
+            CoroutineScope(Dispatchers.IO).launch {
+                val currentFavoriteUserProducts = _favoriteUserProducts.value.orEmpty().toMutableList()
+                currentFavoriteUserProducts.add(userProduct)
+                _favoriteUserProducts.postValue(currentFavoriteUserProducts)
+
+                val product = getProductById(userProduct.productId)
+
+                product?.let { favoriteProduct ->
+                    val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
+                    currentFavoriteProducts.add(favoriteProduct.product)
+                    _favoriteProducts.postValue(currentFavoriteProducts)
+                }
+
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            }
         }, onFailure)
     }
 
@@ -249,9 +276,14 @@ class MainViewModel: ViewModel() {
                             onSuccess: () -> Unit,
                             onFailure: (Exception) -> Unit) {
         favoritesDatabaseConnection.removeUserProduct(userProduct, {
+            val currentFavoriteUserProducts = _favoriteUserProducts.value.orEmpty().toMutableList()
+            currentFavoriteUserProducts.removeIf { it.userProductId == userProduct.userProductId }
+            _favoriteUserProducts.postValue(currentFavoriteUserProducts)
+
             val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
-            currentFavoriteProducts.removeIf { it.userProductId == userProduct.userProductId }
+            currentFavoriteProducts.removeIf { it.productId == userProduct.productId }
             _favoriteProducts.postValue(currentFavoriteProducts)
+
             onSuccess()
         }, onFailure)
     }
@@ -260,8 +292,19 @@ class MainViewModel: ViewModel() {
                 onSuccess: (List<UserProduct>?) -> Unit,
                 onFailure: (Exception) -> Unit) {
         cartDatabaseConnection.getUserProducts(userId, { userProducts ->
-            _cartProducts.postValue(userProducts)
-            onSuccess(userProducts)
+            CoroutineScope(Dispatchers.IO).launch {
+                _cartUserProducts.postValue(userProducts)
+                _cartProducts.postValue(null)
+                userProducts?.forEach { userProduct ->
+                    val product = getProductById(userProduct.productId)
+                    product?.let { cartProduct ->
+                        val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
+                        currentCartProducts.add(cartProduct.product)
+                        _cartProducts.postValue(currentCartProducts)
+                    }
+                }
+                onSuccess(userProducts)
+            }
         }, onFailure)
     }
 
@@ -269,10 +312,23 @@ class MainViewModel: ViewModel() {
                   onSuccess: () -> Unit,
                   onFailure: (Exception) -> Unit) {
         cartDatabaseConnection.addUserProduct(userProduct, {
-            val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
-            currentCartProducts.add(userProduct)
-            _cartProducts.postValue(currentCartProducts)
-            onSuccess()
+            CoroutineScope(Dispatchers.IO).launch {
+                val currentCartUserProducts = _cartUserProducts.value.orEmpty().toMutableList()
+                currentCartUserProducts.add(userProduct)
+                _cartUserProducts.postValue(currentCartUserProducts)
+
+                val product = getProductById(userProduct.productId)
+
+                product?.let { cartProduct ->
+                    val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
+                    currentCartProducts.add(cartProduct.product)
+                    _cartProducts.postValue(currentCartProducts)
+                }
+
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            }
         }, onFailure)
     }
 
@@ -280,9 +336,14 @@ class MainViewModel: ViewModel() {
                        onSuccess: () -> Unit,
                        onFailure: (Exception) -> Unit) {
         cartDatabaseConnection.removeUserProduct(userProduct, {
+            val currentCartUserProducts = _cartUserProducts.value.orEmpty().toMutableList()
+            currentCartUserProducts.removeIf { it.userProductId == userProduct.userProductId }
+            _cartUserProducts.postValue(currentCartUserProducts)
+
             val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
-            currentCartProducts.removeIf { it.userProductId == userProduct.userProductId }
+            currentCartProducts.removeIf { it.productId == userProduct.productId }
             _cartProducts.postValue(currentCartProducts)
+
             onSuccess()
         }, onFailure)
     }

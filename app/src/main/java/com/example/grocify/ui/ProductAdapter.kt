@@ -23,6 +23,7 @@ class ProductAdapter(
     private val context: Context,
     private val viewLifecycleOwner: LifecycleOwner,
     private val viewModel: MainViewModel,
+    private val isCartOrFavorites: Boolean
 ): ListAdapter<KrogerProduct, ProductAdapter.ViewHolder>(ItemDiff()) {
     inner class ViewHolder(val productItemBinding: ProductItemBinding): RecyclerView.ViewHolder(productItemBinding.root) {
         init {
@@ -92,14 +93,14 @@ class ProductAdapter(
             }
         }
 
-        viewModel.favoriteProducts.observe(viewLifecycleOwner) { favoriteProducts ->
-            val isInFavorites = favoriteProducts?.any { it.productId == product.productId } ?: false
+        viewModel.favoriteUserProducts.observe(viewLifecycleOwner) { favoriteUserProducts ->
+            val isInFavorites = favoriteUserProducts?.any { it.productId == product.productId } ?: false
             val drawableId = if (!isInFavorites) R.drawable.ic_unfavorite else R.drawable.ic_favorite
             holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, drawableId, null))
         }
 
         holder.productItemBinding.toggleFavorites.setOnClickListener {
-            val isInFavorites = viewModel.favoriteProducts.value?.any { it.productId == product.productId } ?: false
+            val isInFavorites = viewModel.favoriteUserProducts.value?.any { it.productId == product.productId } ?: false
 
             if (!isInFavorites) {
                 viewModel.addToFavorites(
@@ -109,7 +110,8 @@ class ProductAdapter(
                         Timestamp.now()),
                     onSuccess = {
                         holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_favorite, null))
-                        notifyItemChanged(position)
+                        if (isCartOrFavorites)
+                            notifyItemChanged(position)
                     },
                     onFailure = {
                         Toast.makeText(context, context.resources.getString(R.string.add_to_favorites_failed), Toast.LENGTH_SHORT).show()
@@ -124,7 +126,8 @@ class ProductAdapter(
                         null),
                     onSuccess = {
                         holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_unfavorite, null))
-                        notifyItemChanged(position)
+                        if (isCartOrFavorites)
+                            notifyItemChanged(position)
                     },
                     onFailure = {
                         Toast.makeText(context, context.resources.getString(R.string.remove_from_favorites_failed), Toast.LENGTH_SHORT).show()
@@ -133,8 +136,8 @@ class ProductAdapter(
             }
         }
 
-        viewModel.cartProducts.observe(viewLifecycleOwner) { cartProducts ->
-            val isInCart = cartProducts?.any { it.productId == product.productId } ?: false
+        viewModel.cartUserProducts.observe(viewLifecycleOwner) { cartUserProducts ->
+            val isInCart = cartUserProducts?.any { it.productId == product.productId } ?: false
             val drawableId = if (!isInCart) R.drawable.ic_add else R.drawable.ic_remove
             holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, drawableId, null))
             if (addToCartDisabled && isInCart) {
@@ -161,7 +164,7 @@ class ProductAdapter(
         }
 
         holder.productItemBinding.toggleCart.setOnClickListener {
-            val isInCart = viewModel.cartProducts.value?.any { it.productId == product.productId } ?: false
+            val isInCart = viewModel.cartUserProducts.value?.any { it.productId == product.productId } ?: false
 
             if (!isInCart) {
                 viewModel.addToCart(
@@ -171,7 +174,8 @@ class ProductAdapter(
                         Timestamp.now()),
                     onSuccess = {
                         holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_remove, null))
-                        notifyItemChanged(position)
+                        if (isCartOrFavorites)
+                            notifyItemChanged(position)
                     },
                     onFailure = {
                         Toast.makeText(context, context.resources.getString(R.string.add_to_cart_failed), Toast.LENGTH_SHORT).show()
@@ -186,7 +190,8 @@ class ProductAdapter(
                         null),
                     onSuccess = {
                         holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_add, null))
-                        notifyItemChanged(position)
+                        if (isCartOrFavorites)
+                            notifyItemChanged(position)
                     },
                     onFailure = {
                         Toast.makeText(context, context.resources.getString(R.string.remove_from_cart_failed), Toast.LENGTH_SHORT).show()
