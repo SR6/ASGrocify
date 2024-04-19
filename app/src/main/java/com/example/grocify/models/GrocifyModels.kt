@@ -8,6 +8,11 @@ data class GrocifyProduct(
     @SerializedName("cartCount") val cartCount: Int
 )
 
+data class GrocifyCategory(
+    @SerializedName("name") val name: String,
+    @SerializedName("imageFile") val imageFile: String
+)
+
 data class UserProduct(
     @SerializedName("userProductId") val userProductId: String,
     @SerializedName("userId") val userId: String,
@@ -15,9 +20,12 @@ data class UserProduct(
     @SerializedName("addedAt") val addedAt: Timestamp?
 )
 
-data class GrocifyCategory(
-    @SerializedName("name") val name: String,
-    @SerializedName("imageFile") val imageFile: String
+data class Transaction(
+    @SerializedName("transactionId") val transactionId: String,
+    @SerializedName("userId") val userId: String,
+    @SerializedName("totalItems") val totalItems: Long,
+    @SerializedName("totalPrice") val totalPrice: Double,
+    @SerializedName("purchasedAt") val purchasedAt: Timestamp?
 )
 
 data class User(

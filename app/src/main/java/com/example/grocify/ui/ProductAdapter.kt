@@ -85,7 +85,7 @@ class ProductAdapter(
                 productPrice.apply {
                     textSize = 15F
                     text = context.resources.getString(R.string.unavailable_price)
-                    setTextColor(context.resources.getColor(R.color.gray))
+                    setTextColor(context.resources.getColor(R.color.gray, null))
                 }
                 onSale.visibility = View.GONE
                 outOfStock.visibility = View.GONE
@@ -107,7 +107,8 @@ class ProductAdapter(
                     UserProduct(viewModel.user.value!!.userId + product.productId,
                         viewModel.user.value!!.userId,
                         product.productId,
-                        Timestamp.now()),
+                        Timestamp.now()
+                    ),
                     onSuccess = {
                         holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_favorite, null))
                         if (isCartOrFavorites)
@@ -123,7 +124,8 @@ class ProductAdapter(
                     UserProduct(viewModel.user.value!!.userId + product.productId,
                         viewModel.user.value!!.userId,
                         product.productId,
-                        null),
+                        null
+                    ),
                     onSuccess = {
                         holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_unfavorite, null))
                         if (isCartOrFavorites)
@@ -144,21 +146,21 @@ class ProductAdapter(
                 holder.productItemBinding.toggleCart.apply {
                     isClickable = true
                     isEnabled = true
-                    setColorFilter(context.resources.getColor(R.color.black))
+                    setColorFilter(context.resources.getColor(R.color.black, null))
                 }
             }
             else if (addToCartDisabled) {
                 holder.productItemBinding.toggleCart.apply {
                     isClickable = false
                     isEnabled = false
-                    setColorFilter(context.resources.getColor(R.color.gray))
+                    setColorFilter(context.resources.getColor(R.color.gray, null))
                 }
             }
             else {
                 holder.productItemBinding.toggleCart.apply {
                     isClickable = true
                     isEnabled = true
-                    setColorFilter(context.resources.getColor(R.color.black))
+                    setColorFilter(context.resources.getColor(R.color.black, null))
                 }
             }
         }
@@ -171,7 +173,8 @@ class ProductAdapter(
                     UserProduct(viewModel.user.value!!.userId + product.productId,
                         viewModel.user.value!!.userId,
                         product.productId,
-                        Timestamp.now()),
+                        Timestamp.now()
+                    ),
                     onSuccess = {
                         holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_remove, null))
                         if (isCartOrFavorites)
@@ -187,7 +190,8 @@ class ProductAdapter(
                     UserProduct(viewModel.user.value!!.userId + product.productId,
                         viewModel.user.value!!.userId,
                         product.productId,
-                        null),
+                        null
+                    ),
                     onSuccess = {
                         holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_add, null))
                         if (isCartOrFavorites)

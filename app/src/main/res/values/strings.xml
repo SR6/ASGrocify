@@ -12,6 +12,7 @@
     <string name="category">Category</string>
     <string name="categories">Categories</string>
     <string name="categories_load_failed">Failed to load categories.</string>
+    <string name="checkout">Checkout</string>
     <string name="default_location_id">01400513</string>
     <string name="default_zip_code">45202</string>
     <string name="email">Email</string>
@@ -28,6 +29,7 @@
     <string name="invalid_zip_code">Invalid zip code.</string>
     <string name="logout">Logout</string>
     <string name="logout_failed">Logout failed.</string>
+    <string name="logout_message">Are you sure you want to logout?</string>
     <string name="logout_success">Logout successfully.</string>
     <string name="name">Name</string>
     <string name="no_kroger_location">No Kroger location at that zip code.</string>
@@ -36,13 +38,16 @@
     <string name="out_of_stock">Out of Stock</string>
     <string name="password">Password</string>
     <string name="past_transactions">Past Transactions</string>
+    <string name="past_transactions_load_failed">Failed to load past transactions.</string>
     <string name="payment_method">Payment Method</string>
     <string name="product">Product</string>
+    <string name="product_image">Product Image</string>
     <string name="products">Products</string>
     <string name="profile">Profile</string>
     <string name="profile_update_failed">Failed to update profile.</string>
     <string name="profile_update_successful">Profile successfully updated.</string>
-    <string name="product_image">Product Image</string>
+    <string name="purchase">Purchase</string>
+    <string name="purchase_message">Would you like complete this purchase?</string>
     <string name="remove_from_cart_failed">Remove from cart failed.</string>
     <string name="remove_from_favorites_failed">Remove from favorites failed.</string>
     <string name="save">Save</string>
@@ -50,11 +55,14 @@
     <string name="toggle_cart">Toggle Cart</string>
     <string name="toggle_favorites">Toggle Favorites</string>
     <string name="total">Total</string>
+    <string name="transaction_completed">Transaction Completed</string>
+    <string name="transaction_failed">Transaction failed.</string>
     <string name="unavailable_price">Unavailable\nPrice</string>
     <string name="user">User</string>
     <string name="user_add_failed">Failed to add user.</string>
     <string name="user_load_failed">Failed to load user.</string>
     <string name="user_update_failed">Failed to update user.</string>
+    <string name="yes">Yes</string>
     <string name="zip_code">Zip Code</string>
 
     <plurals name="items_quantity_header">

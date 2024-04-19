@@ -95,7 +95,8 @@ class MainActivity: AppCompatActivity() {
                         Timestamp.now(),
                         "",
                         resources.getString(R.string.default_zip_code),
-                        resources.getString(R.string.default_location_id)),
+                        resources.getString(R.string.default_location_id)
+                    ),
                     onSuccess = {
                         if (navController.currentDestination?.id != R.id.category_fragment)
                             navController.navigate(R.id.category_fragment)
@@ -115,7 +116,8 @@ class MainActivity: AppCompatActivity() {
                         Timestamp.now(),
                         user.paymentMethod,
                         user.zipCode,
-                        user.locationId),
+                        user.locationId
+                    ),
                     onSuccess = {
                         initializeCartAndFavorites()
                         if (navController.currentDestination?.id != R.id.category_fragment)
@@ -180,13 +182,15 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun initializeCartAndFavorites() {
-        viewModel.getCart(viewModel.user.value!!.userId,
+        viewModel.getCart(
+            viewModel.user.value!!.userId,
             onSuccess = { },
             onFailure = {
                 Toast.makeText(applicationContext, resources.getString(R.string.cart_load_failed), Toast.LENGTH_SHORT).show()
             }
         )
-        viewModel.getFavorites(viewModel.user.value!!.userId,
+        viewModel.getFavorites(
+            viewModel.user.value!!.userId,
             onSuccess = { },
             onFailure = {
                 Toast.makeText(applicationContext, resources.getString(R.string.cart_load_failed), Toast.LENGTH_SHORT).show()

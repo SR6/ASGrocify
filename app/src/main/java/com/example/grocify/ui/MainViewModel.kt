@@ -1,12 +1,17 @@
 package com.example.grocify.ui
 
+import android.app.Dialog
 import android.content.Context
+import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.grocify.R
 import com.example.grocify.api.KrogerClient.krogerService
 import com.example.grocify.db.CategoryDatabaseConnection
+import com.example.grocify.db.TransactionsDatabaseConnection
 import com.example.grocify.db.UserProductDatabaseConnection
 import com.example.grocify.db.UserDatabaseConnection
 import com.example.grocify.models.GrocifyCategory
@@ -14,6 +19,7 @@ import com.example.grocify.models.KrogerLocationsResponse
 import com.example.grocify.models.KrogerProduct
 import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.KrogerProductsResponse
+import com.example.grocify.models.Transaction
 import com.example.grocify.models.User
 import com.example.grocify.models.UserProduct
 import com.google.firebase.auth.FirebaseAuth
@@ -35,6 +41,7 @@ class MainViewModel: ViewModel() {
 
     private val categoryDatabaseConnection = CategoryDatabaseConnection()
     private val userDatabaseConnection = UserDatabaseConnection()
+    private val transactionsDatabaseConnection = TransactionsDatabaseConnection()
     private val cartDatabaseConnection = UserProductDatabaseConnection(DatabaseCollection.CART.databaseCollection)
     private val favoritesDatabaseConnection = UserProductDatabaseConnection(DatabaseCollection.FAVORITES.databaseCollection)
 
@@ -63,6 +70,9 @@ class MainViewModel: ViewModel() {
 
     private val _locations = MutableLiveData<KrogerLocationsResponse>()
     val locations: LiveData<KrogerLocationsResponse> get() = _locations
+
+    private val _transactions = MutableLiveData<List<Transaction>?>()
+    val transactions: LiveData<List<Transaction>?> get() = _transactions
 
     private val _isApiRequestCompleted = MutableLiveData<Boolean>()
     val isApiRequestCompleted: LiveData<Boolean> get() = _isApiRequestCompleted
@@ -350,6 +360,27 @@ class MainViewModel: ViewModel() {
         }, onFailure)
     }
 
+    fun getTransactions(userId: String,
+                        onSuccess: (List<Transaction>?) -> Unit,
+                        onFailure: (Exception) -> Unit) {
+        transactionsDatabaseConnection.getUserTransactions(userId, { transactions ->
+            _transactions.postValue(transactions)
+            onSuccess(transactions)
+        }, onFailure)
+    }
+
+    fun addTransaction(transaction: Transaction,
+                       onSuccess: () -> Unit,
+                       onFailure: (Exception) -> Unit) {
+        transactionsDatabaseConnection.addTransaction(transaction, {
+            val currentTransactions = _transactions.value.orEmpty().toMutableList()
+            currentTransactions.add(transaction)
+            _transactions.postValue(currentTransactions)
+            onSuccess()
+        }, onFailure)
+
+    }
+
     /* Header logic. */
     fun updateHeader(
         title: String?,
@@ -375,5 +406,24 @@ class MainViewModel: ViewModel() {
 
     fun obfuscateCardNumber(context: Context, cardNumber: String): String {
         return context.resources.getString(R.string.ending_in) + cardNumber.takeLast(4)
+    }
+}
+
+class ConfirmationDialogFragment(
+    private val onConfirmListener: () -> Unit,
+    private val message: String,
+    private val positiveMessage: String,
+    private val negativeMessage: String,
+) : DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            val builder = AlertDialog.Builder(it)
+            builder.setMessage(message)
+                .setPositiveButton(positiveMessage) { _, _ ->
+                    onConfirmListener.invoke()
+                }
+                .setNegativeButton(negativeMessage) { _, _ -> }
+            builder.create()
+        } ?: throw java.lang.Exception()
     }
 }

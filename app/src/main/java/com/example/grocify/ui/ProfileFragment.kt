@@ -20,6 +20,7 @@ import com.example.grocify.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class ProfileFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -49,7 +50,11 @@ class ProfileFragment: Fragment() {
     ): View {
         _binding = ProfileFragmentBinding.inflate(inflater, container, false)
 
-        viewModel.updateHeader("Profile", null, favoritesVisible = false)
+        viewModel.updateHeader(
+            resources.getString(R.string.profile),
+            null,
+            favoritesVisible = false
+        )
 
         return binding.root
     }
@@ -137,7 +142,7 @@ class ProfileFragment: Fragment() {
                                         if (validFields())
                                             updateUser(newEmail, newName, newPaymentMethod, newZipCode, locations.data[0].locationId)
                                     }
-
+                                    binding.editPaymentMethod.setText(viewModel.obfuscateCardNumber(requireContext(), viewModel.user.value!!.paymentMethod))
                                     binding.save.isEnabled = true
                                     isActionInProgress = false
                                 }
@@ -149,14 +154,15 @@ class ProfileFragment: Fragment() {
         }
 
         binding.logout.setOnClickListener {
-            val confirmationDialog = ConfirmationDialogFragment {
-                FirebaseAuth.getInstance().signOut()
-                Toast.makeText(
-                    requireContext(),
-                    resources.getString(R.string.logout_success),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            val confirmationDialog = ConfirmationDialogFragment(
+                {
+                    FirebaseAuth.getInstance().signOut()
+                    Toast.makeText(requireContext(), resources.getString(R.string.logout_success), Toast.LENGTH_SHORT).show()
+                },
+                resources.getString(R.string.logout_message),
+                resources.getString(R.string.yes),
+                resources.getString(R.string.cancel),
+            )
             confirmationDialog.show(parentFragmentManager, resources.getString(R.string.logout))
         }
 
@@ -176,7 +182,7 @@ class ProfileFragment: Fragment() {
 
         viewModel.user.observe(viewLifecycleOwner) {
             if (it != null) {
-                binding.editPaymentMethod.setText(it.paymentMethod)
+                binding.editPaymentMethod.setText(viewModel.obfuscateCardNumber(requireContext(), it.paymentMethod))
                 binding.editZipCode.setText(it.zipCode)
             }
         }
@@ -260,8 +266,7 @@ class ProfileFragment: Fragment() {
 
     private fun updateUser(newEmail: String, newName: String, newPaymentMethod: String, newZipCode: String, locationId: String) {
         viewModel.updateUser(
-            User(
-                viewModel.user.value!!.userId,
+            User(viewModel.user.value!!.userId,
                 newEmail,
                 newName,
                 viewModel.user.value!!.createdAt,
@@ -284,19 +289,5 @@ class ProfileFragment: Fragment() {
                 }
             }
         )
-    }
-}
-
-class ConfirmationDialogFragment(private val onConfirmListener: () -> Unit) : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let {
-            val builder = AlertDialog.Builder(it)
-            builder.setMessage("Are you sure you want to logout?")
-                .setPositiveButton("Yes") { _, _ ->
-                    onConfirmListener.invoke()
-                }
-                .setNegativeButton("Cancel") { _, _ -> }
-            builder.create()
-        } ?: throw IllegalStateException("Error")
     }
 }

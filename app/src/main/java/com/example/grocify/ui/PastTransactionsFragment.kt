@@ -4,21 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.grocify.R
 import com.example.grocify.databinding.RecyclerFragmentBinding
 
 class PastTransactionsFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
+
     private var _binding: RecyclerFragmentBinding? = null
     private val binding get() = _binding!!
 
-    data class PurchaseItem(
-        val itemCount: Int,
-        val totalCost: Double,
-        val dateOfPurchase: String
-    )
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -26,41 +24,37 @@ class PastTransactionsFragment: Fragment() {
     ): View {
         _binding = RecyclerFragmentBinding.inflate(inflater, container, false)
 
-        viewModel.updateHeader("Past Purchases",null,false,false,true)
+        viewModel.updateHeader(
+            resources.getString(R.string.past_transactions),
+            null,
+            favoritesVisible = false,
+            showBackButton = true
+        )
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val pastPurchaseAdapter = PastPurchaseAdapter(viewModel, setupDummyList() )
+
+        val pastTransactionsAdapter = PastTransactionsAdapter(requireContext(), viewModel)
+
+        binding.recycler.adapter = pastTransactionsAdapter
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
-        binding.recycler.adapter = pastPurchaseAdapter
 
-        //TODO: Fetch past purchase list from database
-
-
-        //if (products != null) {
-            //pastPurchaseAdapter.submitList()
-        //}
+        viewModel.getTransactions(
+            viewModel.user.value!!.userId,
+            onSuccess = { transactions ->
+                pastTransactionsAdapter.submitList(transactions?.sortedByDescending { it.purchasedAt?.seconds })
+            },
+            onFailure = {
+                Toast.makeText(context, resources.getString(R.string.past_transactions_load_failed), Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    fun setupDummyList(): List<PurchaseItem>{
-        val purchases =  (mutableListOf<PurchaseItem> ())
-        var dummyNum = 40
-        repeat(10){
-            val itemCount = dummyNum
-            val totPrice = dummyNum * 2.0
-            val date = "3 mar 2024"
-            val purchaseItem = PurchaseItem(itemCount,totPrice,date)
-            dummyNum += 1
-            purchases.add(purchaseItem)
-        }
-        return purchases
     }
 }
