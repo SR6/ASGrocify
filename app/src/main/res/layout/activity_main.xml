@@ -12,13 +12,13 @@
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/tabbed_navigation"
+        android:layout_above="@+id/tabbed_menu"
         app:defaultNavHost="true"
         app:navGraph="@navigation/nav_graph"
         tools:ignore="FragmentTagUsage" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/tabbed_navigation"
+        android:id="@+id/tabbed_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -27,7 +27,8 @@
         app:itemBackground="@null"
         app:itemIconTint="@drawable/color_selector"
         app:itemTextColor="@drawable/color_selector"
-        app:itemTextAppearanceActiveBoldEnabled="false" />
+        app:itemTextAppearanceActiveBoldEnabled="false"
+        android:enabled="false" />
 
     <include layout="@layout/loading"
         android:id="@+id/loading"

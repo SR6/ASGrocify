@@ -10,12 +10,16 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.grocify.MainActivity
 import com.example.grocify.R
 import com.example.grocify.databinding.CategoryFragmentBinding
 import com.example.grocify.databinding.CategoryItemBinding
 import com.example.grocify.db.Glide
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
+import java.io.IOException
 
 class CategoryFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -67,7 +71,6 @@ class CategoryFragment: Fragment() {
             onSuccess = { categories ->
                 categories.forEach { category ->
                     val categoryItemBinding = CategoryItemBinding.inflate(layoutInflater, binding.categories, false)
-
                     viewModel.getCategoryImage(
                         imageFile = category.imageFile,
                         onSuccess = { file ->
@@ -122,8 +125,7 @@ class CategoryFragment: Fragment() {
                 }
             },
             onFailure = {
-                Toast.makeText(requireContext(), resources.getString(R.string.categories_load_failed), Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), resources.getString(R.string.categories_load_failed), Toast.LENGTH_SHORT).show()
             }
         )
     }

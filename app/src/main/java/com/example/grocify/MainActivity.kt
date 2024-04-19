@@ -34,11 +34,13 @@ class MainActivity: AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        navController = (supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment).navController
-        binding.tabbedNavigation.setOnNavigationItemSelectedListener(navListener)
-
         authUser = AuthUser(activityResultRegistry)
         lifecycle.addObserver(authUser)
+
+        toggleNavigationTabs(false)
+
+        navController = (supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment).navController
+        binding.tabbedMenu.setOnNavigationItemSelectedListener(navListener)
 
         binding.loading.root.visibility = View.VISIBLE
 
@@ -53,6 +55,7 @@ class MainActivity: AppCompatActivity() {
             }
 
         }
+
         FirebaseAuth.getInstance().addAuthStateListener(viewModel.firebaseAuthCheck)
     }
 
@@ -65,6 +68,11 @@ class MainActivity: AppCompatActivity() {
             }
             else -> false
         }
+    }
+
+    fun toggleNavigationTabs(isEnabled: Boolean) {
+        for (i in 0 until binding.tabbedMenu.menu.size())
+            binding.tabbedMenu.menu.getItem(i).isEnabled = isEnabled
     }
 
     override fun onDestroy() {
@@ -91,6 +99,7 @@ class MainActivity: AppCompatActivity() {
                     onSuccess = {
                         if (navController.currentDestination?.id != R.id.category_fragment)
                             navController.navigate(R.id.category_fragment)
+                        toggleNavigationTabs(true)
                     },
                     onFailure = {
                         Toast.makeText(applicationContext, resources.getString(R.string.user_add_failed), Toast.LENGTH_SHORT).show()
@@ -111,6 +120,7 @@ class MainActivity: AppCompatActivity() {
                         initializeCartAndFavorites()
                         if (navController.currentDestination?.id != R.id.category_fragment)
                             navController.navigate(R.id.category_fragment)
+                        toggleNavigationTabs(true)
                     },
                     onFailure = {
                         Toast.makeText(applicationContext, resources.getString(R.string.user_update_failed), Toast.LENGTH_SHORT).show()
@@ -188,5 +198,11 @@ class MainActivity: AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         supportActionBar?.setDisplayShowHomeEnabled(false)
         return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    companion object {
+        fun toggleNavigationTabs(b: Boolean) {
+
+        }
     }
 }

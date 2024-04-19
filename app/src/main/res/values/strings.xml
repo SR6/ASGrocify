@@ -14,6 +14,7 @@
     <string name="default_location_id">01400513</string>
     <string name="default_zip_code">45202</string>
     <string name="email">Email</string>
+    <string name="ending_in">Ending in *</string>
     <string name="favorites">Favorites</string>
     <string name="favorites_load_failed">Failed to load favorites.</string>
     <string name="forward_arrow">Forward Arrow</string>
@@ -47,6 +48,7 @@
     <string name="search">Search Grocify</string>
     <string name="toggle_cart">Toggle Cart</string>
     <string name="toggle_favorites">Toggle Favorites</string>
+    <string name="total">Total</string>
     <string name="unavailable_price">Unavailable\nPrice</string>
     <string name="user">User</string>
     <string name="user_add_failed">Failed to add user.</string>
@@ -54,9 +56,14 @@
     <string name="user_update_failed">Failed to update user.</string>
     <string name="zip_code">Zip Code</string>
 
-    <plurals name="items_quantity">
+    <plurals name="items_quantity_header">
         <item quantity="one">%s\nitem</item>
         <item quantity="other">%s\nitems</item>
+    </plurals>
+
+    <plurals name="items_quantity">
+        <item quantity="one">%s item</item>
+        <item quantity="other">%s items</item>
     </plurals>
 
 </resources>

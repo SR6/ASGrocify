@@ -31,7 +31,12 @@ class ProductAdapter(
                 if (position != RecyclerView.NO_POSITION) {
                     val productId = getItem(position).productId
                     val brand = getItem(position)?.brand ?: context.resources.getString(R.string.grocify)
-                    onItemClicked(productId, brand)
+
+                    val isInCart = viewModel.cartProducts.value?.any { it.productId == productId } ?: false
+                    val isInFavorites = viewModel.favoriteProducts.value?.any { it.productId == productId } ?: false
+
+                    if (isInCart || isInFavorites)
+                        onItemClicked(productId, brand)
                 }
             }
         }
@@ -54,38 +59,42 @@ class ProductAdapter(
         else
             holder.productItemBinding.productDescription.text = product.description
 
-        if (product.items[0].price != null) {
-            holder.productItemBinding.productPrice.textSize = 20F
-            if (product.items[0].price!!.promo != 0.0 && product.items[0].price!!.promo < product.items[0].price!!.regular) {
-                holder.productItemBinding.productPrice.text = String.format("$%.2f", product.items[0].price!!.promo)
-                holder.productItemBinding.onSale.visibility = View.VISIBLE
-                holder.productItemBinding.productOldPrice.text = String.format("$%.2f", product.items[0].price!!.regular)
-                holder.productItemBinding.productOldPrice.visibility = View.VISIBLE
-                holder.productItemBinding.productOldPrice.paintFlags = holder.productItemBinding.productOldPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        var addToCartDisabled: Boolean
+        val price = product.items.getOrNull(0)?.price
 
+        if (price != null) {
+            holder.productItemBinding.apply {
+                productPrice.textSize = 20F
+                if (price.promo != 0.0 && price.promo < price.regular) {
+                    productPrice.text = String.format("$%.2f", price.promo)
+                    productOldPrice.apply {
+                        text = String.format("$%.2f", price.regular)
+                        visibility = View.VISIBLE
+                        paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                    }
+                    onSale.visibility = View.VISIBLE
+                }
+                else {
+                    productPrice.text = String.format("$%.2f", price.regular)
+                    productOldPrice.visibility = View.GONE
+                    onSale.visibility = View.GONE
+                }
             }
-            else {
-                holder.productItemBinding.productPrice.text = String.format("$%.2f", product.items[0].price!!.regular)
-                holder.productItemBinding.onSale.visibility = View.GONE
-                holder.productItemBinding.productOldPrice.visibility = View.GONE
-            }
+            val inventory = product.items.getOrNull(0)?.inventory
+            holder.productItemBinding.outOfStock.visibility = if (inventory?.stockLevel == "TEMPORARILY_OUT_OF_STOCK") View.VISIBLE else View.GONE
+            addToCartDisabled = inventory?.stockLevel == "TEMPORARILY_OUT_OF_STOCK"
         }
         else {
-            holder.productItemBinding.productPrice.text = context.resources.getString(R.string.unavailable_price)
-            holder.productItemBinding.productPrice.textSize = 15F
-            holder.productItemBinding.onSale.visibility = View.GONE
-        }
-
-        if (product.items[0].inventory != null && product.items[0].inventory!!.stockLevel == "TEMPORARILY_OUT_OF_STOCK") {
-            holder.productItemBinding.outOfStock.visibility = View.VISIBLE
-            holder.productItemBinding.toggleCart.isClickable = false
-            holder.productItemBinding.toggleCart.isEnabled = false
-            holder.productItemBinding.toggleCart.setColorFilter(context.resources.getColor(R.color.gray))
-        }
-        else {
-            holder.productItemBinding.outOfStock.visibility = View.GONE
-            holder.productItemBinding.toggleCart.isClickable = true
-            holder.productItemBinding.toggleCart.isEnabled = true
+            holder.productItemBinding.apply {
+                productPrice.apply {
+                    textSize = 15F
+                    text = context.resources.getString(R.string.unavailable_price)
+                    setTextColor(context.resources.getColor(R.color.gray))
+                }
+                onSale.visibility = View.GONE
+                outOfStock.visibility = View.GONE
+                addToCartDisabled = true
+            }
         }
 
         viewModel.favoriteProducts.observe(viewLifecycleOwner) { favoriteProducts ->
@@ -105,6 +114,7 @@ class ProductAdapter(
                         Timestamp.now()),
                     onSuccess = {
                         holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_favorite, null))
+                        notifyItemChanged(position)
                     },
                     onFailure = {
                         Toast.makeText(context, context.resources.getString(R.string.add_to_favorites_failed), Toast.LENGTH_SHORT).show()
@@ -119,6 +129,7 @@ class ProductAdapter(
                         null),
                     onSuccess = {
                         holder.productItemBinding.toggleFavorites.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_unfavorite, null))
+                        notifyItemChanged(position)
                     },
                     onFailure = {
                         Toast.makeText(context, context.resources.getString(R.string.remove_from_favorites_failed), Toast.LENGTH_SHORT).show()
@@ -131,6 +142,27 @@ class ProductAdapter(
             val isInCart = cartProducts?.any { it.productId == product.productId } ?: false
             val drawableId = if (!isInCart) R.drawable.ic_add else R.drawable.ic_remove
             holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, drawableId, null))
+            if (addToCartDisabled && isInCart) {
+                holder.productItemBinding.toggleCart.apply {
+                    isClickable = true
+                    isEnabled = true
+                    setColorFilter(context.resources.getColor(R.color.black))
+                }
+            }
+            else if (addToCartDisabled) {
+                holder.productItemBinding.toggleCart.apply {
+                    isClickable = false
+                    isEnabled = false
+                    setColorFilter(context.resources.getColor(R.color.gray))
+                }
+            }
+            else {
+                holder.productItemBinding.toggleCart.apply {
+                    isClickable = true
+                    isEnabled = true
+                    setColorFilter(context.resources.getColor(R.color.black))
+                }
+            }
         }
 
         holder.productItemBinding.toggleCart.setOnClickListener {
@@ -144,6 +176,7 @@ class ProductAdapter(
                         Timestamp.now()),
                     onSuccess = {
                         holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_remove, null))
+                        notifyItemChanged(position)
                     },
                     onFailure = {
                         Toast.makeText(context, context.resources.getString(R.string.add_to_cart_failed), Toast.LENGTH_SHORT).show()
@@ -158,6 +191,7 @@ class ProductAdapter(
                         null),
                     onSuccess = {
                         holder.productItemBinding.toggleCart.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.ic_add, null))
+                        notifyItemChanged(position)
                     },
                     onFailure = {
                         Toast.makeText(context, context.resources.getString(R.string.remove_from_cart_failed), Toast.LENGTH_SHORT).show()

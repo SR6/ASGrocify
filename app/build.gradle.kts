@@ -20,8 +20,6 @@ android {
         buildConfigField("String", "CLIENT_ID", "\"utgrocify-3f040506b20fcb9697595d8cd3788acc8979438697547936464\"")
         buildConfigField("String", "CLIENT_SECRET", "\"aZT99ZlTwIgUSFa4Mhqx3rsdlbJg_EEDAdp4zu0y\"")
         buildConfigField("String", "PRODUCT_SCOPE", "\"product.compact\"")
-        buildConfigField("String", "CART_SCOPE", "\"cart.basic:write\"")
-
     }
 
     buildTypes {

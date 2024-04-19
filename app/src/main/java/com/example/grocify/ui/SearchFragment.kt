@@ -100,7 +100,7 @@ class SearchFragment: Fragment() {
                     viewModel.updateHeader(
                         null,
                         resources.getQuantityString(
-                            R.plurals.items_quantity,
+                            R.plurals.items_quantity_header,
                             products?.meta?.pagination?.total ?: 0,
                             viewModel.addCommasToNumber(products?.meta?.pagination?.total ?: 0)
                         ),

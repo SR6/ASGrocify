@@ -1,8 +1,10 @@
 package com.example.grocify.ui
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.grocify.R
 import com.example.grocify.api.KrogerClient.krogerService
 import com.example.grocify.db.CategoryDatabaseConnection
 import com.example.grocify.db.UserProductDatabaseConnection
@@ -203,15 +205,20 @@ class MainViewModel: ViewModel() {
     fun addUser(user: User,
                 onSuccess: () -> Unit,
                 onFailure: (Exception) -> Unit) {
-        _user.postValue(user)
-        userDatabaseConnection.addUser(user, onSuccess, onFailure)
+        userDatabaseConnection.addUser(user, {
+            _user.postValue(user)
+            onSuccess()
+        }, onFailure)
+
     }
 
     fun updateUser(user: User,
                    onSuccess: () -> Unit,
                    onFailure: (Exception) -> Unit) {
-        _user.postValue(user)
-        userDatabaseConnection.updateUser(user, onSuccess, onFailure)
+        userDatabaseConnection.updateUser(user, {
+            _user.postValue(user)
+            onSuccess()
+        }, onFailure)
     }
 
     fun clearUser() {
@@ -230,19 +237,23 @@ class MainViewModel: ViewModel() {
     fun addToFavorites(userProduct: UserProduct,
                        onSuccess: () -> Unit,
                        onFailure: (Exception) -> Unit) {
-        val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
-        currentFavoriteProducts.add(userProduct)
-        _favoriteProducts.postValue(currentFavoriteProducts)
-        favoritesDatabaseConnection.addUserProduct(userProduct, onSuccess, onFailure)
+        favoritesDatabaseConnection.addUserProduct(userProduct, {
+            val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
+            currentFavoriteProducts.add(userProduct)
+            _favoriteProducts.postValue(currentFavoriteProducts)
+            onSuccess()
+        }, onFailure)
     }
 
     fun removeFromFavorites(userProduct: UserProduct,
                             onSuccess: () -> Unit,
                             onFailure: (Exception) -> Unit) {
-        val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
-        currentFavoriteProducts.removeIf { it.userProductId == userProduct.userProductId }
-        _favoriteProducts.postValue(currentFavoriteProducts)
-        favoritesDatabaseConnection.removeUserProduct(userProduct, onSuccess, onFailure)
+        favoritesDatabaseConnection.removeUserProduct(userProduct, {
+            val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
+            currentFavoriteProducts.removeIf { it.userProductId == userProduct.userProductId }
+            _favoriteProducts.postValue(currentFavoriteProducts)
+            onSuccess()
+        }, onFailure)
     }
 
     fun getCart(userId: String,
@@ -257,19 +268,23 @@ class MainViewModel: ViewModel() {
     fun addToCart(userProduct: UserProduct,
                   onSuccess: () -> Unit,
                   onFailure: (Exception) -> Unit) {
-        val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
-        currentCartProducts.add(userProduct)
-        _cartProducts.postValue(currentCartProducts)
-        cartDatabaseConnection.addUserProduct(userProduct, onSuccess, onFailure)
+        cartDatabaseConnection.addUserProduct(userProduct, {
+            val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
+            currentCartProducts.add(userProduct)
+            _cartProducts.postValue(currentCartProducts)
+            onSuccess()
+        }, onFailure)
     }
 
     fun removeFromCart(userProduct: UserProduct,
                        onSuccess: () -> Unit,
                        onFailure: (Exception) -> Unit) {
-        val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
-        currentCartProducts.removeIf { it.userProductId == userProduct.userProductId }
-        _cartProducts.postValue(currentCartProducts)
-        cartDatabaseConnection.removeUserProduct(userProduct, onSuccess, onFailure)
+        cartDatabaseConnection.removeUserProduct(userProduct, {
+            val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
+            currentCartProducts.removeIf { it.userProductId == userProduct.userProductId }
+            _cartProducts.postValue(currentCartProducts)
+            onSuccess()
+        }, onFailure)
     }
 
     /* Header logic. */
@@ -287,9 +302,15 @@ class MainViewModel: ViewModel() {
         _showBackButton.postValue(showBackButton)
     }
 
+    /* Format helpers */
+
     fun addCommasToNumber(number: Int): String {
         val numberString = number.toString()
         val regex = "(\\d)(?=(\\d{3})+(?!\\d))".toRegex()
         return numberString.replace(regex, "$1,")
+    }
+
+    fun obfuscateCardNumber(context: Context, cardNumber: String): String {
+        return context.resources.getString(R.string.ending_in) + cardNumber.takeLast(4)
     }
 }

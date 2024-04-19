@@ -77,10 +77,11 @@ class ProductsFragment: Fragment() {
                             productAdapter.submitList(products.products)
                         }
                     }
+
                     viewModel.updateHeader(
                         if (args.category.length > 14) args.category.substring(0, 14) + "..." else args.category,
                         resources.getQuantityString(
-                            R.plurals.items_quantity,
+                            R.plurals.items_quantity_header,
                             products?.meta?.pagination?.total ?: 0,
                             viewModel.addCommasToNumber(products?.meta?.pagination?.total ?: 0)
                         ),

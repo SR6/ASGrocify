@@ -11,14 +11,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.grocify.R
-import com.example.grocify.databinding.RecyclerFragmentBinding
+import com.example.grocify.databinding.CartFragmentBinding
 import com.example.grocify.models.KrogerProduct
 import kotlinx.coroutines.launch
 
 class CartFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
 
-    private var _binding: RecyclerFragmentBinding? = null
+    private var _binding: CartFragmentBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var productAdapter: ProductAdapter
@@ -28,14 +28,14 @@ class CartFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = RecyclerFragmentBinding.inflate(inflater, container, false)
+        _binding = CartFragmentBinding.inflate(inflater, container, false)
 
         viewModel.updateHeader(getString(R.string.cart), null)
 
         return binding.root
     }
 
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -44,14 +44,14 @@ class CartFragment: Fragment() {
             findNavController().navigate(CartFragmentDirections.actionCartFragmentToProductFragment(productId, brand))
         }
 
-        binding.recycler.adapter = productAdapter
-        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerFragment.recycler.adapter = productAdapter
+        binding.recyclerFragment.recycler.layoutManager = LinearLayoutManager(requireContext())
 
-        binding.loading.root.visibility = View.VISIBLE
+        binding.recyclerFragment.loading.root.visibility = View.VISIBLE
 
-        val products = mutableListOf<KrogerProduct>()
 
         viewModel.cartProducts.observe(viewLifecycleOwner) { cartProducts ->
+            val products = mutableListOf<KrogerProduct>()
             products.clear()
             lifecycleScope.launch {
                 if (cartProducts != null) {
@@ -61,28 +61,57 @@ class CartFragment: Fragment() {
                             product?.product?.let { products.add(it) }
                         }
                     }
-                    binding.loading.root.visibility = View.GONE
-                    if (products.isEmpty()) {
-                        viewModel.clearProducts()
-                        productAdapter.submitList(emptyList())
-                        binding.noProductsFound.visibility = View.VISIBLE
-                    }
+                    binding.recyclerFragment.loading.root.visibility = View.GONE
+                    if (products.isEmpty())
+                        displayNoProductsFound()
                     else {
-                        binding.noProductsFound.visibility = View.GONE
+                        binding.recyclerFragment.noProductsFound.visibility = View.GONE
                         productAdapter.submitList(products)
-                        productAdapter.notifyDataSetChanged()
                     }
                 }
+                else {
+                    binding.recyclerFragment.loading.root.visibility = View.GONE
+                    displayNoProductsFound()
+                }
+
                 viewModel.updateHeader(
                     getString(R.string.cart),
                     resources.getQuantityString(
-                        R.plurals.items_quantity,
+                        R.plurals.items_quantity_header,
                         products.size,
                         viewModel.addCommasToNumber(products.size)
                     )
                 )
+
+                var totalPrice = 0.0
+                var totalProductsAvailableToPurchase = 0
+                products.forEach { product ->
+                    if (product.items[0].price != null && product.items[0].inventory != null && product.items[0].inventory!!.stockLevel != "TEMPORARILY_OUT_OF_STOCK") {
+                        totalPrice += if (product.items[0].price!!.promo != 0.0 && product.items[0].price!!.promo < product.items[0].price!!.regular)
+                            product.items[0].price!!.promo
+                        else
+                            product.items[0].price!!.regular
+                        totalProductsAvailableToPurchase++
+                    }
+                }
+                binding.totalItems.text = String.format(
+                    "Total (%s)",
+                    resources.getQuantityString(
+                        R.plurals.items_quantity,
+                        totalProductsAvailableToPurchase,
+                        viewModel.addCommasToNumber(totalProductsAvailableToPurchase)
+                    )
+                )
+                binding.totalPrice.text = String.format("$%.2f", totalPrice)
+                binding.cardNumber.text = viewModel.obfuscateCardNumber(requireContext(), viewModel.user.value!!.paymentMethod)
             }
         }
+    }
+
+    private fun displayNoProductsFound() {
+        viewModel.clearProducts()
+        productAdapter.submitList(emptyList())
+        binding.recyclerFragment.noProductsFound.visibility = View.VISIBLE
     }
 
     override fun onPause() {

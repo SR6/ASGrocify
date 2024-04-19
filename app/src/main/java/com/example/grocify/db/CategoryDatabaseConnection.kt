@@ -1,5 +1,6 @@
 package com.example.grocify.db
 
+import android.util.Log
 import com.example.grocify.models.GrocifyCategory
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore

@@ -53,9 +53,8 @@ class FavoritesFragment: Fragment() {
 
         binding.loading.root.visibility = View.VISIBLE
 
-        val products = mutableListOf<KrogerProduct>()
-
         viewModel.favoriteProducts.observe(viewLifecycleOwner) { favoriteProducts ->
+            val products = mutableListOf<KrogerProduct>()
             products.clear()
             lifecycleScope.launch {
                 if (favoriteProducts != null) {
@@ -66,21 +65,21 @@ class FavoritesFragment: Fragment() {
                         }
                     }
                     binding.loading.root.visibility = View.GONE
-                    if (products.isEmpty()) {
-                        viewModel.clearProducts()
-                        productAdapter.submitList(emptyList())
-                        binding.noProductsFound.visibility = View.VISIBLE
-                    }
+                    if (products.isEmpty())
+                        displayNoProductsFound()
                     else {
                         binding.noProductsFound.visibility = View.GONE
                         productAdapter.submitList(products)
-                        productAdapter.notifyDataSetChanged()
                     }
+                }
+                else {
+                    binding.loading.root.visibility = View.GONE
+                    displayNoProductsFound()
                 }
                 viewModel.updateHeader(
                     getString(R.string.favorites),
                     resources.getQuantityString(
-                        R.plurals.items_quantity,
+                        R.plurals.items_quantity_header,
                         products.size,
                         viewModel.addCommasToNumber(products.size)
                     ),
@@ -90,6 +89,12 @@ class FavoritesFragment: Fragment() {
                 )
             }
         }
+    }
+
+    private fun displayNoProductsFound() {
+        viewModel.clearProducts()
+        productAdapter.submitList(emptyList())
+        binding.noProductsFound.visibility = View.VISIBLE
     }
 
     override fun onPause() {
