@@ -29,8 +29,6 @@ class ProductFragment: Fragment() {
         viewModel.updateHeader(
             args.productBrand,
             null,
-            favoritesVisible = true,
-            searchVisible = false,
             showBackButton = true
         )
 
@@ -52,8 +50,6 @@ class ProductFragment: Fragment() {
                     viewModel.updateHeader(
                         productBrand,
                         null,
-                        favoritesVisible = true,
-                        searchVisible = false,
                         showBackButton = true
                     )
 

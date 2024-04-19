@@ -34,8 +34,6 @@ class ProductsFragment: Fragment() {
         viewModel.updateHeader(
             args.category,
             null,
-            favoritesVisible = true,
-            searchVisible = false,
             showBackButton = true)
 
         return binding.root
@@ -85,8 +83,6 @@ class ProductsFragment: Fragment() {
                             products?.meta?.pagination?.total ?: 0,
                             viewModel.addCommasToNumber(products?.meta?.pagination?.total ?: 0)
                         ),
-                        favoritesVisible = true,
-                        searchVisible = false,
                         showBackButton = true
                     )
                 }

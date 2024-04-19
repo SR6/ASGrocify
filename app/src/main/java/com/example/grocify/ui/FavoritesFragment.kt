@@ -84,8 +84,7 @@ class FavoritesFragment: Fragment() {
                         viewModel.addCommasToNumber(products.size)
                     ),
                     favoritesVisible = false,
-                    searchVisible = false,
-                    showBackButton = false
+                    showBackButton = true
                 )
             }
         }

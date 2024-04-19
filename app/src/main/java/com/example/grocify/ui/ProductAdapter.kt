@@ -31,12 +31,7 @@ class ProductAdapter(
                 if (position != RecyclerView.NO_POSITION) {
                     val productId = getItem(position).productId
                     val brand = getItem(position)?.brand ?: context.resources.getString(R.string.grocify)
-
-                    val isInCart = viewModel.cartProducts.value?.any { it.productId == productId } ?: false
-                    val isInFavorites = viewModel.favoriteProducts.value?.any { it.productId == productId } ?: false
-
-                    if (isInCart || isInFavorites)
-                        onItemClicked(productId, brand)
+                    onItemClicked(productId, brand)
                 }
             }
         }

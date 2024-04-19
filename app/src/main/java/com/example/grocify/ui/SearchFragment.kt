@@ -36,8 +36,7 @@ class SearchFragment: Fragment() {
             null,
             null,
             favoritesVisible = false,
-            searchVisible = true,
-            showBackButton = false)
+            searchVisible = true)
 
         return binding.root
     }
@@ -106,7 +105,6 @@ class SearchFragment: Fragment() {
                         ),
                         favoritesVisible = false,
                         searchVisible = true,
-                        showBackButton = false
                     )
                 }
             }
