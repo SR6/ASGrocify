@@ -51,7 +51,7 @@ class ProductsFragment: Fragment() {
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
 
         binding.loading.root.visibility = View.VISIBLE
-        binding.noProductsFound.visibility = View.GONE
+        binding.noResultsFound.visibility = View.GONE
 
         lifecycleScope.launch {
             viewModel.setIsApiRequestCompleted(false)
@@ -65,10 +65,10 @@ class ProductsFragment: Fragment() {
                         binding.loading.root.visibility = View.GONE
                         if (products.products.isEmpty()) {
                             productAdapter.submitList(emptyList())
-                            binding.noProductsFound.visibility = View.VISIBLE
+                            binding.noResultsFound.visibility = View.VISIBLE
                         }
                         else {
-                            binding.noProductsFound.visibility = View.GONE
+                            binding.noResultsFound.visibility = View.GONE
                             productAdapter.submitList(products.products)
                         }
                     }

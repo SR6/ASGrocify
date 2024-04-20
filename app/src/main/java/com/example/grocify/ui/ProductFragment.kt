@@ -42,8 +42,8 @@ class ProductFragment: Fragment() {
             viewModel.setIsApiRequestCompleted(false)
             val product = viewModel.getProductById(args.productId)
             viewModel.isApiRequestCompleted.observe(viewLifecycleOwner) { isCompleted ->
-            if (isCompleted) {
-                var productBrand = args.productBrand
+                if (isCompleted) {
+                    var productBrand = args.productBrand
                     if (productBrand.length > 20)
                         productBrand = productBrand.substring(0, 20) + "..."
 
@@ -64,6 +64,7 @@ class ProductFragment: Fragment() {
                             productImageUrls.add(slideModel)
                         }
                     }
+
                     binding.productImages.setImageList(productImageUrls)
                 }
             }
@@ -74,7 +75,7 @@ class ProductFragment: Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
+}
 
 //class ProductImageSwiperAdapter(private val context: Context, private val imageUrls: List<String>) :
 //    PagerAdapter() {
@@ -94,4 +95,3 @@ class ProductFragment: Fragment() {
 //        container.removeView(`object` as View)
 //    }
 //}
-}

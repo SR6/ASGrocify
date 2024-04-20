@@ -45,7 +45,14 @@ class PastTransactionsFragment: Fragment() {
         viewModel.getTransactions(
             viewModel.user.value!!.userId,
             onSuccess = { transactions ->
-                pastTransactionsAdapter.submitList(transactions?.sortedByDescending { it.purchasedAt?.seconds })
+                if (transactions.isNullOrEmpty()) {
+                    pastTransactionsAdapter.submitList(emptyList())
+                    binding.noResultsFound.visibility = View.VISIBLE
+                }
+                else {
+                    binding.noResultsFound.visibility = View.GONE
+                    pastTransactionsAdapter.submitList(transactions.sortedByDescending { it.purchasedAt?.seconds })
+                }
             },
             onFailure = {
                 Toast.makeText(context, resources.getString(R.string.past_transactions_load_failed), Toast.LENGTH_SHORT).show()

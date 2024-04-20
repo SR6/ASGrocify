@@ -48,7 +48,6 @@ class MainActivity: AppCompatActivity() {
             if (FirebaseAuth.getInstance().currentUser != null) {
                 initializeUser()
                 viewModel.user.observe(this@MainActivity) { user ->
-                    populateGrocify()
                     if (user != null)
                         populateGrocify()
                 }
@@ -70,7 +69,7 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
-    fun toggleNavigationTabs(isEnabled: Boolean) {
+    private fun toggleNavigationTabs(isEnabled: Boolean) {
         for (i in 0 until binding.tabbedMenu.menu.size())
             binding.tabbedMenu.menu.getItem(i).isEnabled = isEnabled
     }
@@ -98,6 +97,7 @@ class MainActivity: AppCompatActivity() {
                         resources.getString(R.string.default_location_id)
                     ),
                     onSuccess = {
+                        initializeFavoritesAndCart(true)
                         if (navController.currentDestination?.id != R.id.category_fragment)
                             navController.navigate(R.id.category_fragment)
                         toggleNavigationTabs(true)
@@ -119,7 +119,7 @@ class MainActivity: AppCompatActivity() {
                         user.locationId
                     ),
                     onSuccess = {
-                        initializeCartAndFavorites()
+                        initializeFavoritesAndCart()
                         if (navController.currentDestination?.id != R.id.category_fragment)
                             navController.navigate(R.id.category_fragment)
                         toggleNavigationTabs(true)
@@ -133,6 +133,27 @@ class MainActivity: AppCompatActivity() {
         onFailure = {
             Toast.makeText(applicationContext, resources.getString(R.string.user_load_failed), Toast.LENGTH_SHORT).show()
         })
+    }
+
+    private fun initializeFavoritesAndCart(isNewUser: Boolean = false) {
+        viewModel.initializeFavoritesAndCart()
+
+        if (!isNewUser) {
+            viewModel.getCart(
+                viewModel.user.value!!.userId,
+                onSuccess = { },
+                onFailure = {
+                    Toast.makeText(applicationContext, resources.getString(R.string.cart_load_failed), Toast.LENGTH_SHORT).show()
+                }
+            )
+            viewModel.getFavorites(
+                viewModel.user.value!!.userId,
+                onSuccess = { },
+                onFailure = {
+                    Toast.makeText(applicationContext, resources.getString(R.string.cart_load_failed), Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
     }
 
     private fun populateGrocify() {
@@ -181,32 +202,9 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
-    private fun initializeCartAndFavorites() {
-        viewModel.getCart(
-            viewModel.user.value!!.userId,
-            onSuccess = { },
-            onFailure = {
-                Toast.makeText(applicationContext, resources.getString(R.string.cart_load_failed), Toast.LENGTH_SHORT).show()
-            }
-        )
-        viewModel.getFavorites(
-            viewModel.user.value!!.userId,
-            onSuccess = { },
-            onFailure = {
-                Toast.makeText(applicationContext, resources.getString(R.string.cart_load_failed), Toast.LENGTH_SHORT).show()
-            }
-        )
-    }
-
     override fun onSupportNavigateUp(): Boolean {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         supportActionBar?.setDisplayShowHomeEnabled(false)
         return navController.navigateUp() || super.onSupportNavigateUp()
-    }
-
-    companion object {
-        fun toggleNavigationTabs(b: Boolean) {
-
-        }
     }
 }

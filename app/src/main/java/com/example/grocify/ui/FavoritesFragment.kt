@@ -2,6 +2,7 @@ package com.example.grocify.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,21 +51,23 @@ class FavoritesFragment: Fragment() {
         binding.loading.root.visibility = View.VISIBLE
 
         viewModel.favoriteProducts.observe(viewLifecycleOwner) { favoriteProducts ->
+            Log.d("HERE123", "HERE")
             if (favoriteProducts != null) {
                 binding.loading.root.visibility = View.GONE
                 if (favoriteProducts.isEmpty()){
                     productAdapter.submitList(emptyList())
-                    binding.noProductsFound.visibility = View.VISIBLE
+                    binding.noResultsFound.visibility = View.VISIBLE
                 }
                 else {
-                    binding.noProductsFound.visibility = View.GONE
+                    Log.d("HERE1234", "HERE")
+                    binding.noResultsFound.visibility = View.GONE
                     productAdapter.submitList(favoriteProducts)
                 }
             }
             else {
                 binding.loading.root.visibility = View.GONE
                 productAdapter.submitList(emptyList())
-                binding.noProductsFound.visibility = View.VISIBLE
+                binding.noResultsFound.visibility = View.VISIBLE
             }
 
             viewModel.updateHeader(

@@ -19,6 +19,7 @@ import com.example.grocify.models.KrogerLocationsResponse
 import com.example.grocify.models.KrogerProduct
 import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.KrogerProductsResponse
+import com.example.grocify.models.Location
 import com.example.grocify.models.Transaction
 import com.example.grocify.models.User
 import com.example.grocify.models.UserProduct
@@ -101,7 +102,7 @@ class MainViewModel: ViewModel() {
     private val _categoryProductCounts = MutableLiveData<HashMap<String, Int>>()
     val categoryProductCounts: LiveData<HashMap<String, Int>> = _categoryProductCounts
 
-    /* API calls. */
+    /* API logic. */
     private suspend fun getToken(): String {
         return if (cachedToken != null && System.currentTimeMillis() < tokenExpirationTime)
             cachedToken!!
@@ -158,8 +159,8 @@ class MainViewModel: ViewModel() {
         }
     }
 
-    fun getLocations(zipCode: String) {
-        CoroutineScope(Dispatchers.IO).launch {
+    suspend fun getLocations(zipCode: String): KrogerLocationsResponse? {
+        return withContext(Dispatchers.IO) {
             try {
                 val token = getToken()
                 val response = krogerService.getLocations(
@@ -176,8 +177,11 @@ class MainViewModel: ViewModel() {
                     null)
                 _locations.postValue(response)
                 _isApiRequestCompleted.postValue(true)
+                response
             }
-            catch (_: Exception) { }
+            catch (_: Exception) {
+                null
+            }
         }
     }
 
@@ -246,7 +250,7 @@ class MainViewModel: ViewModel() {
         favoritesDatabaseConnection.getUserProducts(userId, { userProducts ->
             CoroutineScope(Dispatchers.IO).launch {
                 _favoriteUserProducts.postValue(userProducts)
-                _favoriteProducts.postValue(null)
+
                 userProducts?.forEach { userProduct ->
                     val product = getProductById(userProduct.productId)
                     product?.let { favoriteProduct ->
@@ -306,7 +310,7 @@ class MainViewModel: ViewModel() {
         cartDatabaseConnection.getUserProducts(userId, { userProducts ->
             CoroutineScope(Dispatchers.IO).launch {
                 _cartUserProducts.postValue(userProducts)
-                _cartProducts.postValue(null)
+
                 userProducts?.forEach { userProduct ->
                     val product = getProductById(userProduct.productId)
                     product?.let { cartProduct ->
@@ -360,6 +364,11 @@ class MainViewModel: ViewModel() {
         }, onFailure)
     }
 
+    fun initializeFavoritesAndCart() {
+        _favoriteProducts.postValue(null)
+        _cartProducts.postValue(null)
+    }
+
     fun getTransactions(userId: String,
                         onSuccess: (List<Transaction>?) -> Unit,
                         onFailure: (Exception) -> Unit) {
@@ -396,8 +405,7 @@ class MainViewModel: ViewModel() {
         _showBackButton.postValue(showBackButton)
     }
 
-    /* Format helpers */
-
+    /* Formatting logic. */
     fun addCommasToNumber(number: Int): String {
         val numberString = number.toString()
         val regex = "(\\d)(?=(\\d{3})+(?!\\d))".toRegex()
@@ -405,6 +413,9 @@ class MainViewModel: ViewModel() {
     }
 
     fun obfuscateCardNumber(context: Context, cardNumber: String): String {
+        if (cardNumber.isEmpty())
+            return context.resources.getString(R.string.please_add_payment_method)
+
         return context.resources.getString(R.string.ending_in) + cardNumber.takeLast(4)
     }
 }

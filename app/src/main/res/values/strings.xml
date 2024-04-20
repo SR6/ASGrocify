@@ -33,13 +33,14 @@
     <string name="logout_success">Logout successfully.</string>
     <string name="name">Name</string>
     <string name="no_kroger_location">No Kroger location at that zip code.</string>
-    <string name="no_products_found">No products found.</string>
+    <string name="no_results_found">No results found.</string>
     <string name="on_sale">On Sale</string>
     <string name="out_of_stock">Out of Stock</string>
     <string name="password">Password</string>
     <string name="past_transactions">Past Transactions</string>
     <string name="past_transactions_load_failed">Failed to load past transactions.</string>
     <string name="payment_method">Payment Method</string>
+    <string name="please_add_payment_method">Please add a payment method.</string>
     <string name="product">Product</string>
     <string name="product_image">Product Image</string>
     <string name="products">Products</string>
@@ -52,6 +53,7 @@
     <string name="remove_from_favorites_failed">Remove from favorites failed.</string>
     <string name="save">Save</string>
     <string name="search">Search Grocify</string>
+    <string name="store_at_zip_code">Store at zip code</string>
     <string name="toggle_cart">Toggle Cart</string>
     <string name="toggle_favorites">Toggle Favorites</string>
     <string name="total">Total</string>

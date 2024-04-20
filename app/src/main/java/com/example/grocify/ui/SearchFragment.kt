@@ -65,7 +65,7 @@ class SearchFragment: Fragment() {
                 if (!query.isNullOrEmpty()) {
                     productAdapter.submitList(emptyList())
                     binding.loading.root.visibility = View.VISIBLE
-                    binding.noProductsFound.visibility = View.GONE
+                    binding.noResultsFound.visibility = View.GONE
 
                     hideKeyboard()
                     headerBinding.search.clearFocus()
@@ -90,10 +90,10 @@ class SearchFragment: Fragment() {
                         binding.loading.root.visibility = View.GONE
                         if (products.products.isEmpty()) {
                             productAdapter.submitList(emptyList())
-                            binding.noProductsFound.visibility = View.VISIBLE
+                            binding.noResultsFound.visibility = View.VISIBLE
                         }
                         else {
-                            binding.noProductsFound.visibility = View.GONE
+                            binding.noResultsFound.visibility = View.GONE
                             productAdapter.submitList(products.products)
                         }
                     }

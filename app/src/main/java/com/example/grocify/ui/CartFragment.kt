@@ -45,7 +45,7 @@ class CartFragment: Fragment() {
         return binding.root
     }
 
-    @SuppressLint("SetTextI18n", "NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -66,10 +66,10 @@ class CartFragment: Fragment() {
                 if (cartProducts.isEmpty()) {
                     productAdapter.submitList(emptyList())
                     binding.cartInformation.visibility = View.GONE
-                    binding.recyclerFragment.noProductsFound.visibility = View.VISIBLE
+                    binding.recyclerFragment.noResultsFound.visibility = View.VISIBLE
                 }
                 else {
-                    binding.recyclerFragment.noProductsFound.visibility = View.GONE
+                    binding.recyclerFragment.noResultsFound.visibility = View.GONE
                     productAdapter.submitList(cartProducts)
                 }
             }
@@ -77,7 +77,7 @@ class CartFragment: Fragment() {
                 binding.recyclerFragment.loading.root.visibility = View.GONE
                 productAdapter.submitList(emptyList())
                 binding.cartInformation.visibility = View.GONE
-                binding.recyclerFragment.noProductsFound.visibility = View.VISIBLE
+                binding.recyclerFragment.noResultsFound.visibility = View.VISIBLE
             }
 
             viewModel.updateHeader(
@@ -116,10 +116,22 @@ class CartFragment: Fragment() {
 
             binding.totalPrice.text = String.format("$%.2f", totalPrice)
 
-            binding.cardNumber.text = viewModel.obfuscateCardNumber(
-                requireContext(),
-                viewModel.user.value!!.paymentMethod
-            )
+            binding.zipCode.text = String.format("%s %s", resources.getString(R.string.store_at_zip_code), viewModel.user.value!!.zipCode)
+
+            val isValid = viewModel.user.value!!.paymentMethod != ""
+
+            binding.cardNumber.apply {
+                text = viewModel.obfuscateCardNumber(
+                    requireContext(),
+                    viewModel.user.value!!.paymentMethod
+                )
+                setTextColor(context.resources.getColor(if (isValid) R.color.black else R.color.red, null))
+            }
+
+            binding.checkout.apply{
+                isEnabled = isValid
+                setTextColor(context.resources.getColor(if (isValid) R.color.black else R.color.gray, null))
+            }
 
             binding.checkout.setOnClickListener {
                 val confirmationDialog = ConfirmationDialogFragment(
