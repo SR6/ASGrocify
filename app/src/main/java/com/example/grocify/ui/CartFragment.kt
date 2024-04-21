@@ -153,7 +153,7 @@ class CartFragment: Fragment() {
                                                     viewModel.updateGrocifyProduct(
                                                         GrocifyProduct(grocifyProduct!!.grocifyProductId,
                                                             productId,
-                                                            grocifyProduct.cartCount - productCount,
+                                                            grocifyProduct.cartCount - 1,
                                                             grocifyProduct.favoriteCount,
                                                             grocifyProduct.transactionCount + 1,
                                                             grocifyProduct.addedAt
