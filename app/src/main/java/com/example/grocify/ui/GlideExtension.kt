@@ -1,4 +1,4 @@
-package com.example.grocify.db
+package com.example.grocify.ui
 
 import android.content.Context
 import android.widget.ImageView
@@ -9,6 +9,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.request.RequestOptions
 import com.example.grocify.R
+import com.example.grocify.db.GlideApp
 import com.firebase.ui.storage.images.FirebaseImageLoader
 import com.google.firebase.storage.StorageReference
 import java.io.File

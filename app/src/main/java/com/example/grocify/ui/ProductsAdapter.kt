@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.grocify.R
 import com.example.grocify.databinding.ProductItemBinding
-import com.example.grocify.db.Glide
 import com.example.grocify.models.KrogerProduct
 
 class ProductsAdapter(

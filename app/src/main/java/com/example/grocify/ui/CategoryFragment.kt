@@ -14,7 +14,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.grocify.R
 import com.example.grocify.databinding.CategoryFragmentBinding
 import com.example.grocify.databinding.CategoryItemBinding
-import com.example.grocify.db.Glide
 import com.google.firebase.auth.FirebaseAuth
 
 class CategoryFragment: Fragment() {
