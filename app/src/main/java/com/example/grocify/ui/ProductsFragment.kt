@@ -2,6 +2,7 @@ package com.example.grocify.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.grocify.R
 import com.example.grocify.databinding.RecyclerFragmentBinding
 import kotlinx.coroutines.launch
@@ -69,7 +71,7 @@ class ProductsFragment: Fragment() {
                         }
                         else {
                             binding.noResultsFound.visibility = View.GONE
-                            productAdapter.submitList(products.products)
+                            productAdapter.addAdditionalProducts(products.products)
                         }
                     }
 
@@ -85,6 +87,23 @@ class ProductsFragment: Fragment() {
                 }
             }
         }
+
+        binding.recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val visibleItemCount = (binding.recycler.layoutManager as LinearLayoutManager).childCount
+                val totalItemCount = (binding.recycler.layoutManager as LinearLayoutManager).itemCount
+                val firstVisibleItemPosition = (binding.recycler.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+
+                if (visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
+                    binding.loading.root.visibility = View.VISIBLE
+                    lifecycleScope.launch {
+                        viewModel.setIsApiRequestCompleted(false)
+                        viewModel.getProducts(args.category, productAdapter.itemCount)
+                    }
+                }
+            }
+        })
     }
 
     override fun onDestroyView() {

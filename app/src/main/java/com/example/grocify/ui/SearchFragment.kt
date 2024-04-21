@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.grocify.MainActivity
 import com.example.grocify.R
 import com.example.grocify.databinding.HeaderBinding
@@ -28,7 +29,9 @@ class SearchFragment: Fragment() {
     private val headerBinding get() = _headerBinding!!
 
     private lateinit var productAdapter: ProductAdapter
+
     private var isNavigatingToProduct = false
+    private var searchTerm = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,9 +73,11 @@ class SearchFragment: Fragment() {
                     hideKeyboard()
                     headerBinding.search.clearFocus()
 
+                    searchTerm = query
+
                     lifecycleScope.launch {
                         viewModel.setIsApiRequestCompleted(false)
-                        viewModel.getProducts(query, true)
+                        viewModel.getProducts(query, isSearchProducts = true)
                     }
                 }
                 return true
@@ -94,7 +99,7 @@ class SearchFragment: Fragment() {
                         }
                         else {
                             binding.noResultsFound.visibility = View.GONE
-                            productAdapter.submitList(products.products)
+                            productAdapter.addAdditionalProducts(products.products)
                         }
                     }
                     viewModel.updateHeader(
@@ -110,6 +115,23 @@ class SearchFragment: Fragment() {
                 }
             }
         }
+
+        binding.recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val visibleItemCount = (binding.recycler.layoutManager as LinearLayoutManager).childCount
+                val totalItemCount = (binding.recycler.layoutManager as LinearLayoutManager).itemCount
+                val firstVisibleItemPosition = (binding.recycler.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+
+                if (visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
+                    binding.loading.root.visibility = View.VISIBLE
+                    lifecycleScope.launch {
+                        viewModel.setIsApiRequestCompleted(false)
+                        viewModel.getProducts(searchTerm, productAdapter.itemCount, isSearchProducts = true)
+                    }
+                }
+            }
+        })
     }
 
     override fun onResume() {

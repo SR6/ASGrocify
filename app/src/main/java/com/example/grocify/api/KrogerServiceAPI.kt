@@ -55,10 +55,10 @@ interface IKrogerService {
         @Header("Authorization") token: String,
         @Header("Accept") accept: String,
         @Query("filter.brand") brand: String?,
-        @Query("filter.limit") limit: String?,
+        @Query("filter.limit") limit: Int?,
         @Query("filter.locationId") locationId: String?,
         @Query("filter.productId") productId: String?,
-        @Query("filter.start") start: String?,
+        @Query("filter.start") start: Int?,
         @Query("filter.term") term: String?
     ): KrogerProductsResponse
 

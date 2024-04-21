@@ -125,7 +125,7 @@ class MainViewModel: ViewModel() {
         }
     }
 
-    fun getProducts(term: String, isSearchProducts: Boolean = false) {
+    fun getProducts(term: String, start: Int = 0, isSearchProducts: Boolean = false) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val token = getToken()
@@ -133,15 +133,16 @@ class MainViewModel: ViewModel() {
                     "Bearer $token",
                     "application/json",
                     null,
-                    null,
+                    50,
                     user.value!!.locationId,
                     null,
-                    null,
+                    start,
                     term)
                 if (!isSearchProducts)
                     _products.postValue(response)
                 else
                     _searchProducts.postValue(response)
+
                 _isApiRequestCompleted.postValue(true)
 
                 val temp = HashMap(_categoryProductCounts.value ?: hashMapOf())

@@ -36,6 +36,12 @@ class ProductAdapter(
 
     var onItemClicked: (productId: String, brand: String) -> Unit = { _, _ -> }
 
+    fun addAdditionalProducts(newProducts: List<KrogerProduct>) {
+        val currentProducts = currentList.toMutableList()
+        currentProducts.addAll(newProducts)
+        submitList(currentProducts)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(ProductItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
