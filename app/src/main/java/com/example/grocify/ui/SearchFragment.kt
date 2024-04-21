@@ -28,7 +28,7 @@ class SearchFragment: Fragment() {
     private var _headerBinding: HeaderBinding? = null
     private val headerBinding get() = _headerBinding!!
 
-    private lateinit var productAdapter: ProductAdapter
+    private lateinit var productAdapter: ProductsAdapter
 
     private var isNavigatingToProduct = false
     private var searchTerm = ""
@@ -52,7 +52,7 @@ class SearchFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel, false)
+        productAdapter = ProductsAdapter(requireContext(), viewLifecycleOwner, viewModel, false)
         productAdapter.onItemClicked = { productId, brand ->
             findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToProductFragment(productId, brand))
             isNavigatingToProduct = true

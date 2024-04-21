@@ -17,7 +17,7 @@ class FavoritesFragment: Fragment() {
     private var _binding: RecyclerFragmentBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var productAdapter: ProductAdapter
+    private lateinit var productAdapter: ProductsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,7 +38,7 @@ class FavoritesFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel, true)
+        productAdapter = ProductsAdapter(requireContext(), viewLifecycleOwner, viewModel, true)
         productAdapter.onItemClicked = { productId, brand ->
             findNavController().navigate(FavoritesFragmentDirections.actionFavoritesFragmentToProductFragment(productId, brand))
         }

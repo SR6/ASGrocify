@@ -24,7 +24,7 @@ class Helpers {
         private val binding: CartAndFavoritesBinding,
         private val viewModel: MainViewModel,
         private val product: KrogerProduct,
-        private val adapter: ProductAdapter?,
+        private val adapter: ProductsAdapter?,
         private val position: Int,
         private val isCartOrFavoritesFragment: Boolean,
         private val addToCartDisabled: Boolean

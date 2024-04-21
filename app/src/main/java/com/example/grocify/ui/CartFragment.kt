@@ -23,7 +23,7 @@ class CartFragment: Fragment() {
     private var _binding: CartFragmentBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var productAdapter: ProductAdapter
+    private lateinit var productAdapter: ProductsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,7 +41,7 @@ class CartFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        productAdapter = ProductAdapter(requireContext(), viewLifecycleOwner, viewModel, true)
+        productAdapter = ProductsAdapter(requireContext(), viewLifecycleOwner, viewModel, true)
         productAdapter.onItemClicked = { productId, brand ->
             findNavController().navigate(CartFragmentDirections.actionCartFragmentToProductFragment(productId, brand))
         }

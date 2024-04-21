@@ -15,12 +15,12 @@ import com.example.grocify.databinding.ProductItemBinding
 import com.example.grocify.db.Glide
 import com.example.grocify.models.KrogerProduct
 
-class ProductAdapter(
+class ProductsAdapter(
     private val context: Context,
     private val viewLifecycleOwner: LifecycleOwner,
     private val viewModel: MainViewModel,
     private val isCartOrFavorites: Boolean
-): ListAdapter<KrogerProduct, ProductAdapter.ViewHolder>(ItemDiff()) {
+): ListAdapter<KrogerProduct, ProductsAdapter.ViewHolder>(ItemDiff()) {
     inner class ViewHolder(val productItemBinding: ProductItemBinding): RecyclerView.ViewHolder(productItemBinding.root) {
         init {
             itemView.setOnClickListener {
@@ -62,7 +62,11 @@ class ProductAdapter(
 
         if (price != null) {
             holder.productItemBinding.apply {
-                productPrice.textSize = 22F
+                productPrice.apply{
+                    textSize = 22F
+                    setTextColor(context.resources.getColor(R.color.black, null))
+                }
+
                 if (price.promo != 0.0 && price.promo < price.regular) {
                     productPrice.text = String.format("$%.2f", price.promo)
                     onSale.visibility = View.VISIBLE
@@ -70,6 +74,7 @@ class ProductAdapter(
                         text = String.format("$%.2f", price.regular)
                         visibility = View.VISIBLE
                         paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                        setTextColor(context.resources.getColor(R.color.gray, null))
                     }
                 }
                 else {
@@ -77,6 +82,7 @@ class ProductAdapter(
                     productPrice.text = String.format("$%.2f", price.regular)
                 }
             }
+
             val inventory = product.items.getOrNull(0)?.inventory
             holder.productItemBinding.outOfStock.visibility = if (inventory?.stockLevel == "TEMPORARILY_OUT_OF_STOCK") View.VISIBLE else View.GONE
             addToCartDisabled = inventory?.stockLevel == "TEMPORARILY_OUT_OF_STOCK"
