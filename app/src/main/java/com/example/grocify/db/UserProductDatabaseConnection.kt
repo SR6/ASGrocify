@@ -37,9 +37,8 @@ class UserProductDatabaseConnection(private var databaseCollection: String) {
                             .addOnSuccessListener { result ->
                                 if (result.isEmpty)
                                     onSuccess(null)
-                                else {
+                                else
                                     onSuccess(result.documents.map { deserializeUserProduct(it) })
-                                }
                             }
                             .addOnFailureListener { exception ->
                                 onFailure(exception)

@@ -13,7 +13,6 @@ import androidx.navigation.fragment.navArgs
 import com.denzcoskun.imageslider.models.SlideModel
 import com.example.grocify.R
 import kotlinx.coroutines.launch
-import kotlin.math.round
 
 class ProductFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -259,6 +258,7 @@ class ProductFragment: Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
         _binding = null
     }
 }

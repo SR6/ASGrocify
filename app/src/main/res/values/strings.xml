@@ -83,9 +83,9 @@
     <string name="yes">Yes</string>
     <string name="zip_code">Zip Code</string>
 
-    <plurals name="items_quantity_header">
-        <item quantity="one">%s\nitem</item>
-        <item quantity="other">%s\nitems</item>
+    <plurals name="carts_quantity">
+        <item quantity="one">%s cart</item>
+        <item quantity="other">%s carts</item>
     </plurals>
 
     <plurals name="items_quantity">
@@ -93,9 +93,9 @@
         <item quantity="other">%s items</item>
     </plurals>
 
-    <plurals name="carts_quantity">
-        <item quantity="one">%s cart</item>
-        <item quantity="other">%s carts</item>
+    <plurals name="items_quantity_header">
+        <item quantity="one">%s\nitem</item>
+        <item quantity="other">%s\nitems</item>
     </plurals>
 
     <plurals name="people_quantity">

@@ -12,9 +12,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
-class AuthUser(private val registry: ActivityResultRegistry):
-    DefaultLifecycleObserver,
-    FirebaseAuth.AuthStateListener {
+class AuthUser(private val registry: ActivityResultRegistry)
+    : DefaultLifecycleObserver, FirebaseAuth.AuthStateListener {
 
     private lateinit var loginLauncher: ActivityResultLauncher<Intent>
 

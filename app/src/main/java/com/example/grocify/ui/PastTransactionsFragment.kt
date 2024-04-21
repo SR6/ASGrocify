@@ -51,7 +51,7 @@ class PastTransactionsFragment: Fragment() {
                 }
                 else {
                     binding.noResultsFound.visibility = View.GONE
-                    pastTransactionsAdapter.submitList(transactions.sortedByDescending { it.purchasedAt?.seconds })
+                    pastTransactionsAdapter.submitList(transactions.sortedByDescending { it.purchasedAt.seconds })
                 }
             },
             onFailure = {
@@ -62,6 +62,7 @@ class PastTransactionsFragment: Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
         _binding = null
     }
 }

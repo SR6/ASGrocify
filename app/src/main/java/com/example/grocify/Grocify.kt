@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseApp
 class Grocify: Application() {
     override fun onCreate() {
         super.onCreate()
+
         FirebaseApp.initializeApp(this)
     }
 }

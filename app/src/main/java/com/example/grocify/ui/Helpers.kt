@@ -334,7 +334,7 @@ class Helpers {
                     }
                     .setNegativeButton(negativeMessage) { _, _ -> }
                 builder.create()
-            } ?: throw java.lang.Exception()
+            } ?: throw Exception()
         }
     }
 }

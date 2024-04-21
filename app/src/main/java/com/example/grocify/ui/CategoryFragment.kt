@@ -10,16 +10,12 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.grocify.MainActivity
 import com.example.grocify.R
 import com.example.grocify.databinding.CategoryFragmentBinding
 import com.example.grocify.databinding.CategoryItemBinding
 import com.example.grocify.db.Glide
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
-import java.io.IOException
 
 class CategoryFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -62,6 +58,7 @@ class CategoryFragment: Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
         _binding = null
     }
 
@@ -87,18 +84,6 @@ class CategoryFragment: Fragment() {
                     )
 
                     categoryItemBinding.categoryName.text = category.name
-
-                    viewModel.categoryProductCounts.observe(viewLifecycleOwner) { categoryProductCounts ->
-//                        if (categoryProductCounts[category.name] == null)
-//                            categoryItemBinding.categoryCount.text = "loading..."
-//                        else
-                        categoryItemBinding.categoryCount.text =
-                            resources.getQuantityString(
-                                R.plurals.items_quantity,
-                                categoryProductCounts[category.name] ?: 0,
-                                viewModel.addCommasToNumber(categoryProductCounts[category.name] ?: 0)
-                            )
-                    }
 
                     categoryItemBinding.root.setOnClickListener {
                         findNavController().navigate(

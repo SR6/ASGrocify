@@ -38,9 +38,8 @@ class GrocifyProductDatabaseConnection {
                             .addOnSuccessListener { result ->
                                 if (result.isEmpty)
                                     onSuccess(null)
-                                else {
+                                else
                                     onSuccess(deserializeGrocifyProduct(result.documents[0]))
-                                }
                             }
                             .addOnFailureListener { exception ->
                                 onFailure(exception)

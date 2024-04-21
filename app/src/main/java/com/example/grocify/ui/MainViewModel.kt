@@ -1,20 +1,11 @@
 package com.example.grocify.ui
 
-import android.app.Dialog
 import android.content.Context
-import android.os.Bundle
-import android.view.View
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.grocify.R
 import com.example.grocify.api.KrogerClient.krogerService
-import com.example.grocify.databinding.CartAndFavoritesBinding
 import com.example.grocify.db.CategoryDatabaseConnection
 import com.example.grocify.db.GrocifyProductDatabaseConnection
 import com.example.grocify.db.TransactionsDatabaseConnection
@@ -29,7 +20,6 @@ import com.example.grocify.models.KrogerProductsResponse
 import com.example.grocify.models.Transaction
 import com.example.grocify.models.User
 import com.example.grocify.models.UserProduct
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -109,10 +99,6 @@ class MainViewModel: ViewModel() {
     private val _user = MutableLiveData<User?>()
     val user: LiveData<User?> get() = _user
 
-    /* Category globals. */
-    private val _categoryProductCounts = MutableLiveData<HashMap<String, Int>>()
-    val categoryProductCounts: LiveData<HashMap<String, Int>> = _categoryProductCounts
-
     /* API logic. */
     private suspend fun getToken(): String {
         return if (cachedToken != null && System.currentTimeMillis() < tokenExpirationTime)
@@ -144,10 +130,6 @@ class MainViewModel: ViewModel() {
                     _searchProducts.postValue(response)
 
                 _isApiRequestCompleted.postValue(true)
-
-                val temp = HashMap(_categoryProductCounts.value ?: hashMapOf())
-                temp[term] = response.meta.pagination.total
-                _categoryProductCounts.postValue(temp)
             }
             catch (_: Exception) { }
         }
@@ -315,6 +297,7 @@ class MainViewModel: ViewModel() {
                         _cartProducts.postValue(currentCartProducts)
                     }
                 }
+
                 onSuccess(userProducts)
             }
         }, onFailure)
@@ -406,6 +389,7 @@ class MainViewModel: ViewModel() {
                         _favoriteProducts.postValue(currentFavoriteProducts)
                     }
                 }
+
                 onSuccess(userProducts)
             }
         }, onFailure)

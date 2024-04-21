@@ -14,7 +14,6 @@ import com.example.grocify.R
 import com.example.grocify.databinding.CartFragmentBinding
 import com.example.grocify.models.GrocifyProduct
 import com.example.grocify.models.Transaction
-import com.example.grocify.models.UserProduct
 import com.google.firebase.Timestamp
 import java.util.UUID
 
@@ -188,6 +187,7 @@ class CartFragment: Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
         _binding = null
     }
 }

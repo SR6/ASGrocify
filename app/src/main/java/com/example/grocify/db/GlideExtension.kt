@@ -45,8 +45,3 @@ object Glide {
             .into(imageView)
     }
 }
-object GlideProductUrl {
-    private var glideOptions = RequestOptions().fitCenter().diskCacheStrategy(DiskCacheStrategy.ALL)
-
-
-}

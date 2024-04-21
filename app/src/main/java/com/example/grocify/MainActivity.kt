@@ -21,6 +21,7 @@ import java.util.UUID
 
 class MainActivity: AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
+
     private lateinit var navController: NavController
     private lateinit var authUser : AuthUser
 
@@ -31,6 +32,7 @@ class MainActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -76,6 +78,7 @@ class MainActivity: AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+
         _binding = null
         viewModel.clearUser()
         FirebaseAuth.getInstance().removeAuthStateListener(viewModel.firebaseAuthCheck)
@@ -191,13 +194,6 @@ class MainActivity: AppCompatActivity() {
             supportActionBar?.apply {
                 setDisplayHomeAsUpEnabled(showBackButton)
                 setDisplayShowHomeEnabled(showBackButton)
-            }
-        }
-
-        for (category in resources.getStringArray(R.array.categories)) {
-            lifecycleScope.launch {
-                //commented out to reduce requests to Kroger
-//                viewModel.getProducts(category)
             }
         }
     }

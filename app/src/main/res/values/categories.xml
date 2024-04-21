@@ -3,6 +3,7 @@
 <resources>
 
     <string-array name="categories">
+
         <item>Adult Beverage</item>
         <item>Baby</item>
         <item>Bakery</item>
@@ -24,6 +25,7 @@
         <item>Pet Care</item>
         <item>Produce</item>
         <item>Snacks</item>
+
     </string-array>
 
 </resources>

@@ -40,9 +40,8 @@ class UserDatabaseConnection {
                             .addOnSuccessListener { result ->
                                 if (result.isEmpty)
                                     onSuccess(null)
-                                else {
+                                else
                                     onSuccess(deserializeUser(result.documents[0]))
-                                }
                             }
                             .addOnFailureListener { exception ->
                                 onFailure(exception)

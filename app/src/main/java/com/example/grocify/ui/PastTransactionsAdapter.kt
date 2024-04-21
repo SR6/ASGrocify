@@ -10,13 +10,12 @@ import com.example.grocify.R
 import com.example.grocify.databinding.PastTransactionItemBinding
 import com.example.grocify.models.Transaction
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 class PastTransactionsAdapter(
     private val context: Context,
     private val viewModel: MainViewModel,
-): ListAdapter<Transaction, PastTransactionsAdapter.ViewHolder>(PastTransactionsAdapter.ItemDiff()) {
+): ListAdapter<Transaction, PastTransactionsAdapter.ViewHolder>(ItemDiff()) {
     inner class ViewHolder(val pastTransactionItemBinding: PastTransactionItemBinding): RecyclerView.ViewHolder(pastTransactionItemBinding.root) {
         init {
             itemView.setOnClickListener {
@@ -35,16 +34,14 @@ class PastTransactionsAdapter(
         val transaction = getItem(position)
 
         val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
-        val purchaseDate = transaction.purchasedAt?.toDate()?.let { dateFormat.format(it) }
+        val purchaseDate = transaction.purchasedAt.toDate().let { dateFormat.format(it) }
 
         holder.pastTransactionItemBinding.purchaseDate.text = purchaseDate
-
         holder.pastTransactionItemBinding.totalItems.text = context.resources.getQuantityString(
             R.plurals.items_quantity,
             transaction.totalItems,
             viewModel.addCommasToNumber(transaction.totalItems)
         )
-
         holder.pastTransactionItemBinding.totalPrice.text = String.format("$%.2f", transaction.totalPrice)
     }
 

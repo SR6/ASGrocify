@@ -3,22 +3,28 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light">
+
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryDark">@color/blue</item>
         <item name="colorAccent">@color/blue</item>
+
     </style>
 
     <style name="AppTheme.NoActionBar">
+
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="SearchTheme" parent="Widget.AppCompat.SearchView">
+
         <item name="android:background">@drawable/search_box</item>
         <item name="android:queryBackground">@android:color/transparent</item>
+
     </style>
 
 </resources>

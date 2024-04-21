@@ -38,9 +38,8 @@ class TransactionsDatabaseConnection {
                             .addOnSuccessListener { result ->
                                 if (result.isEmpty)
                                     onSuccess(null)
-                                else {
+                                else
                                     onSuccess(result.documents.map { deserializeTransaction(it) })
-                                }
                             }
                             .addOnFailureListener { exception ->
                                 onFailure(exception)
