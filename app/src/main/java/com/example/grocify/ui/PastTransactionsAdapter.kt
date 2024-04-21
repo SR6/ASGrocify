@@ -41,8 +41,8 @@ class PastTransactionsAdapter(
 
         holder.pastTransactionItemBinding.totalItems.text = context.resources.getQuantityString(
             R.plurals.items_quantity,
-            transaction.totalItems.toInt(),
-            viewModel.addCommasToNumber(transaction.totalItems.toInt())
+            transaction.totalItems,
+            viewModel.addCommasToNumber(transaction.totalItems)
         )
 
         holder.pastTransactionItemBinding.totalPrice.text = String.format("$%.2f", transaction.totalPrice)

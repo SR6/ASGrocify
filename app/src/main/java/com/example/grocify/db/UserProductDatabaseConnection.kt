@@ -1,6 +1,7 @@
 package com.example.grocify.db
 
 import com.example.grocify.models.UserProduct
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -13,11 +14,15 @@ class UserProductDatabaseConnection(private var databaseCollection: String) {
         val userProductId = documentSnapshot.id
         val userId = documentSnapshot.getString("userId") ?: ""
         val productId = documentSnapshot.getString("productId") ?: ""
-        val addedAt = documentSnapshot.getTimestamp("addedAt")
-        return UserProduct(userProductId, userId, productId, addedAt)
+        val count = documentSnapshot.getLong("count") ?: 0
+        val addedAt = documentSnapshot.getTimestamp("addedAt") ?: Timestamp.now()
+        return UserProduct(userProductId, userId, productId, count.toInt(), addedAt)
     }
 
-    fun getUserProducts(userId: String, onSuccess: (List<UserProduct>?) -> Unit, onFailure: (Exception) -> Unit) {
+    fun getUserProducts(userId: String,
+                        onSuccess: (List<UserProduct>?) -> Unit,
+                        onFailure: (Exception) -> Unit
+    ) {
         try {
             db.collection(databaseCollection)
                 .limit(1)
@@ -51,13 +56,15 @@ class UserProductDatabaseConnection(private var databaseCollection: String) {
     }
 
     fun addUserProduct(userProduct: UserProduct,
-                onSuccess: () -> Unit,
-                onFailure: (Exception) -> Unit) {
+                       onSuccess: () -> Unit,
+                       onFailure: (Exception) -> Unit
+    ) {
         try {
             val userProductData = hashMapOf(
                 "userProductId" to userProduct.userProductId,
                 "userId" to userProduct.userId,
                 "productId" to userProduct.productId,
+                "count" to userProduct.count,
                 "addedAt" to userProduct.addedAt
             )
 
@@ -76,12 +83,41 @@ class UserProductDatabaseConnection(private var databaseCollection: String) {
         }
     }
 
-    fun removeUserProduct(userProduct: UserProduct,
-                onSuccess: () -> Unit,
-                onFailure: (Exception) -> Unit) {
+    fun updateUserProduct(userProduct: UserProduct,
+                          onSuccess: () -> Unit,
+                          onFailure: (Exception) -> Unit
+    ) {
         try {
+            val userProductData: Map<String, Any> = hashMapOf(
+                "userProductId" to userProduct.userProductId,
+                "userId" to userProduct.userId,
+                "productId" to userProduct.productId,
+                "count" to userProduct.count,
+                "addedAt" to userProduct.addedAt
+            )
+
             db.collection(databaseCollection)
                 .document(userProduct.userProductId)
+                .update(userProductData)
+                .addOnSuccessListener {
+                    onSuccess()
+                }
+                .addOnFailureListener { exception ->
+                    onFailure(exception)
+                }
+        }
+        catch (e: Exception) {
+            onFailure(e)
+        }
+    }
+
+    fun removeUserProduct(userProductId: String,
+                          onSuccess: () -> Unit,
+                          onFailure: (Exception) -> Unit
+    ) {
+        try {
+            db.collection(databaseCollection)
+                .document(userProductId)
                 .delete()
                 .addOnSuccessListener {
                     onSuccess()

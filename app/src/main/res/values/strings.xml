@@ -6,31 +6,41 @@
     <string name="add_to_favorites_failed">Add to favorites failed.</string>
     <string name="available">available</string>
     <string name="back_arrow">Back Arrow</string>
+    <string name="bought_by">Bought by</string>
+    <string name="brand">Brand:</string>
     <string name="cancel">Cancel</string>
     <string name="cart">Cart</string>
     <string name="cart_load_failed">Failed to load cart.</string>
     <string name="category">Category</string>
+    <string name="category_">Category:</string>
     <string name="categories">Categories</string>
     <string name="categories_load_failed">Failed to load categories.</string>
     <string name="checkout">Checkout</string>
+    <string name="country_origin">Country Origin:</string>
+    <string name="currently_in">Currently in</string>
     <string name="default_location_id">01400513</string>
     <string name="default_zip_code">45202</string>
+    <string name="dimensions">Dimensions:</string>
     <string name="email">Email</string>
     <string name="ending_in">Ending in *</string>
+    <string name="favorited_by">Favorited by</string>
     <string name="favorites">Favorites</string>
     <string name="favorites_load_failed">Failed to load favorites.</string>
     <string name="forward_arrow">Forward Arrow</string>
     <string name="grocify">Grocify</string>
     <string name="hi">Hi</string>
+    <string name="high">High</string>
     <string name="invalid_card_number">Invalid card number.</string>
     <string name="invalid_email_address">Invalid email address.</string>
     <string name="invalid_name">Invalid name.</string>
     <string name="invalid_password">Invalid password.</string>
     <string name="invalid_zip_code">Invalid zip code.</string>
+    <string name="inventory_level">Inventory Level:</string>
     <string name="logout">Logout</string>
     <string name="logout_failed">Logout failed.</string>
     <string name="logout_message">Are you sure you want to logout?</string>
     <string name="logout_success">Logout successfully.</string>
+    <string name="low">Low</string>
     <string name="name">Name</string>
     <string name="no_kroger_location">No Kroger location at that zip code.</string>
     <string name="no_results_found">No results found.</string>
@@ -41,8 +51,10 @@
     <string name="past_transactions_load_failed">Failed to load past transactions.</string>
     <string name="payment_method">Payment Method</string>
     <string name="please_add_payment_method">Please add a payment method.</string>
+    <string name="price">Price</string>
     <string name="product">Product</string>
     <string name="product_image">Product Image</string>
+    <string name="product_information">Product Information</string>
     <string name="products">Products</string>
     <string name="profile">Profile</string>
     <string name="profile_update_failed">Failed to update profile.</string>
@@ -54,12 +66,16 @@
     <string name="save">Save</string>
     <string name="search">Search Grocify</string>
     <string name="store_at_zip_code">Store at zip code</string>
+    <string name="temperature">Temperature:</string>
     <string name="toggle_cart">Toggle Cart</string>
     <string name="toggle_favorites">Toggle Favorites</string>
     <string name="total">Total</string>
     <string name="transaction_completed">Transaction Completed</string>
     <string name="transaction_failed">Transaction failed.</string>
+    <string name="unavailable">Unavailable</string>
     <string name="unavailable_price">Unavailable\nPrice</string>
+    <string name="unavailable_price_">Unavailable Price</string>
+    <string name="upc">UPC:</string>
     <string name="user">User</string>
     <string name="user_add_failed">Failed to add user.</string>
     <string name="user_load_failed">Failed to load user.</string>
@@ -75,6 +91,16 @@
     <plurals name="items_quantity">
         <item quantity="one">%s item</item>
         <item quantity="other">%s items</item>
+    </plurals>
+
+    <plurals name="carts_quantity">
+        <item quantity="one">%s cart</item>
+        <item quantity="other">%s carts</item>
+    </plurals>
+
+    <plurals name="people_quantity">
+        <item quantity="one">%s person</item>
+        <item quantity="other">%s people</item>
     </plurals>
 
 </resources>

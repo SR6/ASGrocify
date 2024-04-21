@@ -122,7 +122,7 @@ class ProfileFragment: Fragment() {
         }
 
         binding.logout.setOnClickListener {
-            val confirmationDialog = ConfirmationDialogFragment(
+            val confirmationDialog = Helpers.ConfirmationDialogFragment(
                 {
                     FirebaseAuth.getInstance().signOut()
                     Toast.makeText(requireContext(), resources.getString(R.string.logout_success), Toast.LENGTH_SHORT).show()

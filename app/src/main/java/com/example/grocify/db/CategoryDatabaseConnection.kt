@@ -12,7 +12,10 @@ import java.io.IOException
 class CategoryDatabaseConnection {
     private val db: FirebaseFirestore = Firebase.firestore
 
-    fun getCategories(onSuccess: (List<GrocifyCategory>) -> Unit, onFailure: (Exception) -> Unit) {
+    fun getCategories(
+        onSuccess: (List<GrocifyCategory>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
         try {
             db.collection("categories")
                 .get()
@@ -34,7 +37,11 @@ class CategoryDatabaseConnection {
         }
     }
 
-    fun getCategoryImage(imageFile: String, onSuccess: (File) -> Unit, onFailure: (Exception) -> Unit) {
+    fun getCategoryImage(
+        imageFile: String,
+        onSuccess: (File) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
         if (imageFile.isBlank()) {
             onFailure(IllegalArgumentException("Image file is empty"))
             return

@@ -15,14 +15,17 @@ class UserDatabaseConnection {
         val email = documentSnapshot.getString("email") ?: ""
         val name = documentSnapshot.getString("name") ?: ""
         val createdAt = documentSnapshot.getTimestamp("createdAt") ?: Timestamp.now()
-        val lastLoginAt = documentSnapshot.getTimestamp("lastLoginAt" )?: Timestamp.now()
+        val lastLoginAt = documentSnapshot.getTimestamp("lastLoginAt" ) ?: Timestamp.now()
         val paymentMethod = documentSnapshot.getString("paymentMethod") ?: ""
         val zipCode = documentSnapshot.getString("zipCode") ?: ""
         val locationId = documentSnapshot.getString("locationId") ?: ""
         return User(userId, email, name, createdAt, lastLoginAt, paymentMethod, zipCode, locationId)
     }
 
-    fun getUser(email: String, onSuccess: (User?) -> Unit, onFailure: (Exception) -> Unit) {
+    fun getUser(
+        email: String, onSuccess: (User?) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
         try {
             db.collection("users")
                 .limit(1)
@@ -57,7 +60,8 @@ class UserDatabaseConnection {
 
     fun addUser(user: User,
                 onSuccess: () -> Unit,
-                onFailure: (Exception) -> Unit) {
+                onFailure: (Exception) -> Unit
+    ) {
         try {
             val userData = hashMapOf(
                 "userId" to user.userId,
@@ -87,7 +91,8 @@ class UserDatabaseConnection {
 
     fun updateUser(user: User,
                    onSuccess: () -> Unit,
-                   onFailure: (Exception) -> Unit) {
+                   onFailure: (Exception) -> Unit
+    ) {
         try {
             val userData: Map<String, Any> = hashMapOf(
                 "userId" to user.userId,
@@ -99,6 +104,7 @@ class UserDatabaseConnection {
                 "zipCode" to user.zipCode,
                 "locationId" to user.locationId
             )
+
             db.collection("users")
                 .document(user.userId)
                 .update(userData)

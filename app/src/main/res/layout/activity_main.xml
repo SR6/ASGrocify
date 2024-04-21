@@ -30,7 +30,8 @@
         app:itemTextAppearanceActiveBoldEnabled="false"
         android:enabled="false" />
 
-    <include layout="@layout/loading"
+    <include
+        layout="@layout/loading"
         android:id="@+id/loading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -97,7 +97,7 @@ class MainActivity: AppCompatActivity() {
                         resources.getString(R.string.default_location_id)
                     ),
                     onSuccess = {
-                        initializeFavoritesAndCart(true)
+                        initializeCartAndFavorites(true)
                         if (navController.currentDestination?.id != R.id.category_fragment)
                             navController.navigate(R.id.category_fragment)
                         toggleNavigationTabs(true)
@@ -119,7 +119,7 @@ class MainActivity: AppCompatActivity() {
                         user.locationId
                     ),
                     onSuccess = {
-                        initializeFavoritesAndCart()
+                        initializeCartAndFavorites()
                         if (navController.currentDestination?.id != R.id.category_fragment)
                             navController.navigate(R.id.category_fragment)
                         toggleNavigationTabs(true)
@@ -135,8 +135,8 @@ class MainActivity: AppCompatActivity() {
         })
     }
 
-    private fun initializeFavoritesAndCart(isNewUser: Boolean = false) {
-        viewModel.initializeFavoritesAndCart()
+    private fun initializeCartAndFavorites(isNewUser: Boolean = false) {
+        viewModel.initializeCartAndFavorites()
 
         if (!isNewUser) {
             viewModel.getCart(

@@ -2,27 +2,20 @@ package com.example.grocify.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.grocify.R
 import com.example.grocify.databinding.CartFragmentBinding
-import com.example.grocify.models.KrogerProduct
+import com.example.grocify.models.GrocifyProduct
 import com.example.grocify.models.Transaction
 import com.example.grocify.models.UserProduct
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class CartFragment: Fragment() {
@@ -80,36 +73,43 @@ class CartFragment: Fragment() {
                 binding.recyclerFragment.noResultsFound.visibility = View.VISIBLE
             }
 
-            viewModel.updateHeader(
-                getString(R.string.cart),
-                resources.getQuantityString(
-                    R.plurals.items_quantity_header,
-                    cartProducts?.size ?: 0,
-                    viewModel.addCommasToNumber(cartProducts?.size ?: 0)
-                )
-            )
-
+            var totalCartProducts = 0
+            var totalAvailableCartProducts = 0
             var totalPrice = 0.0
-            var totalProductsAvailableToPurchase = 0
-            val transactionProductIds = mutableListOf<String>()
+            val transactionProducts = mutableMapOf<String, Int>()
+
             cartProducts?.forEach { product ->
-                if (product.items[0].price != null) {
+                val cartUserProduct = viewModel.cartUserProducts.value?.find { it.productId == product.productId }
+                totalCartProducts += cartUserProduct?.count ?: 0
+
+                if (cartUserProduct != null && product.items[0].price != null) {
                     if (product.items.firstOrNull()?.inventory?.stockLevel != "TEMPORARILY_OUT_OF_STOCK") {
-                        totalProductsAvailableToPurchase++
-                        transactionProductIds.add(product.productId)
+                        totalAvailableCartProducts += cartUserProduct.count
+
+                        transactionProducts[product.productId] = cartUserProduct.count
+
                         product.items.firstOrNull()?.price?.let { price ->
-                            totalPrice += if (price.promo != 0.0 && price.promo < price.regular) price.promo else price.regular
+                            totalPrice += if (price.promo != 0.0 && price.promo < price.regular) price.promo * cartUserProduct.count else price.regular * cartUserProduct.count
                         }
                     }
                 }
             }
 
+            viewModel.updateHeader(
+                getString(R.string.cart),
+                resources.getQuantityString(
+                    R.plurals.items_quantity_header,
+                    totalCartProducts,
+                    viewModel.addCommasToNumber(totalCartProducts)
+                )
+            )
+
             binding.totalItems.text = String.format(
                 "Total (%s %s)",
                 resources.getQuantityString(
                     R.plurals.items_quantity,
-                    totalProductsAvailableToPurchase,
-                    viewModel.addCommasToNumber(totalProductsAvailableToPurchase)
+                    totalAvailableCartProducts,
+                    viewModel.addCommasToNumber(totalAvailableCartProducts)
                 ),
                 resources.getString(R.string.available)
             )
@@ -134,24 +134,38 @@ class CartFragment: Fragment() {
             }
 
             binding.checkout.setOnClickListener {
-                val confirmationDialog = ConfirmationDialogFragment(
+                val confirmationDialog = Helpers.ConfirmationDialogFragment(
                     {
                         viewModel.addTransaction(
                             Transaction(UUID.randomUUID().toString(),
                                 viewModel.user.value!!.userId,
-                                totalProductsAvailableToPurchase.toLong(),
+                                totalAvailableCartProducts,
                                 totalPrice,
                                 Timestamp.now()
                             ),
                             onSuccess = {
-                                transactionProductIds.forEach { productId ->
+                                transactionProducts.forEach { (productId, productCount) ->
                                     viewModel.removeFromCart(
-                                        UserProduct(viewModel.user.value!!.userId + productId,
-                                            viewModel.user.value!!.userId,
-                                            productId,
-                                            null
-                                        ),
-                                        onSuccess = { },
+                                        viewModel.user.value!!.userId + productId,
+                                        productId,
+                                        onSuccess = {
+                                            viewModel.getGrocifyProduct(productId,
+                                                onSuccess = { grocifyProduct ->
+                                                    viewModel.updateGrocifyProduct(
+                                                        GrocifyProduct(grocifyProduct!!.grocifyProductId,
+                                                            productId,
+                                                            grocifyProduct.cartCount - productCount,
+                                                            grocifyProduct.favoriteCount,
+                                                            grocifyProduct.transactionCount + 1,
+                                                            grocifyProduct.addedAt
+                                                        ),
+                                                        onSuccess = { },
+                                                        onFailure = { }
+                                                    )
+                                                },
+                                                onFailure = { }
+                                            )
+                                        },
                                         onFailure = { }
                                     )
                                 }

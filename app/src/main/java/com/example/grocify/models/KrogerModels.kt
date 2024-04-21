@@ -75,9 +75,9 @@ data class Item(
 )
 
 data class ItemInformation(
-    @SerializedName("depth") val depth: String,
-    @SerializedName("height") val height: String,
-    @SerializedName("width") val width: String
+    @SerializedName("depth") val depth: String?,
+    @SerializedName("height") val height: String?,
+    @SerializedName("width") val width: String?
 )
 
 data class Price(

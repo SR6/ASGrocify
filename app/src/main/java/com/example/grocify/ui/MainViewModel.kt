@@ -3,26 +3,33 @@ package com.example.grocify.ui
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.grocify.R
 import com.example.grocify.api.KrogerClient.krogerService
+import com.example.grocify.databinding.CartAndFavoritesBinding
 import com.example.grocify.db.CategoryDatabaseConnection
+import com.example.grocify.db.GrocifyProductDatabaseConnection
 import com.example.grocify.db.TransactionsDatabaseConnection
 import com.example.grocify.db.UserProductDatabaseConnection
 import com.example.grocify.db.UserDatabaseConnection
 import com.example.grocify.models.GrocifyCategory
+import com.example.grocify.models.GrocifyProduct
 import com.example.grocify.models.KrogerLocationsResponse
 import com.example.grocify.models.KrogerProduct
 import com.example.grocify.models.KrogerProductResponse
 import com.example.grocify.models.KrogerProductsResponse
-import com.example.grocify.models.Location
 import com.example.grocify.models.Transaction
 import com.example.grocify.models.User
 import com.example.grocify.models.UserProduct
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,15 +49,22 @@ class MainViewModel: ViewModel() {
 
     private val categoryDatabaseConnection = CategoryDatabaseConnection()
     private val userDatabaseConnection = UserDatabaseConnection()
-    private val transactionsDatabaseConnection = TransactionsDatabaseConnection()
+    private val grocifyProductDatabaseConnection = GrocifyProductDatabaseConnection()
     private val cartDatabaseConnection = UserProductDatabaseConnection(DatabaseCollection.CART.databaseCollection)
     private val favoritesDatabaseConnection = UserProductDatabaseConnection(DatabaseCollection.FAVORITES.databaseCollection)
+    private val transactionsDatabaseConnection = TransactionsDatabaseConnection()
+
+    private val _grocifyProduct = MutableLiveData<GrocifyProduct?>()
+    val grocifyProduct: LiveData<GrocifyProduct?> get() = _grocifyProduct
 
     private val _favoriteUserProducts = MutableLiveData<List<UserProduct>?>()
     val favoriteUserProducts: LiveData<List<UserProduct>?> get() = _favoriteUserProducts
 
     private val _cartUserProducts = MutableLiveData<List<UserProduct>?>()
     val cartUserProducts: LiveData<List<UserProduct>?> get() = _cartUserProducts
+
+    private val _transactions = MutableLiveData<List<Transaction>?>()
+    val transactions: LiveData<List<Transaction>?> get() = _transactions
 
     /* API globals. */
     private var cachedToken: String? = null
@@ -71,9 +85,6 @@ class MainViewModel: ViewModel() {
 
     private val _locations = MutableLiveData<KrogerLocationsResponse>()
     val locations: LiveData<KrogerLocationsResponse> get() = _locations
-
-    private val _transactions = MutableLiveData<List<Transaction>?>()
-    val transactions: LiveData<List<Transaction>?> get() = _transactions
 
     private val _isApiRequestCompleted = MutableLiveData<Boolean>()
     val isApiRequestCompleted: LiveData<Boolean> get() = _isApiRequestCompleted
@@ -190,28 +201,6 @@ class MainViewModel: ViewModel() {
     }
 
     /* Database logic. */
-    fun getCategories(
-        onSuccess: (List<GrocifyCategory>) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        categoryDatabaseConnection.getCategories(
-            onSuccess = onSuccess,
-            onFailure = onFailure
-        )
-    }
-
-    fun getCategoryImage(
-        imageFile: String,
-        onSuccess: (File) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        categoryDatabaseConnection.getCategoryImage(
-            imageFile = imageFile,
-            onSuccess = onSuccess,
-            onFailure = onFailure
-        )
-    }
-
     fun getUser(email: String,
                 onSuccess: (User?) -> Unit,
                 onFailure: (Exception) -> Unit) {
@@ -244,64 +233,70 @@ class MainViewModel: ViewModel() {
         _user.postValue(null)
     }
 
-    fun getFavorites(userId: String,
-                     onSuccess: (List<UserProduct>?) -> Unit,
-                     onFailure: (Exception) -> Unit) {
-        favoritesDatabaseConnection.getUserProducts(userId, { userProducts ->
-            CoroutineScope(Dispatchers.IO).launch {
-                _favoriteUserProducts.postValue(userProducts)
-
-                userProducts?.forEach { userProduct ->
-                    val product = getProductById(userProduct.productId)
-                    product?.let { favoriteProduct ->
-                        val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
-                        currentFavoriteProducts.add(favoriteProduct.product)
-                        _favoriteProducts.postValue(currentFavoriteProducts)
-                    }
-                }
-                onSuccess(userProducts)
-            }
+    fun getGrocifyProduct(productId: String,
+                          onSuccess: (GrocifyProduct?) -> Unit,
+                          onFailure: (Exception) -> Unit) {
+        grocifyProductDatabaseConnection.getGrocifyProduct(productId, { grocifyProduct ->
+            _grocifyProduct.postValue(grocifyProduct)
+            onSuccess(grocifyProduct)
         }, onFailure)
     }
 
-    fun addToFavorites(userProduct: UserProduct,
-                       onSuccess: () -> Unit,
-                       onFailure: (Exception) -> Unit) {
-        favoritesDatabaseConnection.addUserProduct(userProduct, {
-            CoroutineScope(Dispatchers.IO).launch {
-                val currentFavoriteUserProducts = _favoriteUserProducts.value.orEmpty().toMutableList()
-                currentFavoriteUserProducts.add(userProduct)
-                _favoriteUserProducts.postValue(currentFavoriteUserProducts)
-
-                val product = getProductById(userProduct.productId)
-
-                product?.let { favoriteProduct ->
-                    val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
-                    currentFavoriteProducts.add(favoriteProduct.product)
-                    _favoriteProducts.postValue(currentFavoriteProducts)
-                }
-
-                withContext(Dispatchers.Main) {
-                    onSuccess()
-                }
-            }
+    fun grocifyProductListener(productId: String,
+                               onSuccess: (GrocifyProduct?) -> Unit,
+                               onFailure: (Exception) -> Unit) {
+        grocifyProductDatabaseConnection.grocifyProductListener(productId, { grocifyProduct ->
+            _grocifyProduct.postValue(grocifyProduct)
+            onSuccess(grocifyProduct)
         }, onFailure)
     }
 
-    fun removeFromFavorites(userProduct: UserProduct,
-                            onSuccess: () -> Unit,
-                            onFailure: (Exception) -> Unit) {
-        favoritesDatabaseConnection.removeUserProduct(userProduct, {
-            val currentFavoriteUserProducts = _favoriteUserProducts.value.orEmpty().toMutableList()
-            currentFavoriteUserProducts.removeIf { it.userProductId == userProduct.userProductId }
-            _favoriteUserProducts.postValue(currentFavoriteUserProducts)
-
-            val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
-            currentFavoriteProducts.removeIf { it.productId == userProduct.productId }
-            _favoriteProducts.postValue(currentFavoriteProducts)
-
+    fun addGrocifyProduct(grocifyProduct: GrocifyProduct,
+                          onSuccess: () -> Unit,
+                          onFailure: (Exception) -> Unit) {
+        grocifyProductDatabaseConnection.addGrocifyProduct(grocifyProduct, {
+            _grocifyProduct.postValue(grocifyProduct)
             onSuccess()
         }, onFailure)
+    }
+
+    fun updateGrocifyProduct(grocifyProduct: GrocifyProduct,
+                             onSuccess: () -> Unit,
+                             onFailure: (Exception) -> Unit) {
+        grocifyProductDatabaseConnection.updateGrocifyProduct(grocifyProduct, {
+            _grocifyProduct.postValue(grocifyProduct)
+            onSuccess()
+        }, onFailure)
+    }
+
+    fun removeGrocifyProduct(grocifyProductId: String,
+                             onSuccess: () -> Unit,
+                             onFailure: (Exception) -> Unit) {
+        grocifyProductDatabaseConnection.removeGrocifyProduct(grocifyProductId, {
+            onSuccess()
+        }, onFailure)
+    }
+
+    fun getCategories(
+        onSuccess: (List<GrocifyCategory>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        categoryDatabaseConnection.getCategories(
+            onSuccess = onSuccess,
+            onFailure = onFailure
+        )
+    }
+
+    fun getCategoryImage(
+        imageFile: String,
+        onSuccess: (File) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        categoryDatabaseConnection.getCategoryImage(
+            imageFile = imageFile,
+            onSuccess = onSuccess,
+            onFailure = onFailure
+        )
     }
 
     fun getCart(userId: String,
@@ -348,25 +343,117 @@ class MainViewModel: ViewModel() {
         }, onFailure)
     }
 
-    fun removeFromCart(userProduct: UserProduct,
+    fun updateCart(userProduct: UserProduct,
+                   onSuccess: () -> Unit,
+                   onFailure: (Exception) -> Unit) {
+        cartDatabaseConnection.updateUserProduct(userProduct, {
+            CoroutineScope(Dispatchers.IO).launch {
+                val currentCartUserProducts = _cartUserProducts.value.orEmpty().toMutableList()
+                val index = currentCartUserProducts.indexOfFirst { it.productId == userProduct.productId }
+                if (index != -1) {
+                    currentCartUserProducts[index] = userProduct
+                    _cartUserProducts.postValue(currentCartUserProducts)
+                }
+
+                val product = getProductById(userProduct.productId)
+
+                product?.let { cartProduct ->
+                    val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
+                    val productIndex = currentCartProducts.indexOfFirst { it.productId == cartProduct.product.productId }
+                    if (productIndex != -1) {
+                        currentCartProducts[productIndex] = cartProduct.product
+                        _cartProducts.postValue(currentCartProducts)
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            }
+        }, onFailure)
+    }
+
+    fun removeFromCart(userProductId: String,
+                       productId: String,
                        onSuccess: () -> Unit,
                        onFailure: (Exception) -> Unit) {
-        cartDatabaseConnection.removeUserProduct(userProduct, {
+        cartDatabaseConnection.removeUserProduct(userProductId, {
             val currentCartUserProducts = _cartUserProducts.value.orEmpty().toMutableList()
-            currentCartUserProducts.removeIf { it.userProductId == userProduct.userProductId }
+            currentCartUserProducts.removeIf { it.userProductId == userProductId }
             _cartUserProducts.postValue(currentCartUserProducts)
 
             val currentCartProducts = _cartProducts.value.orEmpty().toMutableList()
-            currentCartProducts.removeIf { it.productId == userProduct.productId }
+            currentCartProducts.removeIf { it.productId == productId }
             _cartProducts.postValue(currentCartProducts)
 
             onSuccess()
         }, onFailure)
     }
 
-    fun initializeFavoritesAndCart() {
-        _favoriteProducts.postValue(null)
+    fun getFavorites(userId: String,
+                     onSuccess: (List<UserProduct>?) -> Unit,
+                     onFailure: (Exception) -> Unit) {
+        favoritesDatabaseConnection.getUserProducts(userId, { userProducts ->
+            CoroutineScope(Dispatchers.IO).launch {
+                _favoriteUserProducts.postValue(userProducts)
+
+                userProducts?.forEach { userProduct ->
+                    val product = getProductById(userProduct.productId)
+                    product?.let { favoriteProduct ->
+                        val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
+                        currentFavoriteProducts.add(favoriteProduct.product)
+                        _favoriteProducts.postValue(currentFavoriteProducts)
+                    }
+                }
+                onSuccess(userProducts)
+            }
+        }, onFailure)
+    }
+
+    fun addToFavorites(userProduct: UserProduct,
+                       onSuccess: () -> Unit,
+                       onFailure: (Exception) -> Unit) {
+        favoritesDatabaseConnection.addUserProduct(userProduct, {
+            CoroutineScope(Dispatchers.IO).launch {
+                val currentFavoriteUserProducts = _favoriteUserProducts.value.orEmpty().toMutableList()
+                currentFavoriteUserProducts.add(userProduct)
+                _favoriteUserProducts.postValue(currentFavoriteUserProducts)
+
+                val product = getProductById(userProduct.productId)
+
+                product?.let { favoriteProduct ->
+                    val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
+                    currentFavoriteProducts.add(favoriteProduct.product)
+                    _favoriteProducts.postValue(currentFavoriteProducts)
+                }
+
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            }
+        }, onFailure)
+    }
+
+    fun removeFromFavorites(userProductId: String,
+                            productId: String,
+                            onSuccess: () -> Unit,
+                            onFailure: (Exception) -> Unit) {
+        favoritesDatabaseConnection.removeUserProduct(userProductId, {
+            val currentFavoriteUserProducts = _favoriteUserProducts.value.orEmpty().toMutableList()
+            currentFavoriteUserProducts.removeIf { it.userProductId == userProductId }
+            _favoriteUserProducts.postValue(currentFavoriteUserProducts)
+
+            val currentFavoriteProducts = _favoriteProducts.value.orEmpty().toMutableList()
+            currentFavoriteProducts.removeIf { it.productId == productId }
+            _favoriteProducts.postValue(currentFavoriteProducts)
+
+            onSuccess()
+        }, onFailure)
+    }
+
+    fun initializeCartAndFavorites() {
         _cartProducts.postValue(null)
+        _favoriteProducts.postValue(null)
     }
 
     fun getTransactions(userId: String,
@@ -417,24 +504,5 @@ class MainViewModel: ViewModel() {
             return context.resources.getString(R.string.please_add_payment_method)
 
         return context.resources.getString(R.string.ending_in) + cardNumber.takeLast(4)
-    }
-}
-
-class ConfirmationDialogFragment(
-    private val onConfirmListener: () -> Unit,
-    private val message: String,
-    private val positiveMessage: String,
-    private val negativeMessage: String,
-) : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let {
-            val builder = AlertDialog.Builder(it)
-            builder.setMessage(message)
-                .setPositiveButton(positiveMessage) { _, _ ->
-                    onConfirmListener.invoke()
-                }
-                .setNegativeButton(negativeMessage) { _, _ -> }
-            builder.create()
-        } ?: throw java.lang.Exception()
     }
 }
