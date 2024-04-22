@@ -100,25 +100,27 @@ class Helpers {
 
                             viewModel.getGrocifyProduct(product.productId,
                                 onSuccess = { grocifyProduct ->
-                                    if (grocifyProduct!!.favoriteCount == 1 && grocifyProduct.cartCount == 0 && grocifyProduct.transactionCount == 0) {
-                                        viewModel.removeGrocifyProduct(
-                                            grocifyProduct.grocifyProductId,
-                                            onSuccess = { },
-                                            onFailure = { }
-                                        )
-                                    }
-                                    else {
-                                        viewModel.updateGrocifyProduct(
-                                            GrocifyProduct(grocifyProduct.grocifyProductId,
-                                                product.productId,
-                                                grocifyProduct.cartCount,
-                                                grocifyProduct.favoriteCount - 1,
-                                                grocifyProduct.transactionCount,
-                                                grocifyProduct.addedAt
-                                            ),
-                                            onSuccess = { },
-                                            onFailure = { }
-                                        )
+                                    if (grocifyProduct != null) {
+                                        if (grocifyProduct.favoriteCount == 1 && grocifyProduct.cartCount == 0 && grocifyProduct.transactionCount == 0) {
+                                            viewModel.removeGrocifyProduct(
+                                                grocifyProduct.grocifyProductId,
+                                                onSuccess = { },
+                                                onFailure = { }
+                                            )
+                                        }
+                                        else {
+                                            viewModel.updateGrocifyProduct(
+                                                GrocifyProduct(grocifyProduct.grocifyProductId,
+                                                    product.productId,
+                                                    grocifyProduct.cartCount,
+                                                    if (grocifyProduct.favoriteCount - 1 < 0) 0 else grocifyProduct.favoriteCount - 1,
+                                                    grocifyProduct.transactionCount,
+                                                    grocifyProduct.addedAt
+                                                ),
+                                                onSuccess = { },
+                                                onFailure = { }
+                                            )
+                                        }
                                     }
                                 },
                                 onFailure = { }
@@ -272,25 +274,27 @@ class Helpers {
 
                             viewModel.getGrocifyProduct(product.productId,
                                 onSuccess = { grocifyProduct ->
-                                    if (grocifyProduct!!.cartCount == 1 && grocifyProduct.favoriteCount == 0 && grocifyProduct.transactionCount == 0) {
-                                        viewModel.removeGrocifyProduct(
-                                            grocifyProduct.grocifyProductId,
-                                            onSuccess = { },
-                                            onFailure = { }
-                                        )
-                                    }
-                                    else {
-                                        viewModel.updateGrocifyProduct(
-                                            GrocifyProduct(grocifyProduct.grocifyProductId,
-                                                product.productId,
-                                                grocifyProduct.cartCount - 1,
-                                                grocifyProduct.favoriteCount,
-                                                grocifyProduct.transactionCount,
-                                                grocifyProduct.addedAt
-                                            ),
-                                            onSuccess = { },
-                                            onFailure = { }
-                                        )
+                                    if (grocifyProduct != null) {
+                                        if (grocifyProduct.cartCount == 1 && grocifyProduct.favoriteCount == 0 && grocifyProduct.transactionCount == 0) {
+                                            viewModel.removeGrocifyProduct(
+                                                grocifyProduct.grocifyProductId,
+                                                onSuccess = { },
+                                                onFailure = { }
+                                            )
+                                        }
+                                        else {
+                                            viewModel.updateGrocifyProduct(
+                                                GrocifyProduct(grocifyProduct.grocifyProductId,
+                                                    product.productId,
+                                                    if (grocifyProduct.cartCount - 1 < 0) 0 else grocifyProduct.cartCount - 1,
+                                                    grocifyProduct.favoriteCount,
+                                                    grocifyProduct.transactionCount,
+                                                    grocifyProduct.addedAt
+                                                ),
+                                                onSuccess = { },
+                                                onFailure = { }
+                                            )
+                                        }
                                     }
                                 },
                                 onFailure = { }

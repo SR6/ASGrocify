@@ -56,6 +56,8 @@ class MainViewModel: ViewModel() {
     private val _transactions = MutableLiveData<List<Transaction>?>()
     val transactions: LiveData<List<Transaction>?> get() = _transactions
 
+    private var isDatabaseOperationInProgress = false
+
     /* API globals. */
     private var cachedToken: String? = null
     private var tokenExpirationTime: Long = 0
@@ -186,7 +188,8 @@ class MainViewModel: ViewModel() {
     /* Database logic. */
     fun getUser(email: String,
                 onSuccess: (User?) -> Unit,
-                onFailure: (Exception) -> Unit) {
+                onFailure: (Exception) -> Unit
+    ) {
         userDatabaseConnection.getUser(email, { user ->
             _user.postValue(user)
             onSuccess(user)
@@ -195,21 +198,41 @@ class MainViewModel: ViewModel() {
 
     fun addUser(user: User,
                 onSuccess: () -> Unit,
-                onFailure: (Exception) -> Unit) {
+                onFailure: (Exception) -> Unit
+    ) {
+        if (isDatabaseOperationInProgress)
+            return
+
+        isDatabaseOperationInProgress = true
+
         userDatabaseConnection.addUser(user, {
             _user.postValue(user)
+            isDatabaseOperationInProgress = false
             onSuccess()
-        }, onFailure)
+        }, {
+            isDatabaseOperationInProgress = false
+            onFailure(it)
+        })
 
     }
 
     fun updateUser(user: User,
                    onSuccess: () -> Unit,
-                   onFailure: (Exception) -> Unit) {
+                   onFailure: (Exception) -> Unit
+    ) {
+        if (isDatabaseOperationInProgress)
+            return
+
+        isDatabaseOperationInProgress = true
+
         userDatabaseConnection.updateUser(user, {
+            isDatabaseOperationInProgress = false
             _user.postValue(user)
             onSuccess()
-        }, onFailure)
+        }, {
+            isDatabaseOperationInProgress = false
+            onFailure(it)
+        })
     }
 
     fun clearUser() {
@@ -218,7 +241,8 @@ class MainViewModel: ViewModel() {
 
     fun getGrocifyProduct(productId: String,
                           onSuccess: (GrocifyProduct?) -> Unit,
-                          onFailure: (Exception) -> Unit) {
+                          onFailure: (Exception) -> Unit
+    ) {
         grocifyProductDatabaseConnection.getGrocifyProduct(productId, { grocifyProduct ->
             _grocifyProduct.postValue(grocifyProduct)
             onSuccess(grocifyProduct)
@@ -227,7 +251,8 @@ class MainViewModel: ViewModel() {
 
     fun grocifyProductListener(productId: String,
                                onSuccess: (GrocifyProduct?) -> Unit,
-                               onFailure: (Exception) -> Unit) {
+                               onFailure: (Exception) -> Unit
+    ) {
         grocifyProductDatabaseConnection.grocifyProductListener(productId, { grocifyProduct ->
             _grocifyProduct.postValue(grocifyProduct)
             onSuccess(grocifyProduct)
@@ -236,25 +261,47 @@ class MainViewModel: ViewModel() {
 
     fun addGrocifyProduct(grocifyProduct: GrocifyProduct,
                           onSuccess: () -> Unit,
-                          onFailure: (Exception) -> Unit) {
+                          onFailure: (Exception) -> Unit
+    ) {
+
+        if (isDatabaseOperationInProgress)
+            return
+
+        isDatabaseOperationInProgress = true
+
         grocifyProductDatabaseConnection.addGrocifyProduct(grocifyProduct, {
+            isDatabaseOperationInProgress = false
             _grocifyProduct.postValue(grocifyProduct)
             onSuccess()
-        }, onFailure)
+        }, {
+            isDatabaseOperationInProgress = false
+            onFailure(it)
+        })
     }
 
     fun updateGrocifyProduct(grocifyProduct: GrocifyProduct,
                              onSuccess: () -> Unit,
-                             onFailure: (Exception) -> Unit) {
+                             onFailure: (Exception) -> Unit
+    ) {
+        if (isDatabaseOperationInProgress)
+            return
+
+        isDatabaseOperationInProgress = true
+
         grocifyProductDatabaseConnection.updateGrocifyProduct(grocifyProduct, {
+            isDatabaseOperationInProgress = false
             _grocifyProduct.postValue(grocifyProduct)
             onSuccess()
-        }, onFailure)
+        }, {
+            isDatabaseOperationInProgress = false
+            onFailure(it)
+        })
     }
 
     fun removeGrocifyProduct(grocifyProductId: String,
                              onSuccess: () -> Unit,
-                             onFailure: (Exception) -> Unit) {
+                             onFailure: (Exception) -> Unit
+    ) {
         grocifyProductDatabaseConnection.removeGrocifyProduct(grocifyProductId, {
             onSuccess()
         }, onFailure)
@@ -284,7 +331,8 @@ class MainViewModel: ViewModel() {
 
     fun getCart(userId: String,
                 onSuccess: (List<UserProduct>?) -> Unit,
-                onFailure: (Exception) -> Unit) {
+                onFailure: (Exception) -> Unit
+    ) {
         cartDatabaseConnection.getUserProducts(userId, { userProducts ->
             CoroutineScope(Dispatchers.IO).launch {
                 _cartUserProducts.postValue(userProducts)
@@ -305,9 +353,17 @@ class MainViewModel: ViewModel() {
 
     fun addToCart(userProduct: UserProduct,
                   onSuccess: () -> Unit,
-                  onFailure: (Exception) -> Unit) {
+                  onFailure: (Exception) -> Unit
+    ) {
+        if (isDatabaseOperationInProgress)
+            return
+
+        isDatabaseOperationInProgress = true
+
         cartDatabaseConnection.addUserProduct(userProduct, {
             CoroutineScope(Dispatchers.IO).launch {
+                isDatabaseOperationInProgress = false
+
                 val currentCartUserProducts = _cartUserProducts.value.orEmpty().toMutableList()
                 currentCartUserProducts.add(userProduct)
                 _cartUserProducts.postValue(currentCartUserProducts)
@@ -324,14 +380,25 @@ class MainViewModel: ViewModel() {
                     onSuccess()
                 }
             }
-        }, onFailure)
+        }, {
+            isDatabaseOperationInProgress = false
+            onFailure(it)
+        })
     }
 
     fun updateCart(userProduct: UserProduct,
                    onSuccess: () -> Unit,
-                   onFailure: (Exception) -> Unit) {
+                   onFailure: (Exception) -> Unit
+    ) {
+        if (isDatabaseOperationInProgress)
+            return
+
+        isDatabaseOperationInProgress = true
+
         cartDatabaseConnection.updateUserProduct(userProduct, {
             CoroutineScope(Dispatchers.IO).launch {
+                isDatabaseOperationInProgress = false
+
                 val currentCartUserProducts = _cartUserProducts.value.orEmpty().toMutableList()
                 val index = currentCartUserProducts.indexOfFirst { it.productId == userProduct.productId }
                 if (index != -1) {
@@ -354,13 +421,17 @@ class MainViewModel: ViewModel() {
                     onSuccess()
                 }
             }
-        }, onFailure)
+        }, {
+            isDatabaseOperationInProgress = false
+            onFailure(it)
+        })
     }
 
     fun removeFromCart(userProductId: String,
                        productId: String,
                        onSuccess: () -> Unit,
-                       onFailure: (Exception) -> Unit) {
+                       onFailure: (Exception) -> Unit
+    ) {
         cartDatabaseConnection.removeUserProduct(userProductId, {
             val currentCartUserProducts = _cartUserProducts.value.orEmpty().toMutableList()
             currentCartUserProducts.removeIf { it.userProductId == userProductId }
@@ -376,7 +447,8 @@ class MainViewModel: ViewModel() {
 
     fun getFavorites(userId: String,
                      onSuccess: (List<UserProduct>?) -> Unit,
-                     onFailure: (Exception) -> Unit) {
+                     onFailure: (Exception) -> Unit
+    ) {
         favoritesDatabaseConnection.getUserProducts(userId, { userProducts ->
             CoroutineScope(Dispatchers.IO).launch {
                 _favoriteUserProducts.postValue(userProducts)
@@ -397,9 +469,17 @@ class MainViewModel: ViewModel() {
 
     fun addToFavorites(userProduct: UserProduct,
                        onSuccess: () -> Unit,
-                       onFailure: (Exception) -> Unit) {
+                       onFailure: (Exception) -> Unit
+    ) {
+        if (isDatabaseOperationInProgress)
+            return
+
+        isDatabaseOperationInProgress = true
+
         favoritesDatabaseConnection.addUserProduct(userProduct, {
             CoroutineScope(Dispatchers.IO).launch {
+                isDatabaseOperationInProgress = false
+
                 val currentFavoriteUserProducts = _favoriteUserProducts.value.orEmpty().toMutableList()
                 currentFavoriteUserProducts.add(userProduct)
                 _favoriteUserProducts.postValue(currentFavoriteUserProducts)
@@ -416,13 +496,17 @@ class MainViewModel: ViewModel() {
                     onSuccess()
                 }
             }
-        }, onFailure)
+        }, {
+            isDatabaseOperationInProgress = false
+            onFailure(it)
+        })
     }
 
     fun removeFromFavorites(userProductId: String,
                             productId: String,
                             onSuccess: () -> Unit,
-                            onFailure: (Exception) -> Unit) {
+                            onFailure: (Exception) -> Unit
+    ) {
         favoritesDatabaseConnection.removeUserProduct(userProductId, {
             val currentFavoriteUserProducts = _favoriteUserProducts.value.orEmpty().toMutableList()
             currentFavoriteUserProducts.removeIf { it.userProductId == userProductId }

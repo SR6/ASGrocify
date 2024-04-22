@@ -41,6 +41,11 @@ class CartFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        var totalCartProducts: Int
+        var totalAvailableCartProducts = 0
+        var totalPrice = 0.0
+        val transactionProducts = mutableListOf<String>()
+
         productAdapter = ProductsAdapter(requireContext(), viewLifecycleOwner, viewModel, true)
         productAdapter.onItemClicked = { productId, brand ->
             findNavController().navigate(CartFragmentDirections.actionCartFragmentToProductFragment(productId, brand))
@@ -72,10 +77,9 @@ class CartFragment: Fragment() {
                 binding.recyclerFragment.noResultsFound.visibility = View.VISIBLE
             }
 
-            var totalCartProducts = 0
-            var totalAvailableCartProducts = 0
-            var totalPrice = 0.0
-            val transactionProducts = mutableMapOf<String, Int>()
+            totalCartProducts = 0
+            totalAvailableCartProducts = 0
+            totalPrice = 0.0
 
             cartProducts?.forEach { product ->
                 val cartUserProduct = viewModel.cartUserProducts.value?.find { it.productId == product.productId }
@@ -85,7 +89,8 @@ class CartFragment: Fragment() {
                     if (product.items.firstOrNull()?.inventory?.stockLevel != "TEMPORARILY_OUT_OF_STOCK") {
                         totalAvailableCartProducts += cartUserProduct.count
 
-                        transactionProducts[product.productId] = cartUserProduct.count
+                        if (!transactionProducts.contains(product.productId))
+                            transactionProducts.add(product.productId)
 
                         product.items.firstOrNull()?.price?.let { price ->
                             totalPrice += if (price.promo != 0.0 && price.promo < price.regular) price.promo * cartUserProduct.count else price.regular * cartUserProduct.count
@@ -131,29 +136,31 @@ class CartFragment: Fragment() {
                 isEnabled = isValid
                 setTextColor(context.resources.getColor(if (isValid) R.color.black else R.color.gray, null))
             }
+        }
 
-            binding.checkout.setOnClickListener {
-                val confirmationDialog = Helpers.ConfirmationDialogFragment(
-                    {
-                        viewModel.addTransaction(
-                            Transaction(UUID.randomUUID().toString(),
-                                viewModel.user.value!!.userId,
-                                totalAvailableCartProducts,
-                                totalPrice,
-                                Timestamp.now()
-                            ),
-                            onSuccess = {
-                                transactionProducts.forEach { (productId, productCount) ->
-                                    viewModel.removeFromCart(
-                                        viewModel.user.value!!.userId + productId,
-                                        productId,
-                                        onSuccess = {
-                                            viewModel.getGrocifyProduct(productId,
-                                                onSuccess = { grocifyProduct ->
+        binding.checkout.setOnClickListener {
+            val confirmationDialog = Helpers.ConfirmationDialogFragment(
+                {
+                    viewModel.addTransaction(
+                        Transaction(UUID.randomUUID().toString(),
+                            viewModel.user.value!!.userId,
+                            totalAvailableCartProducts,
+                            totalPrice,
+                            Timestamp.now()
+                        ),
+                        onSuccess = {
+                            transactionProducts.forEach { productId ->
+                                viewModel.removeFromCart(
+                                    viewModel.user.value!!.userId + productId,
+                                    productId,
+                                    onSuccess = {
+                                        viewModel.getGrocifyProduct(productId,
+                                            onSuccess = { grocifyProduct ->
+                                                if (grocifyProduct != null) {
                                                     viewModel.updateGrocifyProduct(
-                                                        GrocifyProduct(grocifyProduct!!.grocifyProductId,
+                                                        GrocifyProduct(grocifyProduct.grocifyProductId,
                                                             productId,
-                                                            grocifyProduct.cartCount - 1,
+                                                            if (grocifyProduct.cartCount - 1 < 0) 0 else grocifyProduct.cartCount - 1,
                                                             grocifyProduct.favoriteCount,
                                                             grocifyProduct.transactionCount + 1,
                                                             grocifyProduct.addedAt
@@ -161,27 +168,27 @@ class CartFragment: Fragment() {
                                                         onSuccess = { },
                                                         onFailure = { }
                                                     )
-                                                },
-                                                onFailure = { }
-                                            )
-                                        },
-                                        onFailure = { }
-                                    )
-                                }
-                                productAdapter.notifyDataSetChanged()
-                            },
-                            onFailure = {
-                                Toast.makeText(context, resources.getString(R.string.transaction_failed), Toast.LENGTH_SHORT).show()
+                                                }
+                                            },
+                                            onFailure = { }
+                                        )
+                                    },
+                                    onFailure = { }
+                                )
                             }
-                        )
-                        Toast.makeText(requireContext(), resources.getString(R.string.transaction_completed), Toast.LENGTH_SHORT).show()
-                    },
-                    resources.getString(R.string.purchase_message),
-                    resources.getString(R.string.purchase),
-                    resources.getString(R.string.cancel),
-                )
-                confirmationDialog.show(parentFragmentManager, resources.getString(R.string.purchase))
-            }
+                            productAdapter.notifyDataSetChanged()
+                        },
+                        onFailure = {
+                            Toast.makeText(context, resources.getString(R.string.transaction_failed), Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                    Toast.makeText(requireContext(), resources.getString(R.string.transaction_completed), Toast.LENGTH_SHORT).show()
+                },
+                resources.getString(R.string.purchase_message),
+                resources.getString(R.string.purchase),
+                resources.getString(R.string.cancel),
+            )
+            confirmationDialog.show(parentFragmentManager, resources.getString(R.string.purchase))
         }
     }
 
